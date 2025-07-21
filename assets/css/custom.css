@@ -1,17 +1,16 @@
-/* 1) Make the search button share the same bg & border as the input */
+/* Make the search button share the same bg & border as the input */
 .navbar .input-group .btn {
-  background-color: #2c3035;       /* same as your form-control bg */
-  border: 1px solid #3c4043;       /* match the input’s border */
-  border-right: none;              /* avoid double border between btn & input */
+  background-color: #2c3035; /* same as your form-control bg */
+  border: 1px solid #3c4043; /* match the input’s border */
+  border-right: none; /* avoid double border between btn & input */
   color: #eee;
 }
 .navbar .input-group .btn:hover,
 .navbar .input-group .btn:focus {
-  background-color: #373a3f;       /* same as your input focus bg */
+  background-color: #373a3f; /* same as your input focus bg */
   border-color: #5f6368;
   box-shadow: none;
 }
-
 /* Also remove the input’s left border so it sits flush behind the icon */
 .navbar .input-group .form-control {
   border-left: none;
@@ -29,20 +28,18 @@
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-/* 1) Make the <a> itself a flex‑item centered in the navbar */
+/* Make the <a> itself a flex‑item centered in the navbar */
 .navbar-brand {
   display: flex !important;
   align-items: center !important;
-  padding: 0 !important;       /* remove extra top/bottom padding */
+  padding: 0 !important; /* remove extra top/bottom padding */
   margin: 0 !important;
 }
-
-/* 2) Ensure it sits in the middle of the navbar’s height */
+/* Ensure it sits in the middle of the navbar’s height */
 .navbar {
-  align-items: center;         /* vertical‑center all children */
+  align-items: center; /* vertical‑center all children */
 }
-
-/* 3) Force the home icon to white (no default link color) */
+/* Force the home icon to white (no default link color) */
 .navbar-brand,
 .navbar-brand:hover,
 .navbar-brand:focus {
@@ -50,6 +47,29 @@
 }
 .navbar-brand .fa-home {
   color: #fff !important;
-  line-height: 1;              /* squash any stray line‑height */
-  margin-inline-end: 10px;;
+  line-height: 1; /* squash any stray line‑height */
+  margin-inline-end: 1rem;
+}
+/* Social‑sidebar container */
+#social-sidebar {
+  position: fixed;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 1000;
+}
+/* Make each link block‑level for easy clicking */
+#social-sidebar .social-link {
+  display: block;
+  text-align: center;
+}
+/* Optional: hover transition */
+#social-sidebar .social-link i {
+  transition: color 0.2s, transform 0.2s;
+}
+#social-sidebar .social-link:hover i {
+  transform: scale(1.1);
 }
