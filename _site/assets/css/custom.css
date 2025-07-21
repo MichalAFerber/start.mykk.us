@@ -3,7 +3,7 @@
   background-color: #2c3035; /* same as your form-control bg */
   border: 1px solid #3c4043; /* match the input’s border */
   border-right: none; /* avoid double border between btn & input */
-  color: #eee;
+  color: #6c757d;
 }
 .navbar .input-group .btn:hover,
 .navbar .input-group .btn:focus {

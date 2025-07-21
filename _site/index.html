@@ -43,7 +43,7 @@
 </head>
 
 <body class="h-100 d-flex flex-column">
-  <nav class="navbar navbar-expand-lg fixed-top px-3 align-items-center">
+  <nav class="navbar navbar-expand-lg px-3 align-items-center">
 
   <!-- Home icon -->
   <a href="/" class="navbar-brand social-link" style="color: #6c757d"
@@ -70,6 +70,24 @@
     <img src="/assets/img/profile.png" class="rounded-circle" alt="Michal Ferber" width="36" height="36" />
   </a>
 </nav>
+
+  <!-- Weather widget -->
+<div class="weather-widget">
+    <a class="weatherwidget-io" href="https://forecast7.com/en/33d87n79d76/lake-city/?unit=us"
+        data-label_1="Lake City, SC" data-label_2="29560" data-theme="original">Lake City, SC 29560</a>
+    <script>
+        !function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (!d.getElementById(id)) {
+                js = d.createElement(s);
+                js.id = id;
+                js.src = 'https://weatherwidget.io/js/widget.min.js';
+                fjs.parentNode.insertBefore(js, fjs);
+            }
+        }(document, 'script', 'weatherwidget-io-js');
+    </script>
+</div>
+ 
   <main class="flex-shrink-0 container mt-5">
     <div class="row justify-content-center align-items-center p-4">
   <div class="col-lg-4 col-md-6 text-center mt-4">
