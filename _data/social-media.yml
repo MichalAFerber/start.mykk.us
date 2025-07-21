@@ -24,7 +24,7 @@ facebook:
 github:
   url   : https://www.github.com/
   icon  : fab fa-github
-  color : 333333
+  color : ffffff
 
 gitlab:
   url   : https://www.gitlab.com/
@@ -94,4 +94,9 @@ youtube:
 keybase:
   url   : https://www.keybase.io/
   icon  : fab fa-keybase
-  color : 66ccff
+  color : ff6f21
+
+telegram:
+  url   : https://t.me/
+  icon  : fab fa-telegram
+  color : 0088cc
