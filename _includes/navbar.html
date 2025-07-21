@@ -1,7 +1,9 @@
 <nav class="navbar navbar-expand-lg fixed-top px-3 align-items-center">
+
   <!-- Home icon -->
-  <a href="{{ site.baseurl }}" class="navbar-brand">
-    <i class="fas fa-home fa-lg"></i>
+  <a href="{{ site.baseurl }}" class="navbar-brand social-link" style="color: #6c757d"
+    onMouseOver="this.style.color='#2c3032'" onMouseOut="this.style.color='#6c757d'">
+    <i class="fas fa-home fa-2x"></i>
   </a>
 
   <!-- Search form (fills remaining space) -->
@@ -11,22 +13,15 @@
       <button class="btn btn-secondary" type="submit" aria-label="Search">
         <i class="fas fa-search"></i>
       </button>
-      <input type="search" name="q" class="form-control" placeholder="Search Google or type a URL" aria-label="Search" />
+      <input type="search" name="q" class="form-control" placeholder="Search Google or type a URL"
+        aria-label="Search" />
     </div>
   </form>
 
-  <!-- Theme toggle (hamburger for mobile) -->
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
-    aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-    <i class="fas fa-bars text-themed"></i>
-  </button>
   <span id="theme-toggler" class="nav-item nav-link me-3" role="button" onclick="toggleTheme()"></span>
 
   <!-- User avatar -->
   <a href="https://accounts.google.com/SignOutOptions" class="d-flex align-items-center">
-    <img src="/assets/img/profile.png" class="rounded-circle" alt="Me" width="32" height="32" />
+    <img src="/assets/img/profile.png" class="rounded-circle" alt="{{ site.author.name }}" width="36" height="36" />
   </a>
 </nav>
-
-<!-- Spacer -->
-<div style="height: 60px;"></div>

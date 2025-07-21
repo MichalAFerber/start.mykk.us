@@ -39,14 +39,7 @@
 .navbar {
   align-items: center; /* vertical‑center all children */
 }
-/* Force the home icon to white (no default link color) */
-.navbar-brand,
-.navbar-brand:hover,
-.navbar-brand:focus {
-  color: #fff !important;
-}
 .navbar-brand .fa-home {
-  color: #fff !important;
   line-height: 1; /* squash any stray line‑height */
   margin-inline-end: 1rem;
 }
@@ -67,9 +60,9 @@
   text-align: center;
 }
 /* Optional: hover transition */
-#social-sidebar .social-link i {
+.social-link i {
   transition: color 0.2s, transform 0.2s;
 }
-#social-sidebar .social-link:hover i {
+.social-link:hover i {
   transform: scale(1.1);
 }
