@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+{% include head.html %}
+<body class="h-100 d-flex flex-column">
+  {% include navbar.html %}
+  <main class="flex-shrink-0 container mt-5">
+    {{ content }}
+  </main>
+  <!-- {% include shortcuts.html %} -->
+  {% include footer.html %}
+  {% include scripts.html %}
+</body>
+</html>
