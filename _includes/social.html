@@ -2,14 +2,17 @@
   {%- assign unfocused_color = "6c757d" -%}
 
   {% for account in site.author %}
-  {%- assign service_name = account[0] -%}
-  {%- assign service_data = site.data.social-media[service_name] -%}
-  {%- if service_data -%}
-  <a class="social-link" href="{{ service_data.url }}{{ account[1] }}" style="color: #{{ unfocused_color }}"
-    onMouseOver="this.style.color='#{{ service_data.color }}'" onMouseOut="this.style.color='#{{ unfocused_color }}'"
-    target="_blank" rel="noopener">
-    <i class="{{ service_data.icon }} fa-2x"></i>
+  {% assign service_name = account[0] %}
+  {% assign handle = account[1] %}
+  {% assign service_data = site.data.social-media[service_name] %}
+
+  {% if service_data and handle %}
+  {% assign full_url = service_data.url | replace: '{handle}', handle %}
+  <a class="social-link" href="{{ full_url }}"
+    style="--hover-color: #{{ service_data.color }}; color: #{{ unfocused_color }};" target="_blank" rel="noopener">
+    <iconify-icon icon="{{ service_data.icon }}" width="32" height="32"></iconify-icon>
   </a>
-  {%- endif -%}
+  {% endif %}
+
   {% endfor %}
 </div>

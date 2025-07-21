@@ -20,7 +20,7 @@
   <title>Tags</title>
   <meta name="description" content="The starting place on the web!">
 
-  <link rel="shortcut icon" type="image/x-icon" href="/assets/img/favicon.ico">
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico">
 
   <!-- Theme style -->
   <script src="/assets/js/theme.js"></script>
@@ -41,14 +41,13 @@
   <link rel="stylesheet" href="/assets/css/custom.css">
 
 </head>
-
 <body class="h-100 d-flex flex-column">
-  <nav class="navbar navbar-expand-lg px-3 align-items-center">
+  <nav class="navbar navbar-expand-lg px-1 align-items-center">
 
   <!-- Home icon -->
-  <a href="/" class="navbar-brand social-link" style="color: #6c757d"
-    onMouseOver="this.style.color='#2c3032'" onMouseOut="this.style.color='#6c757d'">
-    <i class="fas fa-home fa-2x"></i>
+  <a class="navbar" href="/"
+  style="--hover-color: #ff6f21; color: #6c757d;">
+      <iconify-icon icon="octicon:home-24" width="32" height="32"></iconify-icon>
   </a>
 
   <!-- Search form (fills remaining space) -->
@@ -87,38 +86,118 @@
         }(document, 'script', 'weatherwidget-io-js');
     </script>
 </div>
- 
-  <main class="flex-shrink-0 container mt-5">
+  <main class="flex-shrink-0 container m-4">
     <div class="col-lg-10 mx-auto mt-5 markdown-body">
   <!-- Collect tags from all posts --><!-- List tags & related posts -->
 
 </div>
   </main>
-  <div id="social-sidebar"><a class="social-link" href="mailto:michal@michalferber.me" style="color: #6c757d"
-    onMouseOver="this.style.color='#db4437'" onMouseOut="this.style.color='#6c757d'"
-    target="_blank" rel="noopener">
-    <i class="fas fa-envelope fa-2x"></i>
-  </a><a class="social-link" href="https://www.github.com/MichalAFerber" style="color: #6c757d"
-    onMouseOver="this.style.color='#2c3032'" onMouseOut="this.style.color='#6c757d'"
-    target="_blank" rel="noopener">
-    <i class="fab fa-github fa-2x"></i>
-  </a><a class="social-link" href="https://www.twitter.com/MichalAFerber" style="color: #6c757d"
-    onMouseOver="this.style.color='#1da1f2'" onMouseOut="this.style.color='#6c757d'"
-    target="_blank" rel="noopener">
-    <i class="fab fa-twitter fa-2x"></i>
-  </a><a class="social-link" href="https://www.youtube.com/@MichalAFerber" style="color: #6c757d"
-    onMouseOver="this.style.color='#ff0000'" onMouseOut="this.style.color='#6c757d'"
-    target="_blank" rel="noopener">
-    <i class="fab fa-youtube fa-2x"></i>
-  </a><a class="social-link" href="https://www.keybase.io/MichalAFerber" style="color: #6c757d"
-    onMouseOver="this.style.color='#ff6f21'" onMouseOut="this.style.color='#6c757d'"
-    target="_blank" rel="noopener">
-    <i class="fab fa-keybase fa-2x"></i>
-  </a><a class="social-link" href="https://t.me/MichalAFerber" style="color: #6c757d"
-    onMouseOver="this.style.color='#0088cc'" onMouseOut="this.style.color='#6c757d'"
-    target="_blank" rel="noopener">
-    <i class="fab fa-telegram fa-2x"></i>
+  <div id="social-sidebar">
+  
+  
+  
+
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+  
+  
+
+  
+  
+  <a class="social-link" href="mailto:"
+    style="--hover-color: #db4437; color: #6c757d;" target="_blank" rel="noopener">
+    <iconify-icon icon="octicon:mail-24" width="32" height="32"></iconify-icon>
   </a>
+  
+
+  
+  
+  
+  
+
+  
+  
+  <a class="social-link" href="https://www.github.com/"
+    style="--hover-color: #ff6f21; color: #6c757d;" target="_blank" rel="noopener">
+    <iconify-icon icon="octicon:mark-github-24" width="32" height="32"></iconify-icon>
+  </a>
+  
+
+  
+  
+  
+  
+
+  
+  
+  <a class="social-link" href="https://stackoverflow.com/"
+    style="--hover-color: #f48024; color: #6c757d;" target="_blank" rel="noopener">
+    <iconify-icon icon="logos:stackoverflow-icon" width="32" height="32"></iconify-icon>
+  </a>
+  
+
+  
+  
+  
+  
+
+  
+  
+  <a class="social-link" href="https://www.twitter.com/"
+    style="--hover-color: #1da1f2; color: #6c757d;" target="_blank" rel="noopener">
+    <iconify-icon icon="streamline-logos:x-twitter-logo" width="32" height="32"></iconify-icon>
+  </a>
+  
+
+  
+  
+  
+  
+
+  
+  
+  <a class="social-link" href="https://www.youtube.com/"
+    style="--hover-color: #ff0000; color: #6c757d;" target="_blank" rel="noopener">
+    <iconify-icon icon="logos:youtube-icon" width="32" height="32"></iconify-icon>
+  </a>
+  
+
+  
+  
+  
+  
+
+  
+  
+  <a class="social-link" href="https://www.keybase.io/"
+    style="--hover-color: #ff6f21; color: #6c757d;" target="_blank" rel="noopener">
+    <iconify-icon icon="simple-icons:keybase" width="32" height="32"></iconify-icon>
+  </a>
+  
+
+  
+  
+  
+  
+
+  
+  
+  <a class="social-link" href="https://t.me/"
+    style="--hover-color: #0088cc; color: #6c757d;" target="_blank" rel="noopener">
+    <iconify-icon icon="logos:telegram" width="32" height="32"></iconify-icon>
+  </a>
+  
+
+  
 </div>
   <footer class="mt-auto py-3 text-center">
 
@@ -128,6 +207,9 @@
   </small>
 </footer>
   
+<!-- Iconify CDN -->
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+
 <!-- jQuery CDN -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 

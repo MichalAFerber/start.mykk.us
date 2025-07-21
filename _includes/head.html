@@ -5,7 +5,7 @@
   {% assign image = page.image | default: site.author.image %}
 
   {% if page.name and page.collection == 'projects' %}
-    {% assign title = page.name | escape %}
+  {% assign title = page.name | escape %}
   {% endif %}
 
   <meta charset="utf-8">
@@ -20,7 +20,7 @@
   <title>{{ title }}</title>
   <meta name="description" content="{{ description }}">
 
-  <link rel="shortcut icon" type="image/x-icon" href="{{ '/assets/img/favicon.ico' | relative_url }}">
+  <link rel="shortcut icon" type="image/x-icon" href="{{ '/assets/favicon.ico' | relative_url }}">
 
   <!-- Theme style -->
   <script src="{{ '/assets/js/theme.js' | relative_url }}"></script>

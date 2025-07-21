@@ -1,102 +1,99 @@
-# Get Icons  from : https://fontawesome.com/icons
-# Get Colors from : https://brandcolors.net/
-
 behance:
   url   : https://www.behance.net/
-  icon  : fab fa-behance
+  icon  : logos:behance
   color : 1769ff
 
 dribbble:
   url   : https://dribbble.com/
-  icon  : fab fa-dribbble
-  color : 444444
+  icon  : logos:dribbble-icon
+  color : ea4c89
 
 email:
   url   : "mailto:"
-  icon  : fas fa-envelope
+  icon  : octicon:mail-24
   color : db4437
 
 facebook:
   url   : https://www.facebook.com/
-  icon  : fab fa-facebook
+  icon  : logos:facebook
   color : 3b5998
 
 github:
   url   : https://www.github.com/
-  icon  : fab fa-github
-  color : 2c3032
+  icon  : octicon:mark-github-24
+  color : ff6f21
 
 gitlab:
   url   : https://www.gitlab.com/
-  icon  : fab fa-gitlab
+  icon  : logos:gitlab
   color : fca326
 
 instagram:
   url   : https://www.instagram.com/
-  icon  : fab fa-instagram
-  color : 405de6
-  
+  icon  : logos:instagram-icon
+  color : e1306c
+
 kaggle:
   url   : https://www.kaggle.com/
-  icon  : fab fa-kaggle
+  icon  : simple-icons:kaggle
   color : 20beff
 
 linkedin:
   url   : https://www.linkedin.com/in/
-  icon  : fab fa-linkedin-in
+  icon  : logos:linkedin-icon
   color : 007bb5
 
 medium:
   url   : https://medium.com/@
-  icon  : fab fa-medium
+  icon  : logos:medium
   color : 00ab6c
 
 soundcloud:
   url   : https://www.soundcloud.com/
-  icon  : fab fa-soundcloud
+  icon  : logos:soundcloud
   color : ff8800
 
 spotify:
   url   : https://open.spotify.com/user/
-  icon  : fab fa-spotify
+  icon  : logos:spotify
   color : 1db954
 
 stackoverflow:
-  url   : https://stackoverflow.com/u/
-  icon  : fab fa-stack-overflow
+  url   : https://stackoverflow.com/
+  icon  : logos:stackoverflow-icon
   color : f48024
 
 tumblr:
   url   : https://
-  icon  : fab fa-tumblr
+  icon  : logos:tumblr
   color : 35465c
 
 twitch:
   url   : https://www.twitch.tv/
-  icon  : fab fa-twitch
+  icon  : logos:twitch
   color : 6441a5
 
 twitter:
   url   : https://www.twitter.com/
-  icon  : fab fa-twitter
+  icon  : streamline-logos:x-twitter-logo
   color : 1da1f2
 
 vimeo:
   url   : https://www.vimeo.com/
-  icon  : fab fa-vimeo-v
+  icon  : logos:vimeo-icon
   color : 162221
 
 youtube:
   url   : https://www.youtube.com/
-  icon  : fab fa-youtube
+  icon  : logos:youtube-icon
   color : ff0000
 
 keybase:
   url   : https://www.keybase.io/
-  icon  : fab fa-keybase
+  icon  : simple-icons:keybase
   color : ff6f21
 
 telegram:
   url   : https://t.me/
-  icon  : fab fa-telegram
+  icon  : logos:telegram
   color : 0088cc
