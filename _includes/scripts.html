@@ -1,23 +1,16 @@
-
-<!-- Iconify CDN -->
+<!-- Iconify (for your sidebar icons) -->
 <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 
-<!-- jQuery CDN -->
+<!-- jQuery, Popper, Bootstrap -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-<!-- Popper.js CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
-
-<!-- Bootstrap JS CDN -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
-<!-- wow.js CDN & Activation -->
+
+<!-- Dashboard (depends on Gridstack.js) -->
+<!-- <script src="{{ '/assets/js/dashboard.js' | relative_url }}"></script> -->
+
+<!-- wow.js & activate tooltips -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.js"></script>
 <script> new WOW().init(); </script>
-
-<!-- Initialize all tooltips -->
-<script>
-$(function () {
-    $('[data-toggle="tooltip"]').tooltip()
-})
-</script>
+<script> $(function () { $('[data-toggle="tooltip"]').tooltip(); }); </script>

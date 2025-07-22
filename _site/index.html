@@ -41,9 +41,7 @@
   <link rel="stylesheet" href="/assets/css/custom.css">
 
 </head>
-
 <body class="h-100 d-flex flex-column">
-
   <nav class="navbar navbar-expand-lg px-1 align-items-center">
 <div class="d-flex flex-nowrap w-100 align-items-center">    <!-- Home icon -->
     <a class="navbar" href="" style="--hover-color: #ff6f21; color: #6c757d;">
@@ -89,8 +87,7 @@
         }(document, 'script', 'weatherwidget-io-js');
     </script>
 </div>
-
-  <!-- desktop sidebar -->
+  <!-- desktop sidebar / hide on mobile -->
   <div id="social-sidebar">
   
 
@@ -145,8 +142,7 @@
 
 
 </div>
-
-  <!-- mobile‑only inline -->
+  <!-- mobile inline / hide on desktop -->
   <div id="social-inline">
     
 
@@ -201,16 +197,34 @@
 
 
   </div>
-
   <main>
-    <div class="landing-container d-flex justify-content-center text-center p-4">
-  <div class="landing-content">
-    This is the landing page for the site. You can customize it with your content.
-  </div>
-</div>
+    <script src="node_modules/gridstack/dist/gridstack-all.js"></script>
+
+<link href="node_modules/gridstack/dist/gridstack.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  .grid-stack {
+    background: #FAFAD2;
+  }
+
+  .grid-stack-item-content {
+    background-color: #18BC9C;
+  }
+</style>
+
+<div class="grid-stack landing-grid"></div>
+
+<script type="text/javascript">
+  var items = [
+    { content: 'my first widget' }, // will default to location (0,0) and 1x1
+    { w: 2, content: 'another longer widget!' } // will be placed next at (1,0) and 2x1
+  ];
+  var grid = GridStack.init();
+  grid.load(items);
+</script>
+
 
   </main>
-
   <footer class="mt-auto py-3 text-center">
 
   <small class="text-muted mb-2">
@@ -218,31 +232,21 @@
     by <strong>Michal Ferber</strong>
   </small>
 </footer>
-  
-<!-- Iconify CDN -->
+  <!-- Iconify (for your sidebar icons) -->
 <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 
-<!-- jQuery CDN -->
+<!-- jQuery, Popper, Bootstrap -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-<!-- Popper.js CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
-
-<!-- Bootstrap JS CDN -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
-<!-- wow.js CDN & Activation -->
+
+<!-- Dashboard (depends on Gridstack.js) -->
+<!-- <script src="/assets/js/dashboard.js"></script> -->
+
+<!-- wow.js & activate tooltips -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.js"></script>
 <script> new WOW().init(); </script>
-
-<!-- Initialize all tooltips -->
-<script>
-$(function () {
-    $('[data-toggle="tooltip"]').tooltip()
-})
-</script>
-
-
+<script> $(function () { $('[data-toggle="tooltip"]').tooltip(); }); </script>
 </body>
-
 </html>

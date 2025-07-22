@@ -1,5 +1,22 @@
-<div class="landing-container d-flex justify-content-center text-center p-4">
-  <div class="landing-content">
-    This is the landing page for the site. You can customize it with your content.
-  </div>
-</div>
+<script src="node_modules/gridstack/dist/gridstack-all.js"></script>
+<link href="node_modules/gridstack/dist/gridstack.min.css" rel="stylesheet" />
+<style type="text/css">
+  .grid-stack {
+    background: #FAFAD2;
+  }
+
+  .grid-stack-item-content {
+    background-color: #18BC9C;
+  }
+</style>
+
+<div class="grid-stack landing-grid"></div>
+
+<script type="text/javascript">
+  var items = [
+    { content: 'my first widget' }, // will default to location (0,0) and 1x1
+    { w: 2, content: 'another longer widget!' } // will be placed next at (1,0) and 2x1
+  ];
+  var grid = GridStack.init();
+  grid.load(items);
+</script>

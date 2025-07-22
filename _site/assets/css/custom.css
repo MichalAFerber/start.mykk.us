@@ -46,13 +46,12 @@
 .social-link:hover iconify-icon {
   transform: rotate(360deg);
 }
-/* Desktop sidebar: visible above 767px, hidden below */
 #social-sidebar {
   display: flex !important;
   flex-direction: column;
   gap: 1rem;
   position: fixed;
-  left: 1rem;
+  left: 2.25rem;
   top: 50%;
   transform: translateY(-50%);
   z-index: 1000;
@@ -74,22 +73,30 @@
   }
 }
 .landing-container {
-  /* full remaining viewport_height (subtract your navbar height) */
-  min-height: calc(100vh - 60px);  
-  /* push in from the left so sidebar never overlaps */
-  padding-left: 4rem;  
-  /* ensure text wraps nicely and stays centered */
-  padding-right: 4rem;
+  padding-left: 3.5rem;
+  padding-right: 3.5rem;
 }
 .landing-content {
-  max-width: 28rem;  /* ~ 448px */
+  max-width: 28rem;
   font-size: 1.25rem;
   line-height: 1.5;
   color: #ddd;
 }
 @media (max-width: 767px) {
   .landing-container {
-    padding-left: 1rem;   /* just your normal page padding */
+    padding-left: 1rem;
     padding-right: 1rem;
   }
+}
+.landing-grid {
+  margin-left: 4.15rem;
+  background: #202020;
+  min-height: 400px;
+}
+.grid-stack-item-content {
+  cursor: move;
+}
+.card-header {
+  cursor: move;
+  background: #343a40;
 }
