@@ -1,2 +1,3 @@
 # start.mykk.us
-The starting place for the web browser experience.
+
+The starting place on the web!

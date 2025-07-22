@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100">
 {% include head.html %}
+
 <body class="h-100 d-flex flex-column">
 
   {% include navbar.html %}
   {% include weather.html %}
 
+  <!-- mobile‑only inline -->
   <div id="social-inline">
-    {% include social.html %}
+    {% include social-links.html %}
   </div>
+
+  <!-- desktop sidebar -->
+  {% include social.html %}
 
   <main class="flex-shrink-0 container m-4">
     {{ content }}
@@ -18,4 +23,5 @@
   {% include scripts.html %}
 
 </body>
+
 </html>

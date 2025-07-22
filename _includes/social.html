@@ -1,18 +1,3 @@
 <div id="social-sidebar">
-  {%- assign unfocused_color = "6c757d" -%}
-
-  {% for account in site.author %}
-  {% assign service_name = account[0] %}
-  {% assign handle = account[1] %}
-  {% assign service_data = site.data.social-media[service_name] %}
-
-  {% if service_data and handle %}
-  {% assign full_url = service_data.url | replace: '{handle}', handle %}
-  <a class="social-link" href="{{ full_url }}"
-    style="--hover-color: #{{ service_data.color }}; color: #{{ unfocused_color }};" target="_blank" rel="noopener">
-    <iconify-icon icon="{{ service_data.icon }}" width="32" height="32"></iconify-icon>
-  </a>
-  {% endif %}
-
-  {% endfor %}
+  {% include social-links.html %}
 </div>

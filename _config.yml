@@ -1,10 +1,10 @@
 ### Site Settings ###
 title               : My KK Dashboard
 description         : "The starting place on the web!"
-baseurl             : ""            # Change to empty quotes if you are hosting your site at <your-username>.github.io directly
-repository          : yousinix/portfolYOU      # Change to <your-username>/<your-username>.github.io (or remove it if you don't need remote projects)
+baseurl             : ""                        # Change to empty quotes if you are hosting your site at <your-username>.github.io directly
+repository          : yousinix/portfolYOU       # Change to <your-username>/<your-username>.github.io (or remove it if you don't need remote projects)
 remote_theme        : yousinix/portfolYOU
-open_new_tab        : true                    # Opens external URLs in new tab (works for posts, projects and navbar only)
+open_new_tab        : true                      # Opens external URLs in new tab (works for posts, projects and navbar only)
 
 
 ### Plugins ###
@@ -32,35 +32,6 @@ author:
   keybase           : MichalAFerber
   telegram          : MichalAFerber
   email             : michal@michalferber.me
-
-### Posts ###
-permalink: /blog/:title
-
-
-### Collections ###
-collections:
-  projects:
-    output: false
-    permalink: /projects/:name
-  elements:                                             # For Documentation Only
-    output: false                                        # For Documentation Only
-
-
-### Defaults for collections ###
-defaults:
-  - scope:
-      path: ""
-      type: "projects"
-    values:
-      layout: "page"
-  - scope:                                              # For Documentation Only
-      path: ""                                          # For Documentation Only
-      type: "elements"                                  # For Documentation Only
-    values:                                             # For Documentation Only
-      layout: "element"                                 # For Documentation Only
-  - scope:
-      path: ""
-      type: "posts"
 
 
 ### Exclude from processing ###
