@@ -26,6 +26,11 @@ author:
   name              : Michal Ferber
   image             : https://michalferber.me/assets/img/profile.jpg
   github            : MichalAFerber
+# instagram         : your_username
+# linkedin          : your_username
+# medium            : your_username
+# soundcloud        : your_username
+# spotify           : your_username
   stackoverflow     : ""
   twitter           : MichalAFerber
   youtube           : "@MichalAFerber"
@@ -34,21 +39,21 @@ author:
   email             : michal@michalferber.me
 
 ### Posts ###
-# permalink: /blog/:title
+permalink: /blog/:title
 
 
 ### Collections ###
-# collections:
-#   projects:
-#     output: false
-#     permalink: /projects/:name
-#   elements:                                             # For Documentation Only
-#     output: false                                        # For Documentation Only
+collections:
+  projects:
+    output: false
+    permalink: /projects/:name
+  elements:                                             # For Documentation Only
+    output: false                                        # For Documentation Only
 
 
 ### Disqus ###
-# disqus:
-#   shortname: your-short-name-disqus                     # Your website Shortname on disqus
+disqus:
+  shortname: your-short-name-disqus                     # Your website Shortname on disqus
 
 
 ### Analytics ###
@@ -69,22 +74,22 @@ buymeacoffee:
 
 
 ### Defaults for collections ###
-# defaults:
-#   - scope:
-#       path: ""
-#       type: "projects"
-#     values:
-#       layout: "page"
-#   - scope:                                              # For Documentation Only
-#       path: ""                                          # For Documentation Only
-#       type: "elements"                                  # For Documentation Only
-#     values:                                             # For Documentation Only
-#       layout: "element"                                 # For Documentation Only
-#   - scope:
-#       path: ""
-#       type: "posts"
-#     values:
-#       comments: false                                   # Set to true to enable disqus comments
+defaults:
+  - scope:
+      path: ""
+      type: "projects"
+    values:
+      layout: "page"
+  - scope:                                              # For Documentation Only
+      path: ""                                          # For Documentation Only
+      type: "elements"                                  # For Documentation Only
+    values:                                             # For Documentation Only
+      layout: "element"                                 # For Documentation Only
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      comments: false                                   # Set to true to enable disqus comments
 
 
 ### Exclude from processing ###
