@@ -94,8 +94,8 @@ defaults:
 
 ### Exclude from processing ###
 exclude:
+  - vendor
   - README.md
   - CONTRIBUTING.md
   - LICENSE
   - "*.log"
-  - vendor/bundle/ruby/3.3.0/gems/jekyll-3.10.0/lib/site_template/_posts/0000-00-00-welcome-to-jekyll.markdown.erb
