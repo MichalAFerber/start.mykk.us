@@ -1,65 +1,85 @@
-// assets/js/dashboard.js
 import clockWidget from "./widgets/clock.widget.js";
 import pomodoroWidget from "./widgets/pomodoro.widget.js";
+import weatherMapWidget from "./widgets/weatherMap.widget.js";
+import visitCounterWidget from "./widgets/visitcounter.widget.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1) init GridStack (global from gridstack-all.js)
   const grid = GridStack.init({
+    float: true,
     cellHeight: 100,
-    draggable: { handle: ".clock-header, .pomo-header" },
+    draggable: {},
     resizable: { handles: "e,se,s,sw,w" },
   });
 
-  // 2) define your two widgets with default x/y
+  const KEY = "landingLayout";
+
+  // 1. Define base widgets
   const widgets = [
-    { ...clockWidget, x: 0, y: 0 },
-    { ...pomodoroWidget, x: 4, y: 0 },
+    { id: "clock", ...clockWidget, x: 7, y: 0, w: 2, h: 1 },
+    { id: "pomodoro", ...pomodoroWidget, x: 7, y: 1, w: 2, h: 1 },
+    { id: "weatherMap", ...weatherMapWidget, x: 9, y: 0, w: 3, h: 9 },
+    { id: "visitCounter", ...visitCounterWidget, x: 7, y: 2, w: 2, h: 4 },
   ];
 
-  // 3) restore & merge saved layout
-  const KEY = "landingLayout";
+  // 2. Load saved layout and merge
   const saved = JSON.parse(localStorage.getItem(KEY) || "[]");
-  if (saved.length) {
-    // saved is array of { id, x, y, w, h }
-    for (let w of widgets) {
-      const found = saved.find((s) => s.id === w.id);
-      if (found) {
-        w.x = found.x;
-        w.y = found.y;
-        w.w = found.w;
-        w.h = found.h;
-      }
-    }
-  }
+  console.log("Restoring layout:", saved);
 
-  // 4) clear out any existing items and re‑add from our merged list
+  saved.forEach((s) => {
+    const w = widgets.find((w) => w.id === s.id);
+    if (w) Object.assign(w, s);
+  });
+
+  console.log("Merged widget states:");
+  widgets.forEach((w) =>
+    console.log(`${w.id} → x:${w.x}, y:${w.y}, w:${w.w}, h:${w.h}`)
+  );
+
+  // 3. Clear and render widgets
   grid.removeAll();
   widgets.forEach((w) => {
     const wrapper = document.createElement("div");
-    wrapper.className = "grid-stack-item";
     wrapper.setAttribute("data-gs-id", w.id);
-    wrapper.setAttribute("data-gs-x", w.x);
-    wrapper.setAttribute("data-gs-y", w.y);
-    wrapper.setAttribute("data-gs-w", w.w);
-    wrapper.setAttribute("data-gs-h", w.h);
-    // inject the widget’s own template
-    wrapper.appendChild(w.template.content.cloneNode(true));
-    grid.el.appendChild(wrapper);
-  });
-  grid.compact();
 
-  // 5) whenever anything moves/resizes, re‑serialize to localStorage
-  grid.on("change", (_e, items) => {
-    const layout = items.map((i) => ({
-      id: i.el.getAttribute("data-gs-id"),
-      x: i.x,
-      y: i.y,
-      w: i.w,
-      h: i.h,
-    }));
-    localStorage.setItem(KEY, JSON.stringify(layout));
+    // 🟢 Inject HTML from template
+    wrapper.innerHTML = w.template.innerHTML;
+
+    grid.addWidget(wrapper, {
+      x: w.x,
+      y: w.y,
+      w: w.w,
+      h: w.h,
+      autoPosition: false,
+    });
   });
 
-  // 6) fire each widget’s init (clock ticking, pomodoro handlers)
-  widgets.forEach((w) => w.init());
+  // 4. Save layout on any change
+  let saveTimeout;
+  grid.on("change", () => {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+      const layout = [];
+
+      document.querySelectorAll(".grid-stack-item").forEach((el) => {
+        const node = el.gridstackNode;
+        if (!node) return;
+
+        layout.push({
+          id: el.getAttribute("data-gs-id"),
+          x: node.x,
+          y: node.y,
+          w: node.w,
+          h: node.h,
+        });
+      });
+
+      console.log("Saving layout:", layout);
+      localStorage.setItem(KEY, JSON.stringify(layout));
+    }, 200);
+  });
+
+  // 5. Initialize widgets after DOM is ready
+  setTimeout(() => {
+    widgets.forEach((w) => w.init());
+  }, 0);
 });

@@ -89,14 +89,17 @@
   }
 }
 .landing-grid {
-  margin-left: 4.15rem;
-  background: #202020;
+  margin-left: 4.25rem;
   min-height: 400px;
 }
 .grid-stack-item-content {
   cursor: move;
 }
-.card-header {
-  cursor: move;
+.card {
   background: #343a40;
+  color: #fff;
+  border-radius: 4px;
+}
+.icon-btn {
+  cursor: pointer;
 }

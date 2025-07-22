@@ -1,29 +1,37 @@
-// assets/js/widgets/clock.widget.js
 const tpl = document.createElement("template");
 tpl.innerHTML = `
   <style>
-    .clock-card { background: #343a40; color: #fff; border-radius: 5px; }
-    .clock-header { padding:8px; text-align:center; cursor:move; font-weight:bold; }
-    .clock-body   { padding:16px; font-size:2rem; text-align:center; }
+    .body   { padding:16px; font-size:2.5rem; text-align:center; }
   </style>
-  <div class="clock-card">
-    <div class="clock-header">Clock</div>
-    <div class="clock-body" id="widget-clock">00:00:00</div>
+  <div class="grid-stack-item-content card">
+    <div class="body clock-time">00:00</div>
   </div>
 `;
 
 export default {
   id: "clock",
-  w: 4,
-  h: 2,
+  w: 3,
+  h: 1,
   template: tpl,
   init() {
-    const disp = document.getElementById("widget-clock");
-    function upd() {
-      const now = new Date();
-      disp.textContent = now.toLocaleTimeString();
-    }
-    upd();
-    setInterval(upd, 1000);
+    requestAnimationFrame(() => {
+      const el = document.querySelector('[data-gs-id="clock"]');
+      if (!el) return;
+
+      const disp = el.querySelector(".clock-time");
+      if (!disp) return;
+
+      function upd() {
+        const now = new Date();
+        disp.textContent = now.toLocaleTimeString([], {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        });
+      }
+
+      upd();
+      setInterval(upd, 1000);
+    });
   },
 };
