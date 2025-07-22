@@ -25,7 +25,6 @@ nav_exclude:                                            # The following paths ar
 author:
   name              : Michal Ferber
   image             : https://michalferber.me/assets/img/profile.jpg
-  email             : michal@michalferber.me
   github            : MichalAFerber
 # instagram         : your_username
 # linkedin          : your_username
@@ -37,6 +36,7 @@ author:
   youtube           : "@MichalAFerber"
   keybase           : MichalAFerber
   telegram          : MichalAFerber
+  email             : michal@michalferber.me
 
 ### Posts ###
 permalink: /blog/:title
