@@ -1,7 +1,7 @@
 ### Site Settings ###
 title               : My KK Dashboard
 description         : "The starting place on the web!"
-baseurl             : "/"            # Change to empty quotes if you are hosting your site at <your-username>.github.io directly
+baseurl             : ""            # Change to empty quotes if you are hosting your site at <your-username>.github.io directly
 repository          : yousinix/portfolYOU      # Change to <your-username>/<your-username>.github.io (or remove it if you don't need remote projects)
 remote_theme        : yousinix/portfolYOU
 open_new_tab        : true                    # Opens external URLs in new tab (works for posts, projects and navbar only)
