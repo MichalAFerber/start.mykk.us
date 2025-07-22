@@ -92,6 +92,33 @@
   margin-left: 4.25rem;
   min-height: 400px;
 }
+
+@media (max-width: 767px) {
+  .landing-grid {
+    margin: 0 auto !important;
+  }
+}
+.grid-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+@media (max-width: 768px) {
+  .grid-wrapper {
+    justify-content: center;
+  }
+}
+.grid-stack {
+  width: 100% !important;
+  margin: 0 auto;
+}
+
+@media (max-width: 767px) {
+  .grid-stack {
+    max-width: 100% !important;
+  }
+}
+
 .grid-stack-item-content {
   cursor: move;
 }

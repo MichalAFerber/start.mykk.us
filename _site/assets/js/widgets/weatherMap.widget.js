@@ -27,7 +27,7 @@ tpl.innerHTML = `
 export default {
   id: "weatherMap",
   w: 3,
-  h: 9,
+  h: 4,
   template: tpl,
   init() {},
 };

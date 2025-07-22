@@ -1,10 +1,9 @@
 const tpl = document.createElement("template");
 tpl.innerHTML = `
-  <style>
-    .body   { padding:16px; font-size:2.5rem; text-align:center; }
-  </style>
   <div class="grid-stack-item-content card">
-    <div class="body clock-time">00:00</div>
+    <div class="body d-flex flex-row align-middle align-items-center justify-content-center" style="gap: 0.5rem;">
+      <div class="body clock-time" style="font-size:3rem; text-align:center;">00:00</div>
+    </div>
   </div>
 `;
 

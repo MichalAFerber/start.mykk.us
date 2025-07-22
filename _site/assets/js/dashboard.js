@@ -11,14 +11,23 @@ document.addEventListener("DOMContentLoaded", () => {
     resizable: { handles: "e,se,s,sw,w" },
   });
 
+  // 👇 Collapse to 1-column on mobile
+  function updateGridColumns() {
+    const isMobile = window.innerWidth < 768;
+    grid.column(isMobile ? 1 : 12); // Adjust 12 to match your desktop layout
+  }
+
+  window.addEventListener("resize", updateGridColumns);
+  updateGridColumns(); // Run on initial load
+
   const KEY = "landingLayout";
 
   // 1. Define base widgets
   const widgets = [
-    { id: "clock", ...clockWidget, x: 7, y: 0, w: 2, h: 1 },
-    { id: "pomodoro", ...pomodoroWidget, x: 7, y: 1, w: 2, h: 1 },
-    { id: "weatherMap", ...weatherMapWidget, x: 9, y: 0, w: 3, h: 9 },
-    { id: "visitCounter", ...visitCounterWidget, x: 7, y: 2, w: 2, h: 4 },
+    { id: "clock", ...clockWidget, x: 1, y: 0, w: 3, h: 1 },
+    { id: "pomodoro", ...pomodoroWidget, x: 4, y: 0, w: 3, h: 1 },
+    { id: "weatherMap", ...weatherMapWidget, x: 4, y: 1, w: 3, h: 4 },
+    { id: "visitCounter", ...visitCounterWidget, x: 1, y: 1, w: 3, h: 4 },
   ];
 
   // 2. Load saved layout and merge

@@ -1,15 +1,11 @@
 const tpl = document.createElement("template");
 tpl.innerHTML = `
-  <style>
-    .start-icon { color: #28a745; }  /* green */
-    .reset-icon { color: #6c757d; }  /* gray */
-  </style>
   <div class="grid-stack-item-content card">
-<div class="body d-flex flex-row align-items-center justify-content-center" style="gap: 0.5rem;">
-  <div id="widget-pomo-display" style="font-size:2rem;">25:00</div>
-  <iconify-icon id="pomo-start" class="iconify icon-btn start-icon" icon="mdi:play-circle-outline" width="32" height="32"></iconify-icon>
-  <iconify-icon id="pomo-reset" class="iconify icon-btn reset-icon" icon="mdi:restart" width="32" height="32"></iconify-icon>
-</div>
+    <div class="body d-flex flex-row align-items-center justify-content-center" style="gap: 0.5rem;">
+      <div id="widget-pomo-display" style="font-size:2rem;">25:00</div>
+      <iconify-icon id="pomo-start" class="iconify icon-btn start-icon" style="color: #28a745;" icon="mdi:play-circle-outline" width="32" height="32"></iconify-icon>
+      <iconify-icon id="pomo-reset" class="iconify icon-btn reset-icon" style="color: #6c757d;" icon="mdi:restart" width="32" height="32"></iconify-icon>
+    </div>
   </div>
 `;
 
