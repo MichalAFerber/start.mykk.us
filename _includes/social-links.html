@@ -6,7 +6,7 @@
 <a class="social-link" href="{{ data.url }}{{ account[1] }}" style="color:#{{ unfocused_color }}"
   onmouseover="this.style.color='#{{ data.color }}'" onmouseout="this.style.color='#{{ unfocused_color }}'"
   target="_blank" rel="noopener">
-  <i class="{{ data.icon }} fa-2x"></i>
+  <iconify-icon icon="{{ data.icon }}" width="28" height="28" style="color: inherit;"></iconify-icon>
 </a>
 {% endif %}
 {% endfor %}
