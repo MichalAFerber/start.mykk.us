@@ -7,13 +7,13 @@
   {% include navbar.html %}
   {% include weather.html %}
 
+  <!-- desktop sidebar -->
+  {% include social.html %}
+
   <!-- mobile‑only inline -->
   <div id="social-inline">
     {% include social-links.html %}
   </div>
-
-  <!-- desktop sidebar -->
-  {% include social.html %}
 
   <main class="flex-shrink-0 container m-4">
     {{ content }}
