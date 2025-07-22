@@ -56,3 +56,21 @@
 .social-link:hover iconify-icon {
   transform: rotate(360deg);
 }
+/* 1) On small screens, hide the fixed sidebar */
+@media (max-width: 767px) {
+  #social-sidebar {
+    display: none !important;
+  }
+  /* 2) And show a new inline social block after the weather widget */
+  #social-inline {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+}
+
+/* By default (desktop), hide #social-inline */
+#social-inline {
+  display: none;
+}

@@ -2,13 +2,20 @@
 <html lang="en" class="h-100">
 {% include head.html %}
 <body class="h-100 d-flex flex-column">
+
   {% include navbar.html %}
   {% include weather.html %}
+
+  <div id="social-inline">
+    {% include social.html %}
+  </div>
+
   <main class="flex-shrink-0 container m-4">
     {{ content }}
   </main>
-  {% include social.html %}
+
   {% include footer.html %}
   {% include scripts.html %}
+
 </body>
 </html>
