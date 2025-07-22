@@ -1,114 +1,65 @@
 // assets/js/dashboard.js
-window.onload = function () {
-  const grid = GridStack.init(
-    {
-      cellHeight: 100,
-      draggable: { handle: ".card-header" },
-      resizable: { handles: "e, se, s, sw, w" },
-    },
-    ".landing-grid"
-  );
+import clockWidget from "./widgets/clock.widget.js";
+import pomodoroWidget from "./widgets/pomodoro.widget.js";
 
+document.addEventListener("DOMContentLoaded", () => {
+  // 1) init GridStack (global from gridstack-all.js)
+  const grid = GridStack.init({
+    cellHeight: 100,
+    draggable: { handle: ".clock-header, .pomo-header" },
+    resizable: { handles: "e,se,s,sw,w" },
+  });
+
+  // 2) define your two widgets with default x/y
   const widgets = [
-    {
-      id: "clock",
-      x: 0,
-      y: 0,
-      w: 4,
-      h: 2,
-      content: `
-        <div class="card bg-dark text-white">
-          <div class="card-header text-center">Clock</div>
-          <div class="card-body d-flex justify-content-center align-items-center">
-            <span id="widget-clock" style="font-size:2rem;"></span>
-          </div>
-        </div>`,
-    },
-    {
-      id: "pomodoro",
-      x: 4,
-      y: 0,
-      w: 4,
-      h: 2,
-      content: `
-        <div class="card bg-dark text-white">
-          <div class="card-header text-center">Pomodoro</div>
-          <div class="card-body d-flex flex-column justify-content-center align-items-center">
-            <span id="widget-pomo-display" style="font-size:2rem;">25:00</span>
-            <div class="mt-2">
-              <button id="pomo-start" class="btn btn-sm btn-success">Start</button>
-              <button id="pomo-reset" class="btn btn-sm btn-secondary">Reset</button>
-            </div>
-          </div>
-        </div>`,
-    },
+    { ...clockWidget, x: 0, y: 0 },
+    { ...pomodoroWidget, x: 4, y: 0 },
   ];
 
+  // 3) restore & merge saved layout
+  const KEY = "landingLayout";
+  const saved = JSON.parse(localStorage.getItem(KEY) || "[]");
+  if (saved.length) {
+    // saved is array of { id, x, y, w, h }
+    for (let w of widgets) {
+      const found = saved.find((s) => s.id === w.id);
+      if (found) {
+        w.x = found.x;
+        w.y = found.y;
+        w.w = found.w;
+        w.h = found.h;
+      }
+    }
+  }
+
+  // 4) clear out any existing items and re‑add from our merged list
   grid.removeAll();
   widgets.forEach((w) => {
-    const el = document.createElement("div");
-    el.className = "grid-stack-item";
-    el.id = w.id;
-    el.setAttribute("gs-x", w.x);
-    el.setAttribute("gs-y", w.y);
-    el.setAttribute("gs-w", w.w);
-    el.setAttribute("gs-h", w.h);
-    el.innerHTML = `<div class="grid-stack-item-content">${w.content}</div>`;
-    grid.el.appendChild(el);
+    const wrapper = document.createElement("div");
+    wrapper.className = "grid-stack-item";
+    wrapper.setAttribute("data-gs-id", w.id);
+    wrapper.setAttribute("data-gs-x", w.x);
+    wrapper.setAttribute("data-gs-y", w.y);
+    wrapper.setAttribute("data-gs-w", w.w);
+    wrapper.setAttribute("data-gs-h", w.h);
+    // inject the widget’s own template
+    wrapper.appendChild(w.template.content.cloneNode(true));
+    grid.el.appendChild(wrapper);
   });
   grid.compact();
 
-  // Clock
-  function updateClock() {
-    const now = new Date();
-    document.getElementById("widget-clock").textContent =
-      now.toLocaleTimeString();
-  }
-  updateClock();
-  setInterval(updateClock, 1000);
-
-  // Pomodoro
-  let seconds = 25 * 60,
-    timer = null;
-  const disp = document.getElementById("widget-pomo-display");
-  document.getElementById("pomo-start").onclick = () => {
-    if (timer) return;
-    timer = setInterval(() => {
-      if (seconds-- > 0) {
-        const m = String(Math.floor(seconds / 60)).padStart(2, "0");
-        const s = String(seconds % 60).padStart(2, "0");
-        disp.textContent = `${m}:${s}`;
-      } else {
-        clearInterval(timer);
-        timer = null;
-        alert("⏰ Time's up!");
-      }
-    }, 1000);
-  };
-  document.getElementById("pomo-reset").onclick = () => {
-    clearInterval(timer);
-    timer = null;
-    seconds = 25 * 60;
-    disp.textContent = "25:00";
-  };
-
-  // Persist layout
-  grid.on("change", (_, items) => {
-    localStorage.setItem(
-      "landingLayout",
-      JSON.stringify(
-        items.map((i) => ({
-          id: i.el.id,
-          x: i.x,
-          y: i.y,
-          w: i.w,
-          h: i.h,
-        }))
-      )
-    );
+  // 5) whenever anything moves/resizes, re‑serialize to localStorage
+  grid.on("change", (_e, items) => {
+    const layout = items.map((i) => ({
+      id: i.el.getAttribute("data-gs-id"),
+      x: i.x,
+      y: i.y,
+      w: i.w,
+      h: i.h,
+    }));
+    localStorage.setItem(KEY, JSON.stringify(layout));
   });
 
-  // Restore layout
-  const saved = localStorage.getItem("landingLayout");
-  if (saved) grid.load(JSON.parse(saved));
-};
+  // 6) fire each widget’s init (clock ticking, pomodoro handlers)
+  widgets.forEach((w) => w.init());
+});

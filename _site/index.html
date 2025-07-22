@@ -34,6 +34,9 @@
   <!-- Animate CSS CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.css">
 
+  <!-- Gridstack.js CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/gridstack@8.2.0/dist/gridstack.min.css" rel="stylesheet" />
+
   <!-- Theme CSS -->
   <link rel="stylesheet" href="/assets/css/style.css">
 
@@ -198,31 +201,7 @@
 
   </div>
   <main>
-    <script src="node_modules/gridstack/dist/gridstack-all.js"></script>
-
-<link href="node_modules/gridstack/dist/gridstack.min.css" rel="stylesheet" />
-
-<style type="text/css">
-  .grid-stack {
-    background: #FAFAD2;
-  }
-
-  .grid-stack-item-content {
-    background-color: #18BC9C;
-  }
-</style>
-
-<div class="grid-stack landing-grid"></div>
-
-<script type="text/javascript">
-  var items = [
-    { content: 'my first widget' }, // will default to location (0,0) and 1x1
-    { w: 2, content: 'another longer widget!' } // will be placed next at (1,0) and 2x1
-  ];
-  var grid = GridStack.init();
-  grid.load(items);
-</script>
-
+    <div class="grid-stack landing-grid"></div>
 
   </main>
   <footer class="mt-auto py-3 text-center">
@@ -240,13 +219,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
-
-<!-- Dashboard (depends on Gridstack.js) -->
-<!-- <script src="/assets/js/dashboard.js"></script> -->
-
 <!-- wow.js & activate tooltips -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.js"></script>
 <script> new WOW().init(); </script>
 <script> $(function () { $('[data-toggle="tooltip"]').tooltip(); }); </script>
+
+<!-- GridStack UMD bundle -->
+<script src="https://cdn.jsdelivr.net/npm/gridstack@8.2.0/dist/gridstack-all.js"></script>
+
+<!-- Your Dashboard logic -->
+<script type="module" src="/assets/js/dashboard.js"></script>
 </body>
 </html>
