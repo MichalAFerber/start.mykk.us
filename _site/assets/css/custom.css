@@ -73,3 +73,23 @@
     margin: 2rem 0;
   }
 }
+.landing-container {
+  /* full remaining viewport_height (subtract your navbar height) */
+  min-height: calc(100vh - 60px);  
+  /* push in from the left so sidebar never overlaps */
+  padding-left: 4rem;  
+  /* ensure text wraps nicely and stays centered */
+  padding-right: 4rem;
+}
+.landing-content {
+  max-width: 28rem;  /* ~ 448px */
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: #ddd;
+}
+@media (max-width: 767px) {
+  .landing-container {
+    padding-left: 1rem;   /* just your normal page padding */
+    padding-right: 1rem;
+  }
+}
