@@ -1,7 +1,7 @@
 import clockWidget from "./widgets/clock.widget.js";
 import pomodoroWidget from "./widgets/pomodoro.widget.js";
 import weatherMapWidget from "./widgets/weatherMap.widget.js";
-import visitCounterWidget from "./widgets/visitcounter.widget.js";
+// import visitCounterWidget from "./widgets/visitcounter.widget.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const grid = GridStack.init({
@@ -25,9 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // 1. Define base widgets
   const widgets = [
     { id: "clock", ...clockWidget, x: 1, y: 0, w: 3, h: 1 },
-    { id: "pomodoro", ...pomodoroWidget, x: 4, y: 0, w: 3, h: 1 },
-    { id: "weatherMap", ...weatherMapWidget, x: 4, y: 1, w: 3, h: 4 },
-    { id: "visitCounter", ...visitCounterWidget, x: 1, y: 1, w: 3, h: 4 },
+    { id: "pomodoro", ...pomodoroWidget, x: 1, y: 1, w: 3, h: 1 },
+    { id: "weatherMap", ...weatherMapWidget, x: 4, y: 0, w: 4, h: 7 },
+    // { id: "visitCounter", ...visitCounterWidget, x: 1, y: 1, w: 3, h: 4 },
   ];
 
   // 2. Load saved layout and merge

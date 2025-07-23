@@ -19,7 +19,7 @@ tpl.innerHTML = `
   </style>
   <div class="grid-stack-item-content card">
     <div class="body">
-        <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=default&metricTemp=default&metricWind=default&zoom=7&overlay=radar&product=radar&level=surface&lat=33.138&lon=-80.285" allow="autoplay"></iframe>
+        <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=default&metricTemp=default&metricWind=default&zoom=7&overlay=radar&product=radar&level=surface&lat=33.138&lon=-80.285"></iframe>
     </div>
   </div>
 `;
