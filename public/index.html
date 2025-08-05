@@ -1,0 +1,74 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Start - mykk.us</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <!-- Iconify for icons -->
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <form class="search-bar" action="https://www.google.com/search" method="GET" target="_blank">
+            <input type="text" name="q" placeholder="Search the web..." autocomplete="off" />
+            <button type="submit">🔍</button>
+        </form>
+        <div class="shortcuts" id="shortcuts"></div>
+    </div>
+    <div class="weather-widget" id="weather-widget">
+        <div class="weather-summary" id="weather-summary"></div>
+        <div class="weather-forecast" id="weather-forecast" style="display:none;"></div>
+    </div>
+
+    <!-- Add Shortcut Modal -->
+    <div id="addShortcutModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2>Add a website</h2>
+            <form id="addShortcutForm">
+                <label>
+                    Name
+                    <input type="text" id="addShortcutName" required>
+                </label>
+                <label>
+                    URL
+                    <input type="url" id="addShortcutURL" required>
+                </label>
+                <div class="modal-actions">
+                    <button type="submit">Add</button>
+                    <button type="button" id="addShortcutCancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rename Shortcut Modal -->
+    <div id="renameShortcutModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2>Rename website</h2>
+            <form id="renameShortcutForm">
+                <label>
+                    Name
+                    <input type="text" id="renameShortcutName" required>
+                </label>
+                <div class="modal-actions">
+                    <button type="submit">Save</button>
+                    <button type="button" id="renameShortcutCancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Simple context menu for shortcut options -->
+    <div id="shortcutMenu" class="shortcut-menu" style="display:none;">
+        <button id="menuRename">Rename</button>
+        <button id="menuRemove">Remove</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
