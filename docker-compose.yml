@@ -12,3 +12,5 @@ services:
     restart: unless-stopped
     volumes:
       - ./data:/usr/src/app/data
+      - ./public/icons:/usr/src/app/public/icons
+      - ./public/uploads:/usr/src/app/public/uploads
