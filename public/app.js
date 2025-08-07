@@ -75,9 +75,10 @@ function overrideSearch(engine) {
 
 // ─── SHORTCUTS ────────────────────────────────────────────────────────────────
 async function loadShortcuts() {
-  const r = await fetch("/shortcuts.json");
+  const r = await fetch("/api/shortcuts");
   return r.ok ? await r.json() : [];
 }
+
 function renderShortcuts(list) {
   shortcuts = list;
   shortcutsC.innerHTML = "";
@@ -206,25 +207,36 @@ async function handleRenameSubmit(e) {
 }
 async function showPrefsModal() {
   // Load prefs
-  fetch("/api/prefs")
-    .then((r) => r.json())
-    .then((p) => {
-      const f = document.getElementById("prefsForm");
-      f.weatherLocation.value = p.weatherLocation || "";
-      f.bgColor.value = p.bgColor || "#ffffff";
-      f.searchEngine.value = p.searchEngine || "google";
-      // Show current wallpaper preview
-      const currentWall = document.getElementById("currentWall");
-      currentWall.innerHTML = "";
-      if (p.wallpaper) {
-        const img = document.createElement("img");
-        img.src = p.wallpaper;
-        img.style.maxWidth = "150px";
-        currentWall.append(img);
-      }
-    });
+  const res = await fetch("/api/prefs");
+  const p = await res.json();
+  const f = document.getElementById("prefsForm");
+  f.weatherOn.value = "" + p.weatherOn === "true" ? "true" : "false";
+  f.searchEngine.value = p.searchEngine || "google";
+  // Wallpaper preview
+  const currentWall = document.getElementById("currentWall");
+  const deleteWallBtn = document.getElementById("deleteWallBtn");
+  const deleteWallpaperField = document.getElementById("deleteWallpaperField");
+  currentWall.innerHTML = "";
+  if (p.wallpaper) {
+    const img = document.createElement("img");
+    img.src = p.wallpaper;
+    img.style.maxWidth = "150px";
+    currentWall.append(img);
+    deleteWallBtn.style.display = "";
+    deleteWallpaperField.value = "false";
+  } else {
+    deleteWallBtn.style.display = "none";
+    deleteWallpaperField.value = "false";
+  }
+  // Handle Delete button click
+  deleteWallBtn.onclick = function () {
+    currentWall.innerHTML = "";
+    deleteWallpaperField.value = "true";
+    deleteWallBtn.style.display = "none";
+  };
   prefsModal.show();
 }
+
 
 // ─── BOOTSTRAP INITIALIZATION ────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", async () => {
@@ -294,8 +306,13 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Background
   if (prefs.wallpaper) {
     document.body.style.background = `url('${prefs.wallpaper}') center/cover no-repeat`;
-  } else if (prefs.bgColor) {
-    document.body.style.background = prefs.bgColor;
+  }
+
+  //Weather Widget
+  if (prefs.weatherOn) {
+    document.querySelector(".tomorrow").style.display = "";
+  } else {
+    document.querySelector(".tomorrow").style.display = "none";
   }
 
   overrideSearch(prefs.searchEngine);

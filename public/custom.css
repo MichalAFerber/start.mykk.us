@@ -18,8 +18,8 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #181a1b;
-  color: #fff;
+  background-color: #1A1A1A;
+  color: #F0F0F0;
   font-family: "Segoe UI", Arial, sans-serif;
 }
 body {
@@ -27,7 +27,7 @@ body {
   flex-direction: column;
   min-height: 100vh;
   background: none;
-  color: inherit;
+  /* color: inherit; */
 }
 .form-control::-moz-placeholder {
   color: #dddddd;
@@ -47,7 +47,7 @@ body {
 }
 /*     General overwrite     */
 a {
-  color: #000;
+  /* color: #000; */
   text-decoration: none;
 }
 a:hover,
@@ -181,7 +181,7 @@ h3 .small {
 
 .btn {
   border-width: 2px;
-  background-color: rgba(0, 0, 0, 0);
+  /* background-color: rgba(0, 0, 0, 0); */
   font-weight: 400;
   opacity: 0.8;
   padding: 8px 16px;
@@ -215,10 +215,10 @@ h3 .small {
   color: #777777;
   border-color: #999999;
 }
-.btn-primary {
+/* .btn-primary {
   color: #3472f7;
   border-color: #3472f7;
-}
+} */
 .btn-info {
   color: #2c93ff;
   border-color: #2c93ff;

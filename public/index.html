@@ -131,18 +131,22 @@
                 <form id="prefsForm" enctype="multipart/form-data">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Weather Location:</label>
-                            <input type="text" name="weatherLocation" class="form-control bg-secondary text-white">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Background Color:</label>
-                            <input type="color" name="bgColor" class="form-control form-control-color" value="#ffffff">
+                            <label class="form-label">Show Weather Widget:</label>
+                            <select name="weatherOn" class="form-select bg-secondary text-white">
+                                <option value="true">On</option>
+                                <option value="false">Off</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Upload Wallpaper:</label>
                             <input type="file" name="wallpaper" accept="image/*"
                                 class="form-control bg-secondary text-white">
                             <div id="currentWall" style="margin:10px 0;"></div>
+                            <button type="button" id="deleteWallBtn" class="btn btn-sm btn-danger mt-2"
+                                style="display:none;">
+                                Delete Wallpaper
+                            </button>
+                            <input type="hidden" name="deleteWallpaper" id="deleteWallpaperField" value="false">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Search Engine:</label>

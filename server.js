@@ -20,7 +20,6 @@ function ensureHtmlAuth(req, res, next) {
   if (req.isAuthenticated()) return next();
   res.redirect("/auth/google");
 }
-
 function ensureApiAuth(req, res, next) {
   if (req.isAuthenticated()) return next();
   res.status(401).json({ error: "Unauthorized" });
@@ -60,19 +59,34 @@ passport.use(
 // --- Directories & files ---
 const PUBLIC_DIR = path.join(__dirname, "public");
 const ICONS_DIR = path.join(PUBLIC_DIR, "icons");
-const SHORTCUTS_PATH = path.join(PUBLIC_DIR, "shortcuts.json");
 const DATA_DIR = path.join(__dirname, "data");
 const UPLOADS_DIR = path.join(PUBLIC_DIR, "uploads");
 const PREFS_PATH = path.join(DATA_DIR, "prefs.json");
+const USER_SHORTCUTS_PATH = path.join(DATA_DIR, "user_shortcuts.json");
 
-// Ensure directories exist
 for (const d of [ICONS_DIR, UPLOADS_DIR, DATA_DIR]) {
   if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
 }
-// Initialize shortcuts & prefs files if missing
-if (!fs.existsSync(SHORTCUTS_PATH))
-  fs.writeFileSync(SHORTCUTS_PATH, "[]", "utf8");
 if (!fs.existsSync(PREFS_PATH)) fs.writeFileSync(PREFS_PATH, "{}", "utf8");
+if (!fs.existsSync(USER_SHORTCUTS_PATH))
+  fs.writeFileSync(USER_SHORTCUTS_PATH, "{}", "utf8");
+
+// --- User Shortcuts (per user) ---
+function getAllUserShortcuts() {
+  return JSON.parse(fs.readFileSync(USER_SHORTCUTS_PATH, "utf8"));
+}
+function saveAllUserShortcuts(all) {
+  fs.writeFileSync(USER_SHORTCUTS_PATH, JSON.stringify(all, null, 2), "utf8");
+}
+function getUserShortcuts(userId) {
+  const all = getAllUserShortcuts();
+  return all[userId] || [];
+}
+function setUserShortcuts(userId, list) {
+  const all = getAllUserShortcuts();
+  all[userId] = list;
+  saveAllUserShortcuts(all);
+}
 
 // Multer for wallpaper uploads
 const upload = multer({ dest: UPLOADS_DIR });
@@ -81,7 +95,7 @@ const upload = multer({ dest: UPLOADS_DIR });
 app.use("/uploads", express.static(UPLOADS_DIR));
 app.use("/icons", express.static(ICONS_DIR));
 app.use(express.static(PUBLIC_DIR));
-app.use(express.json()); // for rename/remove/order JSON bodies
+app.use(express.json());
 
 // --- API routes ---
 
@@ -91,26 +105,30 @@ app.get("/api/user", ensureApiAuth, (req, res) => {
 });
 
 // Get & update preferences
-app.get("/api/prefs", ensureApiAuth, (req, res) => {
-  const all = JSON.parse(fs.readFileSync(PREFS_PATH, "utf8"));
-  res.json(all[req.user.id] || {});
-});
 app.post(
   "/api/prefs",
   ensureApiAuth,
   upload.single("wallpaper"),
   (req, res) => {
-    const { weatherOn, bgColor, searchEngine } = req.body;
+    let { weatherOn, searchEngine, deleteWallpaper } = req.body;
     const all = JSON.parse(fs.readFileSync(PREFS_PATH, "utf8"));
     const prev = all[req.user.id] || {};
 
+    // Handle wallpaper delete
+    let wallpaper;
+    if (deleteWallpaper === "true") {
+      wallpaper = "";
+      // Optionally: Delete the file from disk here if desired
+    } else if (req.file) {
+      wallpaper = `/uploads/${req.file.filename}`;
+    } else {
+      wallpaper = prev.wallpaper || "";
+    }
+
     all[req.user.id] = {
       weatherOn: weatherOn === "true",
-      bgColor: bgColor || prev.bgColor || "#ffffff",
       searchEngine: searchEngine || prev.searchEngine || "google",
-      wallpaper: req.file
-        ? `/uploads/${req.file.filename}`
-        : prev.wallpaper || "",
+      wallpaper,
     };
 
     fs.writeFileSync(PREFS_PATH, JSON.stringify(all, null, 2), "utf8");
@@ -118,25 +136,28 @@ app.post(
   }
 );
 
-// Persist reordered shortcuts
+// Get the user preferences for the logged-in user
+app.get("/api/prefs", ensureApiAuth, (req, res) => {
+  const all = JSON.parse(fs.readFileSync(PREFS_PATH, "utf8"));
+  res.json(all[req.user.id] || {});
+});
+
+// Get all shortcuts for the logged-in user
+app.get("/api/shortcuts", ensureApiAuth, (req, res) => {
+  res.json(getUserShortcuts(req.user.id));
+});
+
+// Save new order
 app.post("/api/shortcuts/order", ensureApiAuth, (req, res) => {
   const { shortcuts } = req.body;
   if (!Array.isArray(shortcuts)) {
     return res.status(400).json({ success: false, error: "Expected array" });
   }
-  fs.writeFile(
-    SHORTCUTS_PATH,
-    JSON.stringify(shortcuts, null, 2),
-    "utf8",
-    (err) => {
-      if (err)
-        return res.status(500).json({ success: false, error: err.message });
-      res.json({ success: true, shortcuts });
-    }
-  );
+  setUserShortcuts(req.user.id, shortcuts);
+  res.json({ success: true, shortcuts });
 });
 
-// Shortcut management
+// Add shortcut
 app.post("/add-shortcut", ensureApiAuth, express.json(), async (req, res) => {
   const { name, url } = req.body;
   if (!name || !url)
@@ -155,33 +176,35 @@ app.post("/add-shortcut", ensureApiAuth, express.json(), async (req, res) => {
     ).arrayBuffer();
     fs.writeFileSync(path.join(ICONS_DIR, fn), Buffer.from(buf));
 
-    const list = JSON.parse(fs.readFileSync(SHORTCUTS_PATH, "utf8"));
+    const list = getUserShortcuts(req.user.id);
     list.push({ name, url, icon: `icons/${fn}` });
-    fs.writeFileSync(SHORTCUTS_PATH, JSON.stringify(list, null, 2), "utf8");
+    setUserShortcuts(req.user.id, list);
     res.json({ success: true, shortcuts: list });
   } catch (e) {
     res.status(500).json({ success: false, error: e.message });
   }
 });
 
+// Rename shortcut
 app.post("/rename-shortcut", ensureApiAuth, express.json(), (req, res) => {
   const { index, name, url } = req.body;
-  const list = JSON.parse(fs.readFileSync(SHORTCUTS_PATH, "utf8"));
+  const list = getUserShortcuts(req.user.id);
   if (list[index]) {
     if (name) list[index].name = name;
     if (url) list[index].url = url;
-    fs.writeFileSync(SHORTCUTS_PATH, JSON.stringify(list, null, 2), "utf8");
+    setUserShortcuts(req.user.id, list);
     return res.json({ success: true, shortcuts: list });
   }
   res.status(404).json({ success: false, error: "Not found" });
 });
 
+// Remove shortcut
 app.post("/remove-shortcut", ensureApiAuth, express.json(), (req, res) => {
   const idx = Number(req.body.index);
-  let list = JSON.parse(fs.readFileSync(SHORTCUTS_PATH, "utf8"));
+  let list = getUserShortcuts(req.user.id);
   if (list[idx]) {
     list.splice(idx, 1);
-    fs.writeFileSync(SHORTCUTS_PATH, JSON.stringify(list, null, 2), "utf8");
+    setUserShortcuts(req.user.id, list);
     return res.json({ success: true, shortcuts: list });
   }
   res.status(404).json({ success: false, error: "Not found" });
@@ -195,7 +218,7 @@ app.get(
   "/auth/google",
   passport.authenticate("google", {
     scope: ["profile"],
-    prompt: "select_account", // 👈 Forces account chooser
+    prompt: "select_account",
   })
 );
 app.get(

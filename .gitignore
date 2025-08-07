@@ -62,3 +62,7 @@ orleans.codegen.cs
 
 # Custom
 .env
+.frontmatter/
+data/
+public/icons/
+public/uploads/

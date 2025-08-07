@@ -22,8 +22,8 @@
   font-size: 1.1em;
   border: none;
   border-radius: 9999px;
-  background: #232526;
-  color: #fff;
+  /* background: #232526;
+  color: #fff; */
   min-width: 0;
   max-width: 100%;
 }
@@ -195,6 +195,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+btn btn-primary {
+  color: #fff;
 }
 .container {
   flex: 1 0 auto;
