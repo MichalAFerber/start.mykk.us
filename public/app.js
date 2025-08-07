@@ -16,6 +16,7 @@ let loginBtn,
   profilePic,
   profileMenu,
   settingsBtn,
+  prefsModal,
   logoutBtn,
   shortcutsC,
   searchForm,
@@ -48,7 +49,7 @@ function initProfile(user) {
   document.addEventListener("click", () => {
     profileMenu.classList.remove("open");
   });
-  settingsBtn.onclick = () => (location.href = "/prefs");
+  settingsBtn.onclick = () => {showPrefsModal();};
   logoutBtn.onclick = () => (location.href = "/logout");
 }
 
@@ -81,13 +82,15 @@ function renderShortcuts(list) {
 
   list.forEach((sc, idx) => {
     const d = document.createElement("div");
-    d.className = "shortcut";
+    d.className = "col shortcut";
     d.dataset.index = idx;
     d.innerHTML = `
       <a href="${sc.url}" target="_blank">
-        <img src="${sc.icon}" width="48" height="48"/>
+        <span class="shortcut-circle">
+          <img src="${sc.icon}" alt="${sc.name}" class="shortcut-img"/>
+        </span>
         <span class="shortcut-label">${
-          sc.name.length > 13 ? sc.name.substring(0, 13) + "..." : sc.name
+          sc.name.length > 18 ? sc.name.substring(0, 10) + "..." : sc.name
         }</span>
       </a>
       <button class="shortcut-dots">⋮</button>`;
@@ -100,8 +103,10 @@ function renderShortcuts(list) {
 
   // add‐button
   const add = document.createElement("div");
-  add.className = "shortcut add";
-  add.innerHTML = `<span class="iconify" data-icon="${ICON_ADD}"></span>`;
+  add.className = "col shortcut";
+  add.innerHTML = `<span class="shortcut-circle">
+  <svg xmlns="http://www.w3.org/2000/svg" class="shortcut-img" viewBox="0 0 24 24"><path fill="currentColor" d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2z"/></svg>
+  <span>`;
   add.onclick = () => addModal.show();
   shortcutsC.appendChild(add);
 
@@ -126,14 +131,31 @@ function renderShortcuts(list) {
 function showShortcutMenu(idx, btn) {
   currentMenuIndex = idx;
   const m = document.getElementById("shortcutMenu");
+  // Remove .open from menu so we can measure offsetWidth/offsetHeight (if needed)
+  m.classList.remove("open");
+
+  // Get button position in viewport
   const r = btn.getBoundingClientRect();
-  m.style.left = `${r.left}px`;
-  m.style.top = `${r.bottom + 4}px`;
-  m.style.display = "flex";
+  // m.style.left = `${r.left}px`;
+  // m.style.top = `${r.bottom + 4}px`;
+  // Prefer right-align, but keep on screen if near right edge
+  const menuWidth = m.offsetWidth || 150; // fallback if not rendered yet
+  let left = r.right - menuWidth;
+  if (left < 8) left = 8; // minimum left padding
+  let top = r.bottom + 4 + window.scrollY;
+
+  // Set position
+  m.style.left = `${left + window.scrollX}px`;
+  m.style.top = `${top}px`;
+
+  // Now show for real
+  m.classList.add("open");
+
   setTimeout(() => {
     document.addEventListener("mousedown", outsideClickForShortcutMenu);
   }, 0);
 }
+
 function outsideClickForShortcutMenu(e) {
   if (!document.getElementById("shortcutMenu").contains(e.target)) {
     hideShortcutMenu();
@@ -141,7 +163,7 @@ function outsideClickForShortcutMenu(e) {
 }
 function hideShortcutMenu() {
   const m = document.getElementById("shortcutMenu");
-  m.style.display = "none";
+  m.classList.remove("open");
   document.removeEventListener("mousedown", outsideClickForShortcutMenu);
 }
 
@@ -160,6 +182,8 @@ async function handleAddSubmit(e) {
   if (j.success) {
     renderShortcuts(j.shortcuts);
     addModal.hide();
+    document.getElementById("addShortcutName").value = "";
+    document.getElementById("addShortcutURL").value = "";
   } else alert(j.error);
 }
 async function handleRenameSubmit(e) {
@@ -177,6 +201,27 @@ async function handleRenameSubmit(e) {
     renderShortcuts(j.shortcuts);
     renameModal.hide();
   } else alert(j.error);
+}
+async function showPrefsModal() {
+  // Load prefs
+  fetch("/api/prefs")
+    .then((r) => r.json())
+    .then((p) => {
+      const f = document.getElementById("prefsForm");
+      f.weatherLocation.value = p.weatherLocation || "";
+      f.bgColor.value = p.bgColor || "#ffffff";
+      f.searchEngine.value = p.searchEngine || "google";
+      // Show current wallpaper preview
+      const currentWall = document.getElementById("currentWall");
+      currentWall.innerHTML = "";
+      if (p.wallpaper) {
+        const img = document.createElement("img");
+        img.src = p.wallpaper;
+        img.style.maxWidth = "150px";
+        currentWall.append(img);
+      }
+    });
+  prefsModal.show();
 }
 
 // ─── BOOTSTRAP INITIALIZATION ────────────────────────────────────────────────
@@ -200,8 +245,28 @@ window.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("renameShortcutModal")
   );
 
+  prefsModal = new bootstrap.Modal(document.getElementById("prefsModal"));
+
+  document
+    .getElementById("prefsForm")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const res = await fetch("/api/prefs", {
+        method: "POST",
+        body: formData,
+      });
+      if (res.ok) {
+        prefsModal.hide();
+        // Optional: reload UI or show success message
+        location.reload();
+      } else {
+        alert("Failed to save preferences.");
+      }
+    });
+
   // Strip any lingering aria-hidden on show
-  ["addShortcutModal", "renameShortcutModal"].forEach((id) => {
+  ["addShortcutModal", "renameShortcutModal", "prefsModal"].forEach((id) => {
     const el = document.getElementById(id);
     el.removeAttribute("aria-hidden");
     el.addEventListener("show.bs.modal", () =>

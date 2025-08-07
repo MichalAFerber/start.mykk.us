@@ -1,151 +1,148 @@
-/* Base Styles */
-/* html {
-  background-color: #181a1b;
-  color: #fff;
-}
-body {
-  margin: 0;
-  min-height: 100vh;
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: none;
-  color: inherit;
-} */
-
-/* Layout Container */
-/* .container {
-  max-width: 600px;
-  margin: 60px auto 0;
-  padding: 24px;
-  background: rgba(30, 32, 34, 0.95);
-  border-radius: 16px;
-  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.3);
-} */
-
-/* Search Bar & Navbar */
-/* nav.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  background: rgba(0, 0, 0, 0.3);
-  position: relative;
-} */
 .search-wrapper {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
-  max-width: 600px;
-  flex: 0 0 auto;
+  max-width: calc(100vw - 120px); /* 120px = estimated nav-right min width + margins */
+  pointer-events: none;
+  z-index: 1;
+  text-align: center;
 }
-#search-form,
-.search-bar {
+#search-form {
   display: flex;
+  width: 100%;
+  text-align: center;
 }
-#search-input,
-.search-bar input {
-  flex: 1;
-  padding: 12px;
+#search-input {
+  flex: 1 1 auto;
+  padding: 12px 1.5em 12px 2.5em;
   font-size: 1.1em;
   border: none;
   border-radius: 9999px;
   background: #232526;
   color: #fff;
+  min-width: 0;
+  max-width: 100%;
 }
-#search-input {
-  padding-left: 2.5rem;
-  border-radius: 9999px;
-}
+
 #search-input:focus {
   outline: none;
 }
-.search-bar button,
-#search-form button {
-  padding: 0 18px;
-  font-size: 1.1em;
-  border: none;
-  background: #2d8cf0;
-  color: #fff;
-  cursor: pointer;
-}
-nav .iconify,
-.search-wrapper .iconify {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #888;
+@media (max-width: 200px) {
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+  .search-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 0 0.5rem 0;
+    max-width: 90vw;
+  }
+  .nav-right {
+    position: static;
+    justify-content: flex-end;
+    width: 100%;
+  }
 }
 .nav-right {
-  position: absolute;
-  right: 1rem;
+  position: relative;
+  z-index: 2; /* ensure on top */
+  flex: 0 0 auto;
+  margin-left: auto;
   display: flex;
   align-items: center;
+  gap: 0.75em;
 }
 
 /* Shortcuts Grid */
 .shortcuts {
   display: flex;
-  /* flex-wrap: wrap; */
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
-  margin-bottom: 24px;
-  padding: 1rem;
+  padding-top: 1.5rem;
 }
-.shortcut {
-  width: 48px;
+.col.shortcut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 72px;           /* Square cell */
   min-width: 72px;
-  text-align: center;
+  padding-bottom: 1.5rem;
   position: relative;
+  text-align: center;
   cursor: pointer;
 }
-.shortcut img,
-.shortcut .iconify {
-  width: 48px;
-  height: 48px;
-  margin: 0 auto 10px;
-  border-radius: 14px;
-  background: #232526;
+.shortcut-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #232526;   /* Or your preferred dark */
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.25em auto; /* bottom space for label */
+  box-shadow: 0 2px 8px #0002;
+}
+.shortcut-img {
+  width: 36px;
+  height: 36px;
   object-fit: contain;
+  border-radius: 0px;
+  background: transparent;
+  display: block;
 }
 .shortcut-label {
-  font-size: .75em;
-  margin-top: 0.25rem;
+  font-size: 0.75em;
   font-weight: 500;
-  white-space: nowrap;
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.12s;
 }
 .shortcut.add {
   opacity: 0.7;
 }
-
-/* Three-dot Menu */
 .shortcut-dots {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 4px;
+  right: -8px;
   background: none;
   border: none;
-  padding: 0 4px;
-  font-size: 1.25rem;
+  color: #888;
+  font-size: 1.25em;
   cursor: pointer;
-  color: #000;
-  border-radius: 50%;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.12s;
 }
 .shortcut-dots:hover {
+  background: #3334;
   color: #fff;
 }
 
-/* Context Menu */
 .shortcut-menu {
-  position: absolute;
   display: none;
   flex-direction: column;
-  min-width: 120px;
+  position: absolute;
+  /* No top/right here! Set dynamically with JS */
   background: #fff;
-  color: #fff;
+  color: #222;
   border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
   z-index: 3000;
+  min-width: 150px;
+  margin-top: 8px;
+}
+.shortcut-menu.open {
+  display: flex;
 }
 .shortcut-menu button {
   background: none;
@@ -154,35 +151,54 @@ nav .iconify,
   padding: 10px 18px;
   width: 100%;
   cursor: pointer;
+  font-size: 1em;
 }
 .shortcut-menu button:hover {
   background: #2d8cf0;
+  color: #fff;
 }
 
 /* Profile menu styling */
-#profile-menu {
+.profile-menu {
   display: none;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: #232526;
-  color: #fff;
-  border-radius: 8px;
-  padding: 8px 0;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-}
-#profile-menu.open {
-  display: flex;
   flex-direction: column;
+  position: absolute;
+  top: 100%; /* Just below the image */
+  right: 0;  /* Aligns menu to right of image */
+  min-width: 150px;
+  background: #fff;
+  color: #222;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  z-index: 3000;
+  margin-top: 8px; /* Optional: spacing below avatar */
 }
-#profile-menu button {
+.profile-menu.open {
+  display: flex;
+}
+
+.profile-menu button {
   background: none;
   border: none;
-  padding: 10px 18px;
   text-align: left;
+  padding: 10px 18px;
   width: 100%;
   cursor: pointer;
 }
-#profile-menu button:hover {
+.profile-menu button:hover {
   background: #2d8cf0;
+}
+#profile-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.container {
+  flex: 1 0 auto;
+}
+.tomorrow {
+  width: 100vw;
+  border-radius: 0 !important;
+  box-shadow: 0 -2px 12px #0002; /* optional for separation */
 }
