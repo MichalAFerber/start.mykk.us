@@ -14,6 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || "localhost";
 
 // --- Auth middleware ---
 function ensureHtmlAuth(req, res, next) {
@@ -233,6 +234,6 @@ app.get("/logout", ensureHtmlAuth, (req, res, next) => {
 // Serve index.html for root
 app.get("/", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "index.html")));
 
-app.listen(PORT, () =>
-  console.log(`Server running at http://localhost:${PORT}`)
+app.listen(PORT, HOST, () =>
+  console.log(`Server running at http://${HOST}:${PORT}`)
 );
