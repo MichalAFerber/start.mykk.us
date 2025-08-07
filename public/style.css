@@ -1,5 +1,5 @@
 /* Base Styles */
-html {
+/* html {
   background-color: #181a1b;
   color: #fff;
 }
@@ -9,27 +9,27 @@ body {
   font-family: "Segoe UI", Arial, sans-serif;
   background: none;
   color: inherit;
-}
+} */
 
 /* Layout Container */
-.container {
+/* .container {
   max-width: 600px;
   margin: 60px auto 0;
   padding: 24px;
   background: rgba(30, 32, 34, 0.95);
   border-radius: 16px;
   box-shadow: 0 4px 32px rgba(0, 0, 0, 0.3);
-}
+} */
 
 /* Search Bar & Navbar */
-nav.navbar {
+/* nav.navbar {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0.5rem 1rem;
   background: rgba(0, 0, 0, 0.3);
   position: relative;
-}
+} */
 .search-wrapper {
   position: relative;
   width: 100%;
@@ -84,15 +84,15 @@ nav .iconify,
 /* Shortcuts Grid */
 .shortcuts {
   display: flex;
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
   justify-content: center;
   gap: 1rem;
   margin-bottom: 24px;
   padding: 1rem;
 }
 .shortcut {
-  width: 72px;
-  min-width: 80px;
+  width: 48px;
+  min-width: 72px;
   text-align: center;
   position: relative;
   cursor: pointer;
@@ -107,11 +107,12 @@ nav .iconify,
   object-fit: contain;
 }
 .shortcut-label {
-  font-size: 1em;
-  margin-top: 0.5rem;
+  font-size: .75em;
+  margin-top: 0.25rem;
   font-weight: 500;
-  max-width: 80px;
-  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .shortcut.add {
   opacity: 0.7;
@@ -127,11 +128,11 @@ nav .iconify,
   padding: 0 4px;
   font-size: 1.25rem;
   cursor: pointer;
-  color: inherit;
+  color: #000;
   border-radius: 50%;
 }
 .shortcut-dots:hover {
-  background: #333;
+  color: #fff;
 }
 
 /* Context Menu */
@@ -140,7 +141,7 @@ nav .iconify,
   display: none;
   flex-direction: column;
   min-width: 120px;
-  background: #232526;
+  background: #fff;
   color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);

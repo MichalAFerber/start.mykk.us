@@ -8,5 +8,35 @@
     "name": "Michal Ferber",
     "url": "https://michalferber.me",
     "icon": "icons/michalferber_me.png"
+  },
+  {
+    "name": "Windows 365",
+    "url": "https://windows365.microsoft.com/",
+    "icon": "icons/windows365_microsoft_com.png"
+  },
+  {
+    "name": "TechGuyWithABeard [Michal Ferber]",
+    "url": "https://techguywithabeard.com",
+    "icon": "icons/techguywithabeard_com.png"
+  },
+  {
+    "name": "Grok AI",
+    "url": "https://grok.x.com/",
+    "icon": "icons/grok_x_com.png"
+  },
+  {
+    "name": "ChatGPT",
+    "url": "https://chatgpt.com/",
+    "icon": "icons/chatgpt_com.png"
+  },
+  {
+    "name": "Cloudflare",
+    "url": "https://dash.cloudflare.com/",
+    "icon": "icons/dash_cloudflare_com.png"
+  },
+  {
+    "name": "Stripe",
+    "url": "https://dashboard.stripe.com/",
+    "icon": "icons/dashboard_stripe_com.png"
   }
 ]

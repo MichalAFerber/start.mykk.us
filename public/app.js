@@ -86,7 +86,9 @@ function renderShortcuts(list) {
     d.innerHTML = `
       <a href="${sc.url}" target="_blank">
         <img src="${sc.icon}" width="48" height="48"/>
-        <span class="shortcut-label">${sc.name}</span>
+        <span class="shortcut-label">${
+          sc.name.length > 13 ? sc.name.substring(0, 13) + "..." : sc.name
+        }</span>
       </a>
       <button class="shortcut-dots">⋮</button>`;
     d.querySelector(".shortcut-dots").onclick = (e) => {
@@ -99,7 +101,7 @@ function renderShortcuts(list) {
   // add‐button
   const add = document.createElement("div");
   add.className = "shortcut add";
-  add.innerHTML = `<span class="iconify" data-icon="${ICON_ADD}"></span><span class="shortcut-label">Add</span>`;
+  add.innerHTML = `<span class="iconify" data-icon="${ICON_ADD}"></span>`;
   add.onclick = () => addModal.show();
   shortcutsC.appendChild(add);
 
