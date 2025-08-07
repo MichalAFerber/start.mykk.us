@@ -1,264 +1,259 @@
 // public/app.js
 
-let shortcuts = [];
-let currentRenameIndex = null;
-let currentMenuIndex = null;
+// ─── ICON CONSTANTS ───────────────────────────────────────────────────────────
+const ICON_SEARCH = "material-symbols:search";
+const ICON_LOGIN = "material-symbols:login";
+const ICON_ADD = "material-symbols:add-circle-outline";
 
-// --- Shortcuts ---
-async function loadShortcuts() {
-  const resp = await fetch("shortcuts.json");
-  return await resp.json();
+// ─── STATE & MODAL INSTANCES ─────────────────────────────────────────────────
+let shortcuts = [];
+let currentMenuIndex = null;
+let addModal, renameModal;
+
+// ─── GLOBAL REFS ──────────────────────────────────────────────────────────────
+let loginBtn,
+  profileBtn,
+  profilePic,
+  profileMenu,
+  settingsBtn,
+  logoutBtn,
+  shortcutsC,
+  searchForm,
+  searchInput,
+  addShortcutForm,
+  renameShortcutForm;
+
+// ─── AUTH HELPERS ─────────────────────────────────────────────────────────────
+async function checkAuth() {
+  const res = await fetch("/api/user");
+  return res.ok;
+}
+async function loadUser() {
+  const res = await fetch("/api/user");
+  return res.ok ? await res.json() : null;
+}
+async function loadPrefs() {
+  const res = await fetch("/api/prefs");
+  return res.ok ? await res.json() : {};
 }
 
+// ─── PROFILE UI ───────────────────────────────────────────────────────────────
+function initProfile(user) {
+  profilePic.src = user.photo;
+  profileBtn.style.display = "block";
+  profilePic.addEventListener("click", (e) => {
+    e.stopPropagation();
+    profileMenu.classList.toggle("open");
+  });
+  document.addEventListener("click", () => {
+    profileMenu.classList.remove("open");
+  });
+  settingsBtn.onclick = () => (location.href = "/prefs");
+  logoutBtn.onclick = () => (location.href = "/logout");
+}
+
+// ─── SEARCH OVERRIDE ──────────────────────────────────────────────────────────
+function overrideSearch(engine) {
+  searchInput.focus();
+  searchForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const q = encodeURIComponent(searchInput.value.trim());
+    if (!q) return;
+    const urls = {
+      google: `https://www.google.com/search?q=${q}`,
+      ddg: `https://duckduckgo.com/?q=${q}`,
+      bing: `https://www.bing.com/search?q=${q}`,
+    };
+    window.open(urls[engine] || urls.google, "_blank");
+    searchInput.value = "";
+    searchInput.focus();
+  });
+}
+
+// ─── SHORTCUTS ────────────────────────────────────────────────────────────────
+async function loadShortcuts() {
+  const r = await fetch("/shortcuts.json");
+  return r.ok ? await r.json() : [];
+}
 function renderShortcuts(list) {
   shortcuts = list;
-  const container = document.getElementById("shortcuts");
-  container.innerHTML = "";
+  shortcutsC.innerHTML = "";
+
   list.forEach((sc, idx) => {
-    const shortcutDiv = document.createElement("div");
-    shortcutDiv.className = "shortcut";
-
-    // Shortcut icon and label
-    const a = document.createElement("a");
-    a.href = sc.url;
-    a.target = "_blank";
-    a.innerHTML = `<img src="${sc.icon}" alt="${sc.name}"><span class="shortcut-label">${sc.name}</span>`;
-    shortcutDiv.appendChild(a);
-
-    // Three-dot menu button
-    const dots = document.createElement("button");
-    dots.className = "shortcut-dots";
-    dots.innerHTML = "&#x22EE;"; // vertical ellipsis
-    dots.onclick = (e) => {
-      e.preventDefault();
+    const d = document.createElement("div");
+    d.className = "shortcut";
+    d.dataset.index = idx;
+    d.innerHTML = `
+      <a href="${sc.url}" target="_blank">
+        <img src="${sc.icon}" width="48" height="48"/>
+        <span class="shortcut-label">${sc.name}</span>
+      </a>
+      <button class="shortcut-dots">⋮</button>`;
+    d.querySelector(".shortcut-dots").onclick = (e) => {
       e.stopPropagation();
-      showShortcutMenu(idx, dots);
+      showShortcutMenu(idx, e.target);
     };
-    shortcutDiv.appendChild(dots);
-
-    container.appendChild(shortcutDiv);
+    shortcutsC.appendChild(d);
   });
 
-  // Add shortcut button
+  // add‐button
   const add = document.createElement("div");
   add.className = "shortcut add";
-  add.style.position = "relative";
-  add.innerHTML = `<span class="iconify" data-icon="ep:circle-plus" data-width="48" data-height="48"></span>
-    <span class="shortcut-label">Add shortcut</span>`;
-  add.onclick = (e) => {
-    e.preventDefault();
-    showAddShortcutModal();
-  };
-  container.appendChild(add);
+  add.innerHTML = `<span class="iconify" data-icon="${ICON_ADD}"></span><span class="shortcut-label">Add</span>`;
+  add.onclick = () => addModal.show();
+  shortcutsC.appendChild(add);
+
+  Sortable.create(shortcutsC, {
+    animation: 150,
+    onEnd: async () => {
+      const newOrder = Array.from(shortcutsC.children)
+        .filter((el) => el.dataset.index != null)
+        .map((el) => shortcuts[+el.dataset.index]);
+      shortcuts = newOrder;
+      await fetch("/api/shortcuts/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shortcuts }),
+      });
+      renderShortcuts(newOrder);
+    },
+  });
 }
 
-// --- Shortcut Menu ---
-function showShortcutMenu(idx, anchorEl) {
-  const menu = document.getElementById("shortcutMenu");
-  menu.style.display = "block";
-  // Position menu below the three-dot button
-  const rect = anchorEl.getBoundingClientRect();
-  menu.style.left = `${rect.left + window.scrollX}px`;
-  menu.style.top = `${rect.bottom + window.scrollY + 4}px`;
+// ─── CONTEXT MENU ─────────────────────────────────────────────────────────────
+function showShortcutMenu(idx, btn) {
   currentMenuIndex = idx;
-
-  // Hide menu on click outside
+  const m = document.getElementById("shortcutMenu");
+  const r = btn.getBoundingClientRect();
+  m.style.left = `${r.left}px`;
+  m.style.top = `${r.bottom + 4}px`;
+  m.style.display = "flex";
   setTimeout(() => {
-    document.addEventListener("mousedown", handleMenuOutsideClick);
+    document.addEventListener("mousedown", outsideClickForShortcutMenu);
   }, 0);
 }
-function hideShortcutMenu() {
-  document.getElementById("shortcutMenu").style.display = "none";
-  document.removeEventListener("mousedown", handleMenuOutsideClick);
-  currentMenuIndex = null;
-}
-function handleMenuOutsideClick(e) {
-  const menu = document.getElementById("shortcutMenu");
-  if (!menu.contains(e.target)) {
+function outsideClickForShortcutMenu(e) {
+  if (!document.getElementById("shortcutMenu").contains(e.target)) {
     hideShortcutMenu();
   }
 }
-document.getElementById("menuRename").onclick = () => {
-  hideShortcutMenu();
-  showRenameShortcutModal(currentMenuIndex);
-};
-document.getElementById("menuRemove").onclick = () => {
-  hideShortcutMenu();
-  removeShortcut(currentMenuIndex);
-};
+function hideShortcutMenu() {
+  const m = document.getElementById("shortcutMenu");
+  m.style.display = "none";
+  document.removeEventListener("mousedown", outsideClickForShortcutMenu);
+}
 
-// --- Add Shortcut Modal ---
-function showAddShortcutModal() {
-  document.getElementById("addShortcutModal").style.display = "flex";
-  document.getElementById("addShortcutName").value = "";
-  document.getElementById("addShortcutURL").value = "";
-  document.getElementById("addShortcutName").focus();
-}
-function hideAddShortcutModal() {
-  document.getElementById("addShortcutModal").style.display = "none";
-}
-document.getElementById("addShortcutCancel").onclick = hideAddShortcutModal;
-document.getElementById("addShortcutForm").onsubmit = function (e) {
+// ─── FORM SUBMIT HELPERS ─────────────────────────────────────────────────────
+async function handleAddSubmit(e) {
   e.preventDefault();
   const name = document.getElementById("addShortcutName").value.trim();
   const url = document.getElementById("addShortcutURL").value.trim();
   if (!name || !url) return;
-  fetch("/add-shortcut", {
+  const res = await fetch("/add-shortcut", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, url }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        renderShortcuts(data.shortcuts);
-        hideAddShortcutModal();
-      } else {
-        alert("Error adding shortcut: " + data.error);
-      }
-    });
-};
-
-// --- Rename Shortcut Modal ---
-function showRenameShortcutModal(idx) {
-  currentRenameIndex = idx;
-  document.getElementById("renameShortcutName").value = shortcuts[idx].name;
-  document.getElementById("renameShortcutModal").style.display = "flex";
-  document.getElementById("renameShortcutName").focus();
+  });
+  const j = await res.json();
+  if (j.success) {
+    renderShortcuts(j.shortcuts);
+    addModal.hide();
+  } else alert(j.error);
 }
-function hideRenameShortcutModal() {
-  document.getElementById("renameShortcutModal").style.display = "none";
-  currentRenameIndex = null;
-}
-document.getElementById("renameShortcutCancel").onclick =
-  hideRenameShortcutModal;
-document.getElementById("renameShortcutForm").onsubmit = function (e) {
+async function handleRenameSubmit(e) {
   e.preventDefault();
-  const newName = document.getElementById("renameShortcutName").value.trim();
-  if (!newName) return;
-  // Update shortcut name and save
-  const shortcut = shortcuts[currentRenameIndex];
-  fetch("/rename-shortcut", {
+  const name = document.getElementById("renameShortcutName").value.trim();
+  const url = document.getElementById("renameShortcutURL").value.trim();
+  if (!name || !url) return;
+  const res = await fetch("/rename-shortcut", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ index: currentRenameIndex, name: newName }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        renderShortcuts(data.shortcuts);
-        hideRenameShortcutModal();
-      } else {
-        alert("Error renaming shortcut: " + data.error);
-      }
+    body: JSON.stringify({ index: currentMenuIndex, name, url }),
+  });
+  const j = await res.json();
+  if (j.success) {
+    renderShortcuts(j.shortcuts);
+    renameModal.hide();
+  } else alert(j.error);
+}
+
+// ─── BOOTSTRAP INITIALIZATION ────────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", async () => {
+  // grab DOM refs
+  loginBtn = document.getElementById("login-btn");
+  profileBtn = document.getElementById("profile-btn");
+  profilePic = document.getElementById("profile-pic");
+  profileMenu = document.getElementById("profile-menu");
+  settingsBtn = document.getElementById("settings-btn");
+  logoutBtn = document.getElementById("logout-btn");
+  shortcutsC = document.getElementById("shortcuts");
+  searchForm = document.getElementById("search-form");
+  searchInput = document.getElementById("search-input");
+  addShortcutForm = document.getElementById("addShortcutForm");
+  renameShortcutForm = document.getElementById("renameShortcutForm");
+
+  // instantiate the Bootstrap modals
+  addModal = new bootstrap.Modal(document.getElementById("addShortcutModal"));
+  renameModal = new bootstrap.Modal(
+    document.getElementById("renameShortcutModal")
+  );
+
+  // Strip any lingering aria-hidden on show
+  ["addShortcutModal", "renameShortcutModal"].forEach((id) => {
+    const el = document.getElementById(id);
+    el.removeAttribute("aria-hidden");
+    el.addEventListener("show.bs.modal", () =>
+      el.removeAttribute("aria-hidden")
+    );
+
+    // *** NEW: blur focused descendants on hide so no focused node remains under aria-hidden ***
+    el.addEventListener("hide.bs.modal", () => {
+      const active = document.activeElement;
+      if (el.contains(active)) active.blur();
     });
-};
+  });
 
-// --- Remove Shortcut ---
-function removeShortcut(idx) {
-  if (!confirm("Remove this shortcut?")) return;
-  fetch("/remove-shortcut", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ index: idx }), // idx is a number
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        renderShortcuts(data.shortcuts);
-      } else {
-        alert("Error removing shortcut: " + data.error);
-      }
-    });
-}
-
-
-// --- Weather ---
-const WEATHER_API_KEY = "33559eb5f9da332aa21f41ffa27a7993"; // Replace with your API key
-const WEATHER_CITY_ID = 4584322; // Lake City, SC
-
-async function fetchWeather() {
-  const url = `https://api.openweathermap.org/data/2.5/weather?id=${WEATHER_CITY_ID}&units=imperial&appid=${WEATHER_API_KEY}`;
-  const resp = await fetch(url);
-  return await resp.json();
-}
-
-async function fetchForecast() {
-  // For 5-day/3-hour forecast (free tier)
-  const url = `https://api.openweathermap.org/data/2.5/forecast?id=${WEATHER_CITY_ID}&units=imperial&appid=${WEATHER_API_KEY}`;
-  const resp = await fetch(url);
-  return await resp.json();
-}
-
-function renderWeatherSummary(data) {
-  const el = document.getElementById("weather-summary");
-  if (!data.weather || !data.weather[0]) {
-    el.innerHTML = `<span>Weather unavailable</span>`;
+  // Auth
+  if (!(await checkAuth())) {
+    window.location.href = "/auth/google";
     return;
   }
-  const icon = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
-  el.innerHTML = `<img src="${icon}" width="32" height="32" alt=""><span>${
-    data.name
-  }</span> <span>${Math.round(data.main.temp)}°F</span>`;
-}
+  loginBtn.style.display = "none";
+  const [user, prefs] = await Promise.all([loadUser(), loadPrefs()]);
+  if (user) initProfile(user);
 
-function renderForecast(forecast) {
-  const el = document.getElementById("weather-forecast");
-  // Group by day
-  const days = {};
-  forecast.list.forEach((item) => {
-    const date = new Date(item.dt * 1000);
-    const day = date.toLocaleDateString();
-    if (!days[day]) days[day] = [];
-    days[day].push(item);
-  });
-  el.innerHTML = Object.keys(days)
-    .slice(0, 5)
-    .map((day) => {
-      const items = days[day];
-      const temps = items.map((i) => i.main.temp);
-      const avgTemp = temps.reduce((a, b) => a + b, 0) / temps.length;
-      const icon = `https://openweathermap.org/img/wn/${items[0].weather[0].icon}.png`;
-      return `<div class="weather-forecast-day">
-      <span>${new Date(items[0].dt * 1000).toLocaleDateString(undefined, {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-      })}</span>
-      <img src="${icon}" width="24" height="24" alt="">
-      <span>${Math.round(avgTemp)}°F</span>
-    </div>`;
-    })
-    .join("");
-}
+  // Background
+  if (prefs.wallpaper) {
+    document.body.style.background = `url('${prefs.wallpaper}') center/cover no-repeat`;
+  } else if (prefs.bgColor) {
+    document.body.style.background = prefs.bgColor;
+  }
 
-async function setupWeather() {
-  const summary = await fetchWeather();
-  renderWeatherSummary(summary);
+  overrideSearch(prefs.searchEngine);
+  renderShortcuts(await loadShortcuts());
 
-  let forecastData = null;
-  const summaryEl = document.getElementById("weather-summary");
-  const forecastEl = document.getElementById("weather-forecast");
-
-  summaryEl.onclick = async () => {
-    if (!forecastData) {
-      forecastData = await fetchForecast();
-      renderForecast(forecastData);
-    }
-    forecastEl.style.display =
-      forecastEl.style.display === "none" ? "block" : "none";
+  // context‐menu actions
+  document.getElementById("menuEdit").onclick = () => {
+    hideShortcutMenu();
+    // pre-fill rename form
+    const sc = shortcuts[currentMenuIndex];
+    document.getElementById("renameShortcutName").value = sc.name;
+    document.getElementById("renameShortcutURL").value = sc.url;
+    renameModal.show();
+  };
+  document.getElementById("menuRemove").onclick = async () => {
+    hideShortcutMenu();
+    if (!confirm("Remove this shortcut?")) return;
+    const res = await fetch("/remove-shortcut", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ index: currentMenuIndex }),
+    });
+    const j = await res.json();
+    if (j.success) renderShortcuts(j.shortcuts);
   };
 
-  document.addEventListener("click", (e) => {
-    if (!document.getElementById("weather-widget").contains(e.target)) {
-      forecastEl.style.display = "none";
-    }
-  });
-}
-
-// --- Init ---
-(async function () {
-  const list = await loadShortcuts();
-  renderShortcuts(list);
-  setupWeather();
-})();
+  // wire up form submissions
+  addShortcutForm.onsubmit = handleAddSubmit;
+  renameShortcutForm.onsubmit = handleRenameSubmit;
+});

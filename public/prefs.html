@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Preferences</title>
+</head>
+
+<body>
+    <h1>Your Preferences</h1>
+    <form id="prefsForm" enctype="multipart/form-data">
+        <label>
+            Weather Location:
+            <input type="text" name="weatherLocation">
+        </label><br>
+
+        <label>
+            Background Color:
+            <input type="color" name="bgColor">
+        </label><br>
+
+        <label>
+            Upload Wallpaper:
+            <input type="file" name="wallpaper" accept="image/*">
+        </label><br>
+        <div id="currentWall" style="margin:10px 0;"></div>
+
+        <label>
+            Search Engine:
+            <select name="searchEngine">
+                <option value="google">Google</option>
+                <option value="ddg">DuckDuckGo</option>
+                <option value="bing">Bing</option>
+            </select>
+        </label><br>
+
+        <button type="submit">Save Preferences</button>
+    </form>
+
+    <p><a href="/">← Back to Home</a></p>
+
+    <script>
+        // Load existing prefs
+        fetch('/api/prefs').then(r => r.json()).then(p => {
+            document.querySelector('[name=weatherLocation]').value = p.weatherLocation || '';
+            document.querySelector('[name=bgColor]').value = p.bgColor || '#ffffff';
+            document.querySelector('[name=searchEngine]').value = p.searchEngine || 'google';
+            if (p.wallpaper) {
+                const img = document.createElement('img');
+                img.src = p.wallpaper;
+                img.style.maxWidth = '150px';
+                document.getElementById('currentWall').append(img);
+            }
+        });
+
+        // Submit updated prefs
+        document.getElementById('prefsForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const res = await fetch('/api/prefs', {
+                method: 'POST',
+                body: formData
+            });
+            if (res.ok) location = '/';
+            else alert('Failed to save preferences.');
+        });
+    </script>
+</body>
+
+</html>

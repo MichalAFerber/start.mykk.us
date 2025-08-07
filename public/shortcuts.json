@@ -1,5 +1,10 @@
 [
   {
+    "name": "IP Cow",
+    "url": "https://ipcow.com",
+    "icon": "icons/ipcow_com.png"
+  },
+  {
     "name": "Michal Ferber",
     "url": "https://michalferber.me",
     "icon": "icons/michalferber_me.png"

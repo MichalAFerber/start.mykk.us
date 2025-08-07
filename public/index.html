@@ -1,73 +1,124 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Start - mykk.us</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <!-- Iconify for icons -->
+    <meta charset="UTF-8" />
+    <title>MyKK Start Page</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="style.css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 
 <body>
-    <div class="container">
-        <form class="search-bar" action="https://www.google.com/search" method="GET" target="_blank">
-            <input type="text" name="q" placeholder="Search the web..." autocomplete="off" />
-            <button type="submit">🔍</button>
-        </form>
-        <div class="shortcuts" id="shortcuts"></div>
-    </div>
-    <div class="weather-widget" id="weather-widget">
-        <div class="weather-summary" id="weather-summary"></div>
-        <div class="weather-forecast" id="weather-forecast" style="display:none;"></div>
-    </div>
+    <nav class="navbar">
+        <div class="search-wrapper">
+            <form id="search-form">
+                <span class="iconify" data-icon="material-symbols:search"></span>
+                <input id="search-input" type="text" placeholder="Search the web…" />
+            </form>
+        </div>
+
+        <div class="nav-right">
+            <div id="login-btn" style="display:none;">
+                <a href="/auth/google">
+                    <span class="iconify" data-icon="material-symbols:login"></span>
+                </a>
+            </div>
+
+            <div id="profile-btn" style="display:none;">
+                <img id="profile-pic" src="" width="32" height="32" class="rounded-circle" />
+                <div id="profile-menu">
+                    <button id="settings-btn">Settings</button>
+                    <button id="logout-btn">Switch Account</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="shortcuts" class="shortcuts"></div>
 
     <!-- Add Shortcut Modal -->
-    <div id="addShortcutModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <h2>Add a website</h2>
-            <form id="addShortcutForm">
-                <label>
-                    Name
-                    <input type="text" id="addShortcutName" required>
-                </label>
-                <label>
-                    URL
-                    <input type="url" id="addShortcutURL" required>
-                </label>
-                <div class="modal-actions">
-                    <button type="submit">Add</button>
-                    <button type="button" id="addShortcutCancel">Cancel</button>
+    <div class="modal fade" id="addShortcutModal" tabindex="-1" aria-labelledby="addShortcutModalLabel"
+        aria-modal="true" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addShortcutModalLabel">Add Shortcut</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
-            </form>
+                <form id="addShortcutForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="addShortcutName" class="form-label">Name</label>
+                            <input type="text" class="form-control bg-secondary text-white" id="addShortcutName"
+                                required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="addShortcutURL" class="form-label">URL</label>
+                            <input type="url" class="form-control bg-secondary text-white" id="addShortcutURL"
+                                required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <!-- Rename Shortcut Modal -->
-    <div id="renameShortcutModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <h2>Rename website</h2>
-            <form id="renameShortcutForm">
-                <label>
-                    Name
-                    <input type="text" id="renameShortcutName" required>
-                </label>
-                <div class="modal-actions">
-                    <button type="submit">Save</button>
-                    <button type="button" id="renameShortcutCancel">Cancel</button>
+    <div class="modal fade" id="renameShortcutModal" tabindex="-1" aria-labelledby="renameShortcutModalLabel"
+        aria-modal="true" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="renameShortcutModalLabel">
+                        Edit Shortcut
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
-            </form>
+                <form id="renameShortcutForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="renameShortcutName" class="form-label">Name</label>
+                            <input type="text" class="form-control bg-secondary text-white" id="renameShortcutName"
+                                required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="renameShortcutURL" class="form-label">URL</label>
+                            <input type="url" class="form-control bg-secondary text-white" id="renameShortcutURL"
+                                required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
-    <!-- Simple context menu for shortcut options -->
-    <div id="shortcutMenu" class="shortcut-menu" style="display:none;">
-        <button id="menuRename">Rename</button>
+    <div id="shortcutMenu" class="shortcut-menu">
+        <button id="menuEdit">Edit</button>
         <button id="menuRemove">Remove</button>
     </div>
 
+    <!-- Bootstrap Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="app.js"></script>
 </body>
 
