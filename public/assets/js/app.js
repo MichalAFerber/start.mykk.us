@@ -237,7 +237,6 @@ async function showPrefsModal() {
   prefsModal.show();
 }
 
-
 // ─── BOOTSTRAP INITIALIZATION ────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", async () => {
   // grab DOM refs
@@ -309,11 +308,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   //Weather Widget
-  if (prefs.weatherOn) {
-    document.querySelector(".tomorrow").style.display = "";
-  } else {
-    document.querySelector(".tomorrow").style.display = "none";
-  }
+const weatherDiv = document.getElementById("weather-container");
+if (prefs.weatherOn) {
+  weatherDiv.style.display = "block";
+} else {
+  weatherDiv.style.display = "none";
+}
 
   overrideSearch(prefs.searchEngine);
   renderShortcuts(await loadShortcuts());
