@@ -1,0 +1,14 @@
+  GNU nano 7.2                                                                                                                          docker-compose.yml *                                                                                                                                  
+services:
+  web:
+    build: .
+    container_name: start.mykk.us
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "8050:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
