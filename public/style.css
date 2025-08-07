@@ -4,7 +4,9 @@
   top: 50%;
   transform: translate(-50%, -50%);
   width: 100%;
-  max-width: calc(100vw - 120px); /* 120px = estimated nav-right min width + margins */
+  max-width: calc(
+    100vw - 120px
+  ); /* 120px = estimated nav-right min width + margins */
   pointer-events: none;
   z-index: 1;
   text-align: center;
@@ -70,7 +72,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  width: 72px;           /* Square cell */
+  width: 72px; /* Square cell */
   min-width: 72px;
   padding-bottom: 1.5rem;
   position: relative;
@@ -81,7 +83,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #232526;   /* Or your preferred dark */
+  background: #232526; /* Or your preferred dark */
   color: #fff;
   display: flex;
   align-items: center;
@@ -136,7 +138,7 @@
   background: #fff;
   color: #222;
   border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
   z-index: 3000;
   min-width: 150px;
   margin-top: 8px;
@@ -164,7 +166,7 @@
   flex-direction: column;
   position: absolute;
   top: 100%; /* Just below the image */
-  right: 0;  /* Aligns menu to right of image */
+  right: 0; /* Aligns menu to right of image */
   min-width: 150px;
   background: #fff;
   color: #222;

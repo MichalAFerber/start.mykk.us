@@ -49,7 +49,9 @@ function initProfile(user) {
   document.addEventListener("click", () => {
     profileMenu.classList.remove("open");
   });
-  settingsBtn.onclick = () => {showPrefsModal();};
+  settingsBtn.onclick = () => {
+    showPrefsModal();
+  };
   logoutBtn.onclick = () => (location.href = "/logout");
 }
 
