@@ -15,18 +15,17 @@
 
 html,
 body {
-  height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #1A1A1A;
-  color: #F0F0F0;
+  background-color: #121212;
+  color: #FFFFFF;
   font-family: "Segoe UI", Arial, sans-serif;
 }
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   background: none;
+  min-height: 100vh;
   /* color: inherit; */
 }
 .form-control::-moz-placeholder {

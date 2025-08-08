@@ -308,12 +308,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   //Weather Widget
-const weatherDiv = document.getElementById("weather-container");
-if (prefs.weatherOn) {
-  weatherDiv.style.display = "block";
-} else {
-  weatherDiv.style.display = "none";
-}
+  const weatherDiv = document.getElementById("weather-container");
+  if (prefs.weatherOn) {
+    weatherDiv.style.display = "block";
+  } else {
+    weatherDiv.style.display = "none";
+  }
 
   overrideSearch(prefs.searchEngine);
   renderShortcuts(await loadShortcuts());

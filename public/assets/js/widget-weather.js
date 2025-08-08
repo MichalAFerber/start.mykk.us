@@ -13,5 +13,4 @@ function loadWeatherWidget(city, slug) {
   }
 }
 
-// Demo: Always NYC; real code could use geolocation + city lookup
 loadWeatherWidget("lake-city", "33d87n79d76");

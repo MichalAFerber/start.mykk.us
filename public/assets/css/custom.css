@@ -1,3 +1,6 @@
+.main-content {
+  display: flex;
+}
 .search-wrapper {
   position: absolute;
   left: 50%;
@@ -7,7 +10,6 @@
   max-width: calc(
     100vw - 120px
   ); /* 120px = estimated nav-right min width + margins */
-  pointer-events: none;
   z-index: 1;
   text-align: center;
 }
@@ -61,20 +63,38 @@
 }
 
 /* Shortcuts Grid */
+.shortcut-box {
+  display: inline-block;                /* Only as big as content */
+  background: #1E1E1E;   /* Slightly more opaque */
+  border: 2px solid #2D2D2D;            /* Aqua blue border (customize as you wish) */
+  border-radius: 18px;                  /* Rounded corners */
+  box-shadow: 0 2px 8px #2D2D2D;          /* Soft shadow */
+  margin-left: 3.5rem;
+  margin-right: 3.5rem;
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+  padding: 2.5rem;              /* Space inside box */
+  opacity: 0.95;                    /* Slightly transparent */
+  transition: box-shadow 0.18s;
+  /* Remove width/height constraints: */
+  max-width: calc(
+    100vw - 120px
+  ); /* 120px = estimated nav-right min width + margins */
+}
 .shortcuts {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  padding-top: 1.5rem;
+  padding-top: 1rem;
 }
 .col.shortcut {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  width: 72px; /* Square cell */
-  min-width: 72px;
-  padding-bottom: 1.5rem;
+  width: 96px; /* Square cell */
+  min-width: 96px;
+  padding-bottom: 1.25rem;
   position: relative;
   text-align: center;
   cursor: pointer;
@@ -103,6 +123,7 @@
   font-size: 0.75em;
   font-weight: 500;
   text-align: center;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   padding: 2px 4px;
@@ -114,8 +135,8 @@
 }
 .shortcut-dots {
   position: absolute;
-  top: 4px;
-  right: -8px;
+  top: 0px;
+  right: 8px;
   background: none;
   border: none;
   color: #888;
@@ -201,9 +222,4 @@ btn btn-primary {
 }
 .container {
   flex: 1 0 auto;
-}
-.tomorrow {
-  width: 100vw;
-  border-radius: 0 !important;
-  box-shadow: 0 -2px 12px #0002; /* optional for separation */
 }
