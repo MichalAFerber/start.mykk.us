@@ -6,24 +6,24 @@
     <title>MyKK Start Page</title>
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
 
-    <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon" />
 
-    <!-- 1) Base defaults: Missing.css -->
-    <link rel="stylesheet" href="https://unpkg.com/missing.css@1.2.0">
+    <!-- Baseline defaults + accessibility -->
+    <link rel="stylesheet" href="https://unpkg.com/missing.css@1.2.0" />
 
-    <!-- 2) Frameworks -->
+    <!-- Framework -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css" />
 
-    <!-- 3) Your styles (override) -->
+    <!-- Your styles (must be last so they win) -->
     <link rel="stylesheet" href="assets/css/site.css" />
     <link rel="stylesheet" href="assets/css/custom.css" />
 
     <!-- Utilities -->
-    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js" defer></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js" defer></script>
 
-    <!-- Skip link helper style (if not already present in your CSS) -->
+    <!-- Small helper for skip link -->
     <style>
         .visually-hidden {
             position: absolute !important;
@@ -34,7 +34,7 @@
             white-space: nowrap;
             border: 0;
             padding: 0;
-            margin: -1px;
+            margin: -1px
         }
 
         .visually-hidden-focusable:active,
@@ -44,22 +44,23 @@
             width: auto;
             clip: auto;
             margin: 0;
-            white-space: normal;
+            white-space: normal
         }
     </style>
 </head>
 
 <body>
-    <!-- Skip link -->
+    <!-- Skip link for keyboard users -->
     <a class="visually-hidden visually-hidden-focusable" href="#main">Skip to content</a>
 
+    <!-- Header / Search / Profile -->
     <header class="py-2 px-3 d-flex justify-content-between align-items-center">
         <nav class="navbar navbar-transparent" role="navigation" aria-label="Primary">
             <!-- Search box -->
             <form id="search-form" role="search" aria-label="Site search" class="position-relative">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                    style="position:absolute; left:1em; top:50%; transform:translateY(-50%);" width="24" height="24"
-                    viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"
+                    style="position:absolute;left:1em;top:50%;transform:translateY(-50%);" width="24" height="24"
+                    viewBox="0 0 24 24">
                     <path fill="currentColor"
                         d="m19.6 21l-6.3-6.3q-.75.6-1.725.95T9.5 16q-2.725 0-4.612-1.888T3 9.5t1.888-4.612T9.5 3t4.613 1.888T16 9.5q0 1.1-.35 2.075T14.7 13.3l6.3 6.3zM9.5 14q1.875 0 3.188-1.312T14 9.5t-1.312-3.187T9.5 5T6.313 6.313T5 9.5t1.313 3.188T9.5 14" />
                 </svg>
@@ -68,7 +69,7 @@
             </form>
         </nav>
 
-        <!-- Profile/Settings -->
+        <!-- Profile -->
         <div class="nav-right d-flex align-items-center gap-2">
             <div id="login-btn" style="display:none;">
                 <a href="/auth/google" class="btn btn-primary btn-sm">
@@ -81,13 +82,13 @@
                 <button id="settings-btn" type="button"
                     class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" aria-haspopup="menu"
                     aria-expanded="false" aria-controls="profile-menu">
-                    <img id="profile-pic" src="" width="28" height="28" class="rounded-circle" alt="Profile picture">
+                    <img id="profile-pic" src="" width="28" height="28" class="rounded-circle" alt="Profile picture" />
                     <span class="visually-hidden">Open profile menu</span>
                     <span class="fa fa-caret-down" aria-hidden="true"></span>
                 </button>
 
                 <div id="profile-menu" class="profile-menu card p-2" role="menu" aria-labelledby="settings-btn" hidden
-                    style="position:absolute; right:0; top:calc(100% + .25rem); min-width: 12rem; z-index: 10;">
+                    style="position:absolute;right:0;top:calc(100% + .25rem);min-width:12rem;z-index:10;">
                     <button role="menuitem" id="settings-open-btn" type="button"
                         class="btn btn-link text-start w-100">Settings</button>
                     <button role="menuitem" id="logout-btn" type="button" class="btn btn-link text-start w-100">Switch
@@ -97,14 +98,15 @@
         </div>
     </header>
 
+    <!-- Main -->
     <main id="main" tabindex="-1">
-        <!-- Shortcuts -->
+        <!-- Shortcuts panel -->
         <section class="container text-center" aria-labelledby="shortcuts-label">
             <h2 id="shortcuts-label" class="visually-hidden">Shortcuts</h2>
             <div id="shortcuts" class="row row-cols-auto shortcuts g-2"></div>
         </section>
 
-        <!-- Weather Widget -->
+        <!-- Weather region -->
         <section class="container mt-3" role="region" aria-label="Weather">
             <div id="weather-container"></div>
         </section>
@@ -142,7 +144,7 @@
         </div>
     </div>
 
-    <!-- Edit Shortcut Modal -->
+    <!-- Rename Shortcut Modal -->
     <div class="modal fade" id="renameShortcutModal" tabindex="-1" aria-labelledby="renameShortcutModalLabel"
         role="dialog" aria-modal="true">
         <div class="modal-dialog">
@@ -196,13 +198,13 @@
                         <div class="mb-3">
                             <label class="form-label">Upload Wallpaper:</label>
                             <input type="file" name="wallpaper" accept="image/*"
-                                class="form-control bg-secondary text-white">
+                                class="form-control bg-secondary text-white" />
                             <div id="currentWall" style="margin:10px 0;"></div>
                             <button type="button" id="deleteWallBtn" class="btn btn-sm btn-danger mt-2"
                                 style="display:none;">
                                 Delete Wallpaper
                             </button>
-                            <input type="hidden" name="deleteWallpaper" id="deleteWallpaperField" value="false">
+                            <input type="hidden" name="deleteWallpaper" id="deleteWallpaperField" value="false" />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Search Engine:</label>
@@ -222,23 +224,21 @@
         </div>
     </div>
 
-    <!-- Shortcut context menu -->
+    <!-- Shortcut Context Menu -->
     <div id="shortcutMenu" class="shortcut-menu card p-2" hidden role="menu" aria-label="Shortcut menu">
         <button id="menuEdit" role="menuitem" class="btn btn-link text-start w-100" type="button">Edit</button>
         <button id="menuRemove" role="menuitem" class="btn btn-link text-start w-100" type="button">Remove</button>
     </div>
 
-    <!-- Scripts: framework first, then your app, then widgets -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/app.js"></script>
 
-    <!-- WeatherWidget.io loader -->
+    <!-- WeatherWidget.io (loader first) -->
     <script id="weatherwidget-io-js" src="https://weatherwidget.io/js/widget.min.js"></script>
-
-    <!-- Our widget file: correct filename -->
     <script src="assets/js/widget-weather.js"></script>
 
-    <!-- (keep a11y/input after your app if you had it there) -->
+    <!-- Pointer + a11y helpers (menu, drag handle, etc.) -->
     <script src="assets/js/a11y-and-input.js"></script>
 </body>
 

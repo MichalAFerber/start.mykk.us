@@ -1,57 +1,238 @@
-/* --- Accessibility & Touch polish --- */
+/* --------------------------------------------------------------------------
+   MyKK – Restore classic look on top of Missing.css + Bootstrap
+   Order in <head>:
+   1) missing.min.css
+   2) bootstrap.min.css
+   3) this custom.css (must come last)
+   -------------------------------------------------------------------------- */
 
-/* Larger tap targets */
-:root { --tap-size: 44px; }
-
-button, .btn, .shortcut, .nav-right > * {
-  min-height: var(--tap-size);
-  min-width: var(--tap-size);
+/* === Base & Resets (bring back Bootstrap feel) =========================== */
+:root{
+  /* quick theme knobs */
+  --panel-bg: rgba(15, 15, 20, 0.78);
+  --panel-border: rgba(255,255,255,0.08);
+  --panel-shadow: 0 10px 40px rgba(0,0,0,.45);
+  --ring: #66b2ff;
+  --tile-size: 72px;
+  --tile-gap: 18px;
+  --radius-xl: 16px;
 }
 
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
+html { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: inherit; }
+
+/* Prefer Bootstrap-ish system font stack (Missing.css uses its own) */
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+       Arial, "Noto Sans", "Liberation Sans", sans-serif; }
+
+/* Keep visible focus, but make it subtle */
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* Missing.css tweaks can occasionally restyle .btn/.form-control.
+   Force Bootstrap baseline back where needed. */
+.btn, .form-control, .form-select, .form-check-input {
+  font: inherit;
 }
 
-/* Focus ring for keyboard users */
-:focus-visible {
-  outline: 2px solid #66b2ff;
-  outline-offset: 2px;
+/* ======================================================================== */
+/* ==========  HEADER / SEARCH BAR  ======================================= */
+/* ======================================================================== */
+
+header { padding-block: 10px !important; }
+#search-form {
+  max-width: 980px;
+  margin-inline: auto;
+}
+#search-input{
+  width: 100%;
+  height: 46px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  padding: 8px 16px 8px 48px; /* room for icon */
+  backdrop-filter: blur(6px);
+}
+#search-input::placeholder{ color: rgba(255,255,255,.8); }
+#search-input:focus{
+  background: rgba(255,255,255,.16);
+  border-color: rgba(255,255,255,.3);
+  box-shadow: 0 0 0 .2rem rgba(102,178,255,.15);
 }
 
-/* Hover effects only for fine pointers (avoid sticky hover on touch) */
-@media (hover: hover) and (pointer: fine) {
-  .shortcut:hover { transform: translateY(-2px); }
+/* Profile button/menu area */
+.nav-right img#profile-pic{ border: 1px solid rgba(255,255,255,.25); }
+
+/* Profile dropdown card look */
+#profile-menu.card{
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--panel-shadow);
+}
+#profile-menu .btn-link{
+  color: #ddd;
+}
+#profile-menu .btn-link:hover{
+  color: #fff; background: rgba(255,255,255,.06);
 }
 
-/* Weather region min size so it doesn't collapse */
-#weather-container { min-height: 120px; }
+/* ======================================================================== */
+/* ==========  SHORTCUTS PANEL & TILES  =================================== */
+/* ======================================================================== */
 
-/* Sortable drag handle */
-.drag-handle {
-  touch-action: none; /* crucial for touch dragging */
-  cursor: grab;
+/* Make the section around #shortcuts a frosted panel */
+main section[aria-labelledby="shortcuts-label"]{
+  max-width: 1180px;
+  margin: 28px auto 0;
+  padding: 24px 22px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--panel-shadow);
 }
-.drag-handle:active {
-  cursor: grabbing;
+
+/* Grid spacing */
+#shortcuts.row{
+  --bs-gutter-x: var(--tile-gap);
+  --bs-gutter-y: var(--tile-gap);
+  justify-content: center;
 }
-.drag-ghost { opacity: 0.75; }
 
-/* Profile menu card look (already inlined, keep here for theming) */
-.profile-menu { min-width: 12rem; }
+/* Individual tile */
+.shortcut {
+  text-align: center;
+  user-select: none;
+  min-width: 110px;
+}
+.shortcut a { color: #cfd6ff; text-decoration: none; }
+.shortcut a:hover { color: #fff; }
 
-/* Optional: remove iOS blue tap highlight on dark backgrounds */
+/* Icon circle */
+.shortcut-circle{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tile-size);
+  height: var(--tile-size);
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  box-shadow: 0 2px 10px rgba(0,0,0,.35) inset,
+              0 8px 20px rgba(0,0,0,.25);
+  transition: transform .12s ease, background .12s ease;
+}
+.shortcut:hover .shortcut-circle{ transform: translateY(-2px); background: rgba(255,255,255,.09); }
+
+.shortcut-img{
+  width: 36px; height: 36px; object-fit: contain; display: block;
+}
+
+/* Label under icon */
+.shortcut-label{
+  display: block;
+  margin-top: 8px;
+  font-size: .9rem;
+  color: #b9c1d6;
+  text-wrap: nowrap;
+}
+
+/* Three-dots + drag handle cluster under the tile */
+.shortcut .drag-handle,
+.shortcut .shortcut-dots{
+  height: 28px; min-width: 28px; padding: 2px 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  color: #d7def1;
+  cursor: pointer;
+}
+.shortcut .drag-handle{ touch-action: none; cursor: grab; }
+.shortcut .drag-handle:active{ cursor: grabbing; }
+.drag-ghost{ opacity: .75; }
+
+/* Add tile button */
+#addShortcutBtn{
+  width: var(--tile-size); height: var(--tile-size);
+  border-radius: 50%;
+  border: 1px dashed rgba(255,255,255,.25);
+  background: rgba(255,255,255,.05);
+  color: #e8f0ff;
+}
+
+/* Context menu card */
+#shortcutMenu.card{
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--panel-shadow);
+}
+#shortcutMenu .btn-link{
+  color: #e5e9f7;
+}
+#shortcutMenu .btn-link:hover{
+  color: #fff; background: rgba(255,255,255,.08);
+}
+
+/* ======================================================================== */
+/* ==========  MODALS (dark)  ============================================== */
+/* ======================================================================== */
+
+.modal-content.bg-dark{
+  background: #1a1d24;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px;
+  box-shadow: var(--panel-shadow);
+}
+.modal-header{ border-bottom-color: rgba(255,255,255,.08); }
+.modal-footer{ border-top-color: rgba(255,255,255,.08); }
+
+.form-control.bg-secondary.text-white,
+.form-select.bg-secondary.text-white{
+  background-color: #2b2f3a !important;
+  color: #e6e6e6 !important;
+  border-color: rgba(255,255,255,.15);
+}
+.form-control.bg-secondary.text-white:focus,
+.form-select.bg-secondary.text-white:focus{
+  border-color: rgba(255,255,255,.3);
+  box-shadow: 0 0 0 .2rem rgba(102,178,255,.15);
+}
+
+/* ======================================================================== */
+/* ==========  WEATHER BAR  =============================================== */
+/* ======================================================================== */
+
+/* Keep the widget visible and tidy; the widget injects its own markup */
+#weather-container{
+  margin: 18px auto 0;
+  max-width: 1180px;
+  padding: 10px 12px;
+  background: rgba(15, 15, 20, 0.65);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  color: #e6e6e6;
+  min-height: 120px; /* prevents layout jump while the script loads */
+}
+
+/* If you prefer the full-width bottom ribbon look, uncomment: */
+#weather-container{
+  position: fixed; left: 0; right: 0; bottom: 0;
+  max-width: none; margin: 0; border-radius: 0;
+  border-left: 0; border-right: 0; z-index: 5;
+}
+
+/* ======================================================================== */
+/* ==========  MISC POLISH  =============================================== */
+/* ======================================================================== */
+
+/* Subtle rounded corners and blur on the whole page edges (matches “before”) */
+body{
+  color: #e6e6e6;
+}
+main{ padding-bottom: 140px; } /* leaves room if weather is bottom ribbon */
+
+a { text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Remove iOS blue tap highlight on dark */
 * { -webkit-tap-highlight-color: rgba(0,0,0,0); }
-
-/* Ensure navbar/search spacing works nicely with Missing.css defaults */
-#search-form input {
-  padding-left: 2.5rem; /* room for the search icon */
-}
-
-/* Shortcut menu overlay positioning if you absolutely position it later */
-.shortcut-menu { z-index: 1000; }
