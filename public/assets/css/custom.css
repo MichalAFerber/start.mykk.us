@@ -252,3 +252,39 @@ main{ padding-bottom: 200px; }
   }
   main{ padding-bottom: 160px; }
 }
+
+
+/* Weather widget ribbon style */
+#weather-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85); /* dark semi-transparent ribbon */
+  padding: 0.5rem 1rem;
+}
+
+#weather-container .weatherwidget-io {
+  width: 100% !important;
+  max-width: 100% !important;
+  border: none;
+  margin: 0 auto;
+}
+
+#weather-container iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+  border: none !important;
+}
+
+/* Make it blend nicely with your other UI */
+@media (max-width: 768px) {
+  #weather-container {
+    font-size: 0.85rem;
+    padding: 0.25rem;
+  }
+}
