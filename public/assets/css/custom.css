@@ -207,34 +207,48 @@ main section[aria-labelledby="shortcuts-label"]{
   left: 0; right: 0; bottom: 0;
   z-index: 10;
 
-  /* full-width ribbon look */
-  max-width: none;
-  margin: 0;
-  border-radius: 0;
-  border: 0;
-
-  /* glassy dark ribbon */
+  max-width: none; margin: 0; border-radius: 0; border: 0;
   background: rgba(15, 15, 20, 0.80);
   backdrop-filter: blur(6px);
   color: #e6e6e6;
   box-shadow: 0 -6px 18px rgba(0,0,0,.35);
 
-  /* spacing & height */
-  min-height: 120px;
+  /* clamp the ribbon height */
+  height: 140px;            /* ← final ribbon height */
+  min-height: 140px;
   padding: 10px 14px;
+  overflow: hidden;
 
-  /* respect iOS/Android safe-area */
+  /* respect mobile safe area */
   padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
 }
 
-/* keep layout from being covered by the ribbon */
-main{ padding-bottom: 220px; }
+/* Keep page content clear of the ribbon */
+main{ padding-bottom: 200px; }
 
-/* Compact ribbon on narrow screens */
+/* Force the injected widget to the ribbon height */
+#weather-container .weatherwidget-io,
+#weather-container iframe{
+  width: 100% !important;
+  height: 120px !important;   /* slightly less than container to get padding */
+  min-height: 120px !important;
+  max-height: 120px !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+/* Compact on narrow screens */
 @media (max-width: 768px){
   #weather-container{
-    min-height: 96px;
+    height: 120px;
+    min-height: 120px;
     padding: 8px 10px;
   }
-  main{ padding-bottom: 140px; }
+  #weather-container .weatherwidget-io,
+  #weather-container iframe{
+    height: 100px !important;
+    min-height: 100px !important;
+    max-height: 100px !important;
+  }
+  main{ padding-bottom: 160px; }
 }
