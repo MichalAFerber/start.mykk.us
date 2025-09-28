@@ -1,116 +1,37 @@
-/* --------------------------------------------------------------------------
-   MyKK – Restore classic look on top of Missing.css + Bootstrap
-   Order in <head>:
-   1) missing.min.css
-   2) bootstrap.min.css
-   3) this custom.css (must come last)
-   -------------------------------------------------------------------------- */
-
-/* === Base & Resets (bring back Bootstrap feel) =========================== */
-:root{
-  /* quick theme knobs */
-  --panel-bg: rgba(15, 15, 20, 0.78);
-  --panel-border: rgba(255,255,255,0.08);
-  --panel-shadow: 0 10px 40px rgba(0,0,0,.45);
-  --ring: #66b2ff;
-  --tile-size: 72px;
-  --tile-gap: 18px;
-  --radius-xl: 16px;
-}
-
-html { box-sizing: border-box; }
-*, *::before, *::after { box-sizing: inherit; }
-
-/* Prefer Bootstrap-ish system font stack (Missing.css uses its own) */
-body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-       Arial, "Noto Sans", "Liberation Sans", sans-serif; }
-
-/* Keep visible focus, but make it subtle */
-:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
-
-/* Missing.css tweaks can occasionally restyle .btn/.form-control.
-   Force Bootstrap baseline back where needed. */
-.btn, .form-control, .form-select, .form-check-input {
-  font: inherit;
-}
-
-/* ======================================================================== */
-/* ==========  HEADER / SEARCH BAR  ======================================= */
-/* ======================================================================== */
-
-header { padding-block: 10px !important; }
-#search-form {
-  max-width: 980px;
-  margin-inline: auto;
-}
-#search-input{
-  width: 100%;
-  height: 46px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.15);
-  background: rgba(255,255,255,.12);
-  color: #fff;
-  padding: 8px 16px 8px 48px; /* room for icon */
-  backdrop-filter: blur(6px);
-}
-#search-input::placeholder{ color: rgba(255,255,255,.8); }
-#search-input:focus{
-  background: rgba(255,255,255,.16);
-  border-color: rgba(255,255,255,.3);
-  box-shadow: 0 0 0 .2rem rgba(102,178,255,.15);
-}
-
-/* Profile button/menu area */
-.nav-right img#profile-pic{ border: 1px solid rgba(255,255,255,.25); }
-
-/* Profile dropdown card look */
-#profile-menu.card{
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  box-shadow: var(--panel-shadow);
-}
-#profile-menu .btn-link{
-  color: #ddd;
-}
-#profile-menu .btn-link:hover{
-  color: #fff; background: rgba(255,255,255,.06);
-}
-
-/* ======================================================================== */
-/* ==========  SHORTCUTS PANEL & TILES  =================================== */
-/* ======================================================================== */
-
-/* Make the section around #shortcuts a frosted panel */
-/* ================== Shortcuts Panel & Grid ================== */
-
-main section[aria-labelledby="shortcuts-label"]{
-  max-width: 1180px;
+/* ======= Shortcuts panel (wide frosted card) ======= */
+.shortcuts-panel{
+  max-width: 1240px;
   margin: 28px auto 0;
   padding: 24px 22px;
-  background: var(--panel-bg, rgba(15,15,20,.78));
-  border: 1px solid var(--panel-border, rgba(255,255,255,.08));
-  border-radius: var(--radius-xl, 16px);
-  box-shadow: var(--panel-shadow, 0 10px 40px rgba(0,0,0,.45));
+  background: rgba(15,15,20,.78);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.45);
 }
 
-/* Grid container */
-.shortcuts-grid{
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 18px 22px;                 /* row gap, column gap */
-  justify-items: center;
-  align-items: start;
-  max-height: calc(3 * 110px + 2 * 18px); /* 3 rows + gaps */
-  overflow: visible; /* or auto if you want a scrollbar */
+/* Shortcuts ribbon: spread nicely across width */
+.shortcuts{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px 22px;               /* row gap / column gap */
 }
 
-/* Tile */
+/* Each tile footprint */
 .shortcut{
-  width: 110px;                   /* fixed footprint so grid is tidy */
+  flex: 0 1 110px;              /* ~110px per tile */
   text-align: center;
   user-select: none;
   -webkit-user-drag: none;
   position: relative;
+}
+
+/* Link/body */
+.shortcut a{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
 }
 
 /* Icon circle */
@@ -118,8 +39,7 @@ main section[aria-labelledby="shortcuts-label"]{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 72px;
-  height: 72px;
+  width: 72px; height: 72px;
   border-radius: 50%;
   background: rgba(255,255,255,.06);
   border: 1px solid rgba(255,255,255,.10);
@@ -128,12 +48,8 @@ main section[aria-labelledby="shortcuts-label"]{
 }
 .shortcut:hover .shortcut-circle{ transform: translateY(-2px); background: rgba(255,255,255,.09); }
 
-/* Icon image */
-.shortcut-img{
-  width: 38px; height: 38px; object-fit: contain; display: block;
-}
+.shortcut-img{ width: 38px; height: 38px; object-fit: contain; display: block; }
 
-/* Label */
 .shortcut-label{
   display: block;
   margin-top: 8px;
@@ -144,9 +60,8 @@ main section[aria-labelledby="shortcuts-label"]{
   text-overflow: ellipsis;
 }
 
-/* Dots & drag handle (only visible on hover/focus for clean look) */
-.shortcut .shortcut-dots,
-.shortcut .drag-handle{
+/* Dots/handle only on hover/focus (clean look) */
+.shortcut .shortcut-dots{
   position: absolute;
   top: -6px;
   right: -6px;
@@ -159,92 +74,52 @@ main section[aria-labelledby="shortcuts-label"]{
   display: none;
 }
 .shortcut:focus-within .shortcut-dots,
-.shortcut:hover .shortcut-dots,
-.shortcut:focus-within .drag-handle,
-.shortcut:hover .drag-handle{ display: inline-flex; }
+.shortcut:hover .shortcut-dots{ display: inline-flex; }
 
 .drag-ghost{ opacity: .75; }
 
-/* “Add” tile */
-.shortcut.add-tile .shortcut-circle{
-  border-style: dashed;
-  color: #e8f0ff;
-}
+/* Add tile look */
+.shortcut.add-tile .shortcut-circle{ border-style: dashed; color: #e8f0ff; }
 
-/* Responsive tweaks */
+/* Responsive */
 @media (max-width: 768px){
-  .shortcuts-grid{ gap: 14px 16px; }
-  .shortcut{ width: 100px; }
+  .shortcuts{ gap: 14px 16px; }
+  .shortcut{ flex: 0 1 100px; }
   .shortcut-circle{ width: 66px; height: 66px; }
   .shortcut-img{ width: 34px; height: 34px; }
 }
 
-/* ======================================================================== */
-/* ==========  MODALS (dark)  ============================================== */
-/* ======================================================================== */
-
-.modal-content.bg-dark{
-  background: #1a1d24;
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 14px;
-  box-shadow: var(--panel-shadow);
-}
-.modal-header{ border-bottom-color: rgba(255,255,255,.08); }
-.modal-footer{ border-top-color: rgba(255,255,255,.08); }
-
-.form-control.bg-secondary.text-white,
-.form-select.bg-secondary.text-white{
-  background-color: #2b2f3a !important;
-  color: #e6e6e6 !important;
-  border-color: rgba(255,255,255,.15);
-}
-.form-control.bg-secondary.text-white:focus,
-.form-select.bg-secondary.text-white:focus{
-  border-color: rgba(255,255,255,.3);
-  box-shadow: 0 0 0 .2rem rgba(102,178,255,.15);
-}
-
-/* ======================================================================== */
-/* ==========  WEATHER BAR  =============================================== */
-/* ======================================================================== */
-
-/* --- Weather ribbon (full-width, fixed bottom) ---------------------------- */
+/* ======= Weather ribbon (fixed bottom) ======= */
 #weather-container{
   position: fixed;
   left: 0; right: 0; bottom: 0;
-  z-index: 10;
-
-  max-width: none; margin: 0; border-radius: 0; border: 0;
-  background: rgba(15, 15, 20, 0.80);
-  backdrop-filter: blur(6px);
-  color: #e6e6e6;
-  box-shadow: 0 -6px 18px rgba(0,0,0,.35);
-
-  /* clamp the ribbon height */
-  height: 140px;            /* ← final ribbon height */
-  min-height: 140px;
+  z-index: 999;
+  display: none;                 /* app.js toggles to flex when on */
+  justify-content: center;
+  background: rgba(15, 15, 20, 0.85);
   padding: 10px 14px;
+  height: 140px;                 /* clamp */
+  min-height: 140px;
   overflow: hidden;
-
-  /* respect mobile safe area */
+  box-shadow: 0 -6px 18px rgba(0,0,0,.35);
   padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
 }
 
-/* Keep page content clear of the ribbon */
+/* prevent overlap with content */
 main{ padding-bottom: 200px; }
 
-/* Force the injected widget to the ribbon height */
 #weather-container .weatherwidget-io,
 #weather-container iframe{
   width: 100% !important;
-  height: 120px !important;   /* slightly less than container to get padding */
+  max-width: 100% !important;
+  height: 120px !important;
   min-height: 120px !important;
   max-height: 120px !important;
+  border: none !important;
   display: block !important;
   overflow: hidden !important;
 }
 
-/* Compact on narrow screens */
 @media (max-width: 768px){
   #weather-container{
     height: 120px;
@@ -258,40 +133,4 @@ main{ padding-bottom: 200px; }
     max-height: 100px !important;
   }
   main{ padding-bottom: 160px; }
-}
-
-
-/* Weather widget ribbon style */
-#weather-container {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.85); /* dark semi-transparent ribbon */
-  padding: 0.5rem 1rem;
-}
-
-#weather-container .weatherwidget-io {
-  width: 100% !important;
-  max-width: 100% !important;
-  border: none;
-  margin: 0 auto;
-}
-
-#weather-container iframe {
-  width: 100% !important;
-  max-width: 100% !important;
-  border: none !important;
-}
-
-/* Make it blend nicely with your other UI */
-@media (max-width: 768px) {
-  #weather-container {
-    font-size: 0.85rem;
-    padding: 0.25rem;
-  }
 }

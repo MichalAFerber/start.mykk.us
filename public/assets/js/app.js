@@ -1,5 +1,3 @@
-// public/assets/js/app.js
-
 // ─── ICON CONSTANTS ───────────────────────────────────────────────────────────
 const ICON_SEARCH = "material-symbols:search";
 const ICON_LOGIN = "material-symbols:login";
@@ -25,92 +23,45 @@ let loginBtn,
 
 // ─── AUTH HELPERS ─────────────────────────────────────────────────────────────
 async function checkAuth() {
-  const res = await fetch("/api/user", { credentials: "same-origin" });
+  const res = await fetch("/api/user");
   return res.ok;
 }
 async function loadUser() {
-  const res = await fetch("/api/user", { credentials: "same-origin" });
+  const res = await fetch("/api/user");
   return res.ok ? await res.json() : null;
 }
 async function loadPrefs() {
-  const res = await fetch("/api/prefs", { credentials: "same-origin" });
+  const res = await fetch("/api/prefs");
   return res.ok ? await res.json() : {};
 }
 
-// ─── PROFILE UI (pointer-friendly, accessible) ───────────────────────────────
+// ─── PROFILE UI ───────────────────────────────────────────────────────────────
 function initProfile(user) {
-  profilePic.src = user.photo || "";
+  profilePic.src = user.photo;
   profileBtn.style.display = "block";
 
-  const openMenu = () => {
-    profileMenu.hidden = false;
-    settingsBtn.setAttribute("aria-expanded", "true");
-    // focus first item
-    profileMenu.querySelector('[role="menuitem"]')?.focus();
+  settingsBtn.onclick = () => showPrefsModal();
+  logoutBtn.onclick = () => (location.href = "/logout");
+
+  // simple popover menu
+  const toggleMenu = () => {
+    const open = profileMenu.hasAttribute("hidden");
+    if (open) profileMenu.removeAttribute("hidden");
+    else profileMenu.setAttribute("hidden", "");
   };
-  const closeMenu = () => {
-    profileMenu.hidden = true;
-    settingsBtn.setAttribute("aria-expanded", "false");
-  };
-  const toggleMenu = (e) => {
-    e.preventDefault();
+  document.getElementById("settings-btn").addEventListener("click", (e) => {
     e.stopPropagation();
-    profileMenu.hidden ? openMenu() : closeMenu();
-  };
-
-  // Use pointer events for universal input
-  settingsBtn.addEventListener("pointerdown", toggleMenu);
-
-  // Keyboard toggle
-  settingsBtn.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      toggleMenu(e);
-    }
-    if (e.key === "ArrowDown" && profileMenu.hidden) {
-      e.preventDefault();
-      openMenu();
-    }
+    toggleMenu();
   });
-
-  // Close on outside pointer
-  document.addEventListener("pointerdown", (e) => {
-    if (
-      !profileMenu.hidden &&
-      !profileMenu.contains(e.target) &&
-      e.target !== settingsBtn
-    ) {
-      closeMenu();
-    }
-  });
-
-  // Close on Escape
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !profileMenu.hidden) {
-      e.preventDefault();
-      closeMenu();
-      settingsBtn.focus();
-    }
-  });
-
-  // Button actions
-  document
-    .getElementById("settings-open-btn")
-    ?.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      closeMenu();
-      showPrefsModal();
-    });
-  logoutBtn.addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    location.href = "/logout";
-  });
+  document.addEventListener("click", () =>
+    profileMenu.setAttribute("hidden", "")
+  );
 }
 
 // ─── SEARCH OVERRIDE ──────────────────────────────────────────────────────────
 function overrideSearch(engine) {
-  // ensure only 1 handler
-  const submitHandler = (e) => {
+  searchInput.focus();
+  searchForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const q = encodeURIComponent(searchInput.value.trim());
     if (!q) return;
@@ -119,17 +70,15 @@ function overrideSearch(engine) {
       ddg: `https://duckduckgo.com/?q=${q}`,
       bing: `https://www.bing.com/search?q=${q}`,
     };
-    window.open(urls[engine] || urls.google, "_blank", "noopener,noreferrer");
+    window.open(urls[engine] || urls.google, "_blank", "noopener");
     searchInput.value = "";
     searchInput.focus();
-  };
-  searchForm.addEventListener("submit", submitHandler, { once: true });
-  searchInput.focus();
+  });
 }
 
-// ─── SHORTCUTS: load & render (with drag handle) ─────────────────────────────
+// ─── SHORTCUTS ────────────────────────────────────────────────────────────────
 async function loadShortcuts() {
-  const r = await fetch("/api/shortcuts", { credentials: "same-origin" });
+  const r = await fetch("/api/shortcuts");
   return r.ok ? await r.json() : [];
 }
 
@@ -176,15 +125,15 @@ function renderShortcuts(list) {
   add.querySelector("#addShortcutBtn").onclick = () => addModal.show();
   shortcutsC.appendChild(add);
 
-  // Sortable
+  // Sortable over a flex grid
   Sortable.create(shortcutsC, {
     animation: 150,
-    filter: ".add-tile", // do not drag the Add tile
+    filter: ".add-tile",
     preventOnFilter: false,
     ghostClass: "drag-ghost",
     onEnd: async () => {
       const newOrder = Array.from(shortcutsC.children)
-        .filter((el) => el.dataset.index != null) // ignore Add tile
+        .filter((el) => el.dataset.index != null)
         .map((el) => shortcuts[+el.dataset.index]);
       shortcuts = newOrder;
       await fetch("/api/shortcuts/order", {
@@ -197,54 +146,34 @@ function renderShortcuts(list) {
   });
 }
 
-// ─── CONTEXT MENU (pointer + kbd, accessible) ────────────────────────────────
+// ─── CONTEXT MENU ─────────────────────────────────────────────────────────────
 function showShortcutMenu(idx, btn) {
   currentMenuIndex = idx;
   const m = document.getElementById("shortcutMenu");
-  m.hidden = false;
+  m.removeAttribute("hidden");
 
-  // position near trigger (right aligned)
   const r = btn.getBoundingClientRect();
-  const menuWidth = m.offsetWidth || 160;
-  let left = r.right - menuWidth + window.scrollX;
+  const menuWidth = m.offsetWidth || 150;
+  let left = r.right - menuWidth;
   if (left < 8) left = 8;
-  const top = r.bottom + 4 + window.scrollY;
+  let top = r.bottom + 4 + window.scrollY;
 
-  m.style.position = "absolute";
-  m.style.left = `${left}px`;
+  m.style.left = `${left + window.scrollX}px`;
   m.style.top = `${top}px`;
 
-  // ARIA on trigger
-  btn.setAttribute("aria-expanded", "true");
-
-  // Close handlers
-  const outside = (e) => {
-    if (!m.contains(e.target) && e.target !== btn) hideShortcutMenu(btn);
-  };
-  const onEsc = (e) => {
-    if (e.key === "Escape") {
-      e.preventDefault();
-      hideShortcutMenu(btn);
-      btn.focus();
-    }
-  };
-  // store so we can remove later
-  m._outsidePtr = outside;
-  m._escKey = onEsc;
-
-  document.addEventListener("pointerdown", outside);
-  document.addEventListener("keydown", onEsc);
+  setTimeout(
+    () => document.addEventListener("mousedown", outsideClickForShortcutMenu),
+    0
+  );
 }
-
-function hideShortcutMenu(triggerBtn) {
+function outsideClickForShortcutMenu(e) {
   const m = document.getElementById("shortcutMenu");
-  m.hidden = true;
-  triggerBtn?.setAttribute("aria-expanded", "false");
-
-  if (m._outsidePtr) document.removeEventListener("pointerdown", m._outsidePtr);
-  if (m._escKey) document.removeEventListener("keydown", m._escKey);
-  m._outsidePtr = null;
-  m._escKey = null;
+  if (!m.contains(e.target)) hideShortcutMenu();
+}
+function hideShortcutMenu() {
+  const m = document.getElementById("shortcutMenu");
+  m.setAttribute("hidden", "");
+  document.removeEventListener("mousedown", outsideClickForShortcutMenu);
 }
 
 // ─── FORM SUBMIT HELPERS ─────────────────────────────────────────────────────
@@ -253,11 +182,9 @@ async function handleAddSubmit(e) {
   const name = document.getElementById("addShortcutName").value.trim();
   const url = document.getElementById("addShortcutURL").value.trim();
   if (!name || !url) return;
-
   const res = await fetch("/add-shortcut", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: "same-origin",
     body: JSON.stringify({ name, url }),
   });
   const j = await res.json();
@@ -266,43 +193,32 @@ async function handleAddSubmit(e) {
     addModal.hide();
     document.getElementById("addShortcutName").value = "";
     document.getElementById("addShortcutURL").value = "";
-  } else {
-    alert(j.error || "Failed to add shortcut.");
-  }
+  } else alert(j.error);
 }
-
 async function handleRenameSubmit(e) {
   e.preventDefault();
   const name = document.getElementById("renameShortcutName").value.trim();
   const url = document.getElementById("renameShortcutURL").value.trim();
   if (!name || !url) return;
-
   const res = await fetch("/rename-shortcut", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: "same-origin",
     body: JSON.stringify({ index: currentMenuIndex, name, url }),
   });
   const j = await res.json();
   if (j.success) {
     renderShortcuts(j.shortcuts);
     renameModal.hide();
-  } else {
-    alert(j.error || "Failed to rename shortcut.");
-  }
+  } else alert(j.error);
 }
 
 async function showPrefsModal() {
-  // Load prefs fresh
-  const res = await fetch("/api/prefs", { credentials: "same-origin" });
+  const res = await fetch("/api/prefs");
   const p = await res.json();
-
   const f = document.getElementById("prefsForm");
-  // FIX precedence bug: ensure boolean → "true"/"false"
-  f.weatherOn.value = String(p.weatherOn) === "true" ? "true" : "false";
+  f.weatherOn.value = "" + p.weatherOn === "true" ? "true" : "false";
   f.searchEngine.value = p.searchEngine || "google";
 
-  // Wallpaper preview
   const currentWall = document.getElementById("currentWall");
   const deleteWallBtn = document.getElementById("deleteWallBtn");
   const deleteWallpaperField = document.getElementById("deleteWallpaperField");
@@ -310,7 +226,6 @@ async function showPrefsModal() {
   if (p.wallpaper) {
     const img = document.createElement("img");
     img.src = p.wallpaper;
-    img.alt = "Current wallpaper";
     img.style.maxWidth = "150px";
     currentWall.append(img);
     deleteWallBtn.style.display = "";
@@ -324,13 +239,46 @@ async function showPrefsModal() {
     deleteWallpaperField.value = "true";
     deleteWallBtn.style.display = "none";
   };
-
   prefsModal.show();
+}
+
+// ─── WEATHER RIBBON (weatherwidget.io) ───────────────────────────────────────
+function mountWeatherRibbon(prefs) {
+  const container = document.getElementById("weather-container");
+  container.innerHTML = "";
+
+  if (!prefs.weatherOn) {
+    container.style.display = "none";
+    return;
+  }
+
+  // build anchor
+  const a = document.createElement("a");
+  a.className = "weatherwidget-io";
+  a.href = "https://forecast7.com/en/40d71n74d01/new-york/?unit=us"; // default; can be swapped by geolocation
+  a.setAttribute("data-label_1", "Lake City, SC");
+  a.setAttribute("data-label_2", "Weather");
+  a.setAttribute("data-theme", "dark");
+  a.textContent = "WEATHER";
+  a.style.cssText = "display:block;width:100%;height:120px;";
+  container.appendChild(a);
+
+  container.style.display = "flex";
+
+  // load or re-init script
+  const loader = document.getElementById("weatherwidget-io-js");
+  if (window.__weatherwidget_init) {
+    window.__weatherwidget_init();
+  } else if (!loader) {
+    const js = document.createElement("script");
+    js.id = "weatherwidget-io-js";
+    js.src = "https://weatherwidget.io/js/widget.min.js";
+    document.body.appendChild(js);
+  }
 }
 
 // ─── BOOTSTRAP INITIALIZATION ────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", async () => {
-  // grab refs
   loginBtn = document.getElementById("login-btn");
   profileBtn = document.getElementById("profile-btn");
   profilePic = document.getElementById("profile-pic");
@@ -343,14 +291,26 @@ window.addEventListener("DOMContentLoaded", async () => {
   addShortcutForm = document.getElementById("addShortcutForm");
   renameShortcutForm = document.getElementById("renameShortcutForm");
 
-  // modals
   addModal = new bootstrap.Modal(document.getElementById("addShortcutModal"));
   renameModal = new bootstrap.Modal(
     document.getElementById("renameShortcutModal")
   );
   prefsModal = new bootstrap.Modal(document.getElementById("prefsModal"));
 
-  // keep aria-clean when showing/hiding modals
+  document
+    .getElementById("prefsForm")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const res = await fetch("/api/prefs", { method: "POST", body: formData });
+      if (res.ok) {
+        prefsModal.hide();
+        location.reload();
+      } else {
+        alert("Failed to save preferences.");
+      }
+    });
+
   ["addShortcutModal", "renameShortcutModal", "prefsModal"].forEach((id) => {
     const el = document.getElementById(id);
     el.removeAttribute("aria-hidden");
@@ -363,27 +323,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // prefs form submit
-  document
-    .getElementById("prefsForm")
-    .addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const formData = new FormData(this);
-      const res = await fetch("/api/prefs", {
-        method: "POST",
-        body: formData,
-        credentials: "same-origin",
-      });
-      if (res.ok) {
-        prefsModal.hide();
-        // Optional: refresh UI; if you prefer live update, update window.__PREFS and call setters instead
-        location.reload();
-      } else {
-        alert("Failed to save preferences.");
-      }
-    });
-
-  // auth gate
   if (!(await checkAuth())) {
     window.location.href = "/auth/google";
     return;
@@ -391,60 +330,38 @@ window.addEventListener("DOMContentLoaded", async () => {
   loginBtn.style.display = "none";
 
   const [user, prefs] = await Promise.all([loadUser(), loadPrefs()]);
-  window.__PREFS = prefs || {};
-
   if (user) initProfile(user);
 
-  // background wallpaper
   if (prefs.wallpaper) {
     document.body.style.background = `url('${prefs.wallpaper}') center/cover no-repeat`;
   }
 
-  // Weather visibility (cooperate with weather-io-widget.js)
-  const weatherDiv = document.getElementById("weather-container");
-  const on = String(prefs.weatherOn) !== "false";
-  if (typeof window.setWeatherVisibility === "function") {
-    window.setWeatherVisibility(on);
-  } else if (weatherDiv) {
-    weatherDiv.style.display = on ? "block" : "none";
-  }
-
-  // search engine
-  overrideSearch(prefs.searchEngine);
-
-  // shortcuts
+  overrideSearch(prefs.searchEngine || "google");
   renderShortcuts(await loadShortcuts());
 
   // context menu actions
-  document.getElementById("menuEdit").addEventListener("pointerdown", (e) => {
-    e.preventDefault();
+  document.getElementById("menuEdit").onclick = () => {
     hideShortcutMenu();
     const sc = shortcuts[currentMenuIndex];
-    if (!sc) return;
     document.getElementById("renameShortcutName").value = sc.name;
     document.getElementById("renameShortcutURL").value = sc.url;
     renameModal.show();
-  });
-
-  document
-    .getElementById("menuRemove")
-    .addEventListener("pointerdown", async (e) => {
-      e.preventDefault();
-      hideShortcutMenu();
-      if (!confirm("Remove this shortcut?")) return;
-
-      const res = await fetch("/remove-shortcut", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ index: currentMenuIndex }),
-      });
-      const j = await res.json();
-      if (j.success) renderShortcuts(j.shortcuts);
-      else alert(j.error || "Failed to remove shortcut.");
+  };
+  document.getElementById("menuRemove").onclick = async () => {
+    hideShortcutMenu();
+    if (!confirm("Remove this shortcut?")) return;
+    const res = await fetch("/remove-shortcut", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ index: currentMenuIndex }),
     });
+    const j = await res.json();
+    if (j.success) renderShortcuts(j.shortcuts);
+  };
 
-  // form submits
-  addShortcutForm.addEventListener("submit", handleAddSubmit);
-  renameShortcutForm.addEventListener("submit", handleRenameSubmit);
+  addShortcutForm.onsubmit = handleAddSubmit;
+  renameShortcutForm.onsubmit = handleRenameSubmit;
+
+  // Weather ribbon
+  mountWeatherRibbon(prefs);
 });
