@@ -81,95 +81,102 @@ header { padding-block: 10px !important; }
 /* ======================================================================== */
 
 /* Make the section around #shortcuts a frosted panel */
+/* ================== Shortcuts Panel & Grid ================== */
+
 main section[aria-labelledby="shortcuts-label"]{
   max-width: 1180px;
   margin: 28px auto 0;
   padding: 24px 22px;
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--panel-shadow);
+  background: var(--panel-bg, rgba(15,15,20,.78));
+  border: 1px solid var(--panel-border, rgba(255,255,255,.08));
+  border-radius: var(--radius-xl, 16px);
+  box-shadow: var(--panel-shadow, 0 10px 40px rgba(0,0,0,.45));
 }
 
-/* Grid spacing */
-#shortcuts.row{
-  --bs-gutter-x: var(--tile-gap);
-  --bs-gutter-y: var(--tile-gap);
-  justify-content: center;
+/* Grid container */
+.shortcuts-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 18px 22px;                 /* row gap, column gap */
+  justify-items: center;
+  align-items: start;
+  max-height: calc(3 * 110px + 2 * 18px); /* 3 rows + gaps */
+  overflow: visible; /* or auto if you want a scrollbar */
 }
 
-/* Individual tile */
-.shortcut {
+/* Tile */
+.shortcut{
+  width: 110px;                   /* fixed footprint so grid is tidy */
   text-align: center;
   user-select: none;
-  min-width: 110px;
+  -webkit-user-drag: none;
+  position: relative;
 }
-.shortcut a { color: #cfd6ff; text-decoration: none; }
-.shortcut a:hover { color: #fff; }
 
 /* Icon circle */
 .shortcut-circle{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--tile-size);
-  height: var(--tile-size);
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.1);
-  box-shadow: 0 2px 10px rgba(0,0,0,.35) inset,
-              0 8px 20px rgba(0,0,0,.25);
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 2px 10px rgba(0,0,0,.35) inset, 0 8px 20px rgba(0,0,0,.25);
   transition: transform .12s ease, background .12s ease;
 }
 .shortcut:hover .shortcut-circle{ transform: translateY(-2px); background: rgba(255,255,255,.09); }
 
+/* Icon image */
 .shortcut-img{
-  width: 36px; height: 36px; object-fit: contain; display: block;
+  width: 38px; height: 38px; object-fit: contain; display: block;
 }
 
-/* Label under icon */
+/* Label */
 .shortcut-label{
   display: block;
   margin-top: 8px;
   font-size: .9rem;
   color: #b9c1d6;
-  text-wrap: nowrap;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Three-dots + drag handle cluster under the tile */
-.shortcut .drag-handle,
-.shortcut .shortcut-dots{
-  height: 28px; min-width: 28px; padding: 2px 6px;
+/* Dots & drag handle (only visible on hover/focus for clean look) */
+.shortcut .shortcut-dots,
+.shortcut .drag-handle{
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  height: 28px; min-width: 28px;
+  padding: 2px 6px;
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.06);
+  background: rgba(15,15,20,.75);
   color: #d7def1;
-  cursor: pointer;
+  display: none;
 }
-.shortcut .drag-handle{ touch-action: none; cursor: grab; }
-.shortcut .drag-handle:active{ cursor: grabbing; }
+.shortcut:focus-within .shortcut-dots,
+.shortcut:hover .shortcut-dots,
+.shortcut:focus-within .drag-handle,
+.shortcut:hover .drag-handle{ display: inline-flex; }
+
 .drag-ghost{ opacity: .75; }
 
-/* Add tile button */
-#addShortcutBtn{
-  width: var(--tile-size); height: var(--tile-size);
-  border-radius: 50%;
-  border: 1px dashed rgba(255,255,255,.25);
-  background: rgba(255,255,255,.05);
+/* “Add” tile */
+.shortcut.add-tile .shortcut-circle{
+  border-style: dashed;
   color: #e8f0ff;
 }
 
-/* Context menu card */
-#shortcutMenu.card{
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  box-shadow: var(--panel-shadow);
-}
-#shortcutMenu .btn-link{
-  color: #e5e9f7;
-}
-#shortcutMenu .btn-link:hover{
-  color: #fff; background: rgba(255,255,255,.08);
+/* Responsive tweaks */
+@media (max-width: 768px){
+  .shortcuts-grid{ gap: 14px 16px; }
+  .shortcut{ width: 100px; }
+  .shortcut-circle{ width: 66px; height: 66px; }
+  .shortcut-img{ width: 34px; height: 34px; }
 }
 
 /* ======================================================================== */

@@ -138,93 +138,63 @@ function renderShortcuts(list) {
   shortcutsC.innerHTML = "";
 
   list.forEach((sc, idx) => {
-    const col = document.createElement("div");
-    col.className = "col shortcut";
-    col.dataset.index = String(idx);
+    const d = document.createElement("div");
+    d.className = "shortcut";
+    d.dataset.index = idx;
 
-    col.innerHTML = `
-      <div class="d-flex flex-column align-items-center">
-        <a class="text-decoration-none" href="${
-          sc.url
-        }" target="_blank" rel="noopener noreferrer">
-          <span class="shortcut-circle">
-            <img src="${sc.icon}" alt="${sc.name}" class="shortcut-img"/>
-          </span>
-          <span class="shortcut-label">${
-            sc.name.length > 18 ? sc.name.substring(0, 10) + "..." : sc.name
-          }</span>
-        </a>
-
-        <div class="mt-1 d-flex gap-1">
-          <button class="drag-handle btn btn-sm btn-outline-secondary" type="button" aria-label="Reorder">⋮⋮</button>
-          <button class="shortcut-dots btn btn-sm btn-outline-secondary" type="button" aria-haspopup="menu" aria-controls="shortcutMenu" aria-expanded="false">⋯</button>
-        </div>
-      </div>
+    d.innerHTML = `
+      <a href="${sc.url}" target="_blank" rel="noopener">
+        <span class="shortcut-circle">
+          <img src="${sc.icon}" alt="${sc.name}" class="shortcut-img"/>
+        </span>
+        <span class="shortcut-label">${sc.name}</span>
+      </a>
+      <button class="shortcut-dots" aria-label="Open menu" title="More">⋮</button>
     `;
 
-    // Open context menu
-    const dots = col.querySelector(".shortcut-dots");
-    dots.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
+    d.querySelector(".shortcut-dots").onclick = (e) => {
       e.stopPropagation();
-      showShortcutMenu(idx, dots);
-    });
-    dots.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        showShortcutMenu(idx, dots);
-      }
-    });
+      showShortcutMenu(idx, e.currentTarget);
+    };
 
-    shortcutsC.appendChild(col);
+    shortcutsC.appendChild(d);
   });
 
-  // Add shortcut button (true button for accessibility)
+  // Add tile
   const add = document.createElement("div");
-  add.className = "col shortcut";
+  add.className = "shortcut add-tile";
   add.innerHTML = `
-    <div class="d-flex flex-column align-items-center">
-      <button class="btn btn-outline-primary" type="button" id="addShortcutBtn" aria-label="Add shortcut">
-        <svg xmlns="http://www.w3.org/2000/svg" class="shortcut-img" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <button type="button" id="addShortcutBtn" class="btn-reset" aria-label="Add shortcut" title="Add">
+      <span class="shortcut-circle">
+        <svg xmlns="http://www.w3.org/2000/svg" class="shortcut-img" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="currentColor" d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2z"/>
         </svg>
-      </button>
+      </span>
       <span class="shortcut-label">Add</span>
-    </div>`;
-  add.querySelector("#addShortcutBtn").addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    addModal.show();
-  });
+    </button>
+  `;
+  add.querySelector("#addShortcutBtn").onclick = () => addModal.show();
   shortcutsC.appendChild(add);
 
-  // Sortable with handle (touch-friendly)
-  if (window.Sortable) {
-    new Sortable(shortcutsC, {
-      animation: 150,
-      handle: ".drag-handle",
-      ghostClass: "drag-ghost",
-      // prevent the "Add" tile from being draggable: ignore elements without data-index
-      filter: ":not([data-index])",
-      onEnd: async () => {
-        // Build new order only from draggable tiles
-        const tiles = Array.from(shortcutsC.children).filter(
-          (el) => el.dataset.index != null
-        );
-        const newOrder = tiles.map((el) => list[Number(el.dataset.index)]);
-        shortcuts = newOrder;
-
-        await fetch("/api/shortcuts/order", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({ shortcuts }),
-        });
-
-        // re-render to refresh dataset indices and UI
-        renderShortcuts(newOrder);
-      },
-    });
-  }
+  // Sortable
+  Sortable.create(shortcutsC, {
+    animation: 150,
+    filter: ".add-tile", // do not drag the Add tile
+    preventOnFilter: false,
+    ghostClass: "drag-ghost",
+    onEnd: async () => {
+      const newOrder = Array.from(shortcutsC.children)
+        .filter((el) => el.dataset.index != null) // ignore Add tile
+        .map((el) => shortcuts[+el.dataset.index]);
+      shortcuts = newOrder;
+      await fetch("/api/shortcuts/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shortcuts }),
+      });
+      renderShortcuts(newOrder);
+    },
+  });
 }
 
 // ─── CONTEXT MENU (pointer + kbd, accessible) ────────────────────────────────
