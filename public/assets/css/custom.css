@@ -1,225 +1,57 @@
-.main-content {
-  display: flex;
-}
-.search-wrapper {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  max-width: calc(
-    100vw - 120px
-  ); /* 120px = estimated nav-right min width + margins */
-  z-index: 1;
-  text-align: center;
-}
-#search-form {
-  display: flex;
-  width: 100%;
-  text-align: center;
-}
-#search-input {
-  flex: 1 1 auto;
-  padding: 12px 1.5em 12px 2.5em;
-  font-size: 1.1em;
-  border: none;
-  border-radius: 9999px;
-  /* background: #232526;
-  color: #fff; */
-  min-width: 0;
-  max-width: 100%;
+/* --- Accessibility & Touch polish --- */
+
+/* Larger tap targets */
+:root { --tap-size: 44px; }
+
+button, .btn, .shortcut, .nav-right > * {
+  min-height: var(--tap-size);
+  min-width: var(--tap-size);
 }
 
-#search-input:focus {
-  outline: none;
-}
-@media (max-width: 200px) {
-  .navbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    padding: 0.5rem;
-  }
-  .search-wrapper {
-    width: 100%;
-    max-width: 100%;
-    margin: 0 0 0.5rem 0;
-    max-width: 90vw;
-  }
-  .nav-right {
-    position: static;
-    justify-content: flex-end;
-    width: 100%;
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }
-.nav-right {
-  position: relative;
-  z-index: 2; /* ensure on top */
-  flex: 0 0 auto;
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.75em;
+
+/* Focus ring for keyboard users */
+:focus-visible {
+  outline: 2px solid #66b2ff;
+  outline-offset: 2px;
 }
 
-/* Shortcuts Grid */
-.shortcut-box {
-  display: inline-block;                /* Only as big as content */
-  background: #1E1E1E;   /* Slightly more opaque */
-  border: 2px solid #2D2D2D;            /* Aqua blue border (customize as you wish) */
-  border-radius: 18px;                  /* Rounded corners */
-  box-shadow: 0 2px 8px #2D2D2D;          /* Soft shadow */
-  margin-left: 3.5rem;
-  margin-right: 3.5rem;
-  margin-top: 2.5rem;
-  margin-bottom: 2.5rem;
-  padding: 2.5rem;              /* Space inside box */
-  opacity: 0.95;                    /* Slightly transparent */
-  transition: box-shadow 0.18s;
-  /* Remove width/height constraints: */
-  max-width: calc(
-    100vw - 120px
-  ); /* 120px = estimated nav-right min width + margins */
-}
-.shortcuts {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding-top: 1rem;
-}
-.col.shortcut {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  width: 96px; /* Square cell */
-  min-width: 96px;
-  padding-bottom: 1.25rem;
-  position: relative;
-  text-align: center;
-  cursor: pointer;
-}
-.shortcut-circle {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: #232526; /* Or your preferred dark */
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 0.25em auto; /* bottom space for label */
-  box-shadow: 0 2px 8px #0002;
-}
-.shortcut-img {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
-  border-radius: 0px;
-  background: transparent;
-  display: block;
-}
-.shortcut-label {
-  font-size: 0.75em;
-  font-weight: 500;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 2px 4px;
-  border-radius: 4px;
-  transition: background 0.12s;
-}
-.shortcut.add {
-  opacity: 0.7;
-}
-.shortcut-dots {
-  position: absolute;
-  top: 0px;
-  right: 8px;
-  background: none;
-  border: none;
-  color: #888;
-  font-size: 1.25em;
-  cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 4px;
-  transition: background 0.12s;
-}
-.shortcut-dots:hover {
-  background: #3334;
-  color: #fff;
+/* Hover effects only for fine pointers (avoid sticky hover on touch) */
+@media (hover: hover) and (pointer: fine) {
+  .shortcut:hover { transform: translateY(-2px); }
 }
 
-.shortcut-menu {
-  display: none;
-  flex-direction: column;
-  position: absolute;
-  /* No top/right here! Set dynamically with JS */
-  background: #fff;
-  color: #222;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-  z-index: 3000;
-  min-width: 150px;
-  margin-top: 8px;
+/* Weather region min size so it doesn't collapse */
+#weather-container { min-height: 120px; }
+
+/* Sortable drag handle */
+.drag-handle {
+  touch-action: none; /* crucial for touch dragging */
+  cursor: grab;
 }
-.shortcut-menu.open {
-  display: flex;
+.drag-handle:active {
+  cursor: grabbing;
 }
-.shortcut-menu button {
-  background: none;
-  border: none;
-  text-align: left;
-  padding: 10px 18px;
-  width: 100%;
-  cursor: pointer;
-  font-size: 1em;
-}
-.shortcut-menu button:hover {
-  background: #2d8cf0;
-  color: #fff;
+.drag-ghost { opacity: 0.75; }
+
+/* Profile menu card look (already inlined, keep here for theming) */
+.profile-menu { min-width: 12rem; }
+
+/* Optional: remove iOS blue tap highlight on dark backgrounds */
+* { -webkit-tap-highlight-color: rgba(0,0,0,0); }
+
+/* Ensure navbar/search spacing works nicely with Missing.css defaults */
+#search-form input {
+  padding-left: 2.5rem; /* room for the search icon */
 }
 
-/* Profile menu styling */
-.profile-menu {
-  display: none;
-  flex-direction: column;
-  position: absolute;
-  top: 100%; /* Just below the image */
-  right: 0; /* Aligns menu to right of image */
-  min-width: 150px;
-  background: #fff;
-  color: #222;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-  z-index: 3000;
-  margin-top: 8px; /* Optional: spacing below avatar */
-}
-.profile-menu.open {
-  display: flex;
-}
-
-.profile-menu button {
-  background: none;
-  border: none;
-  text-align: left;
-  padding: 10px 18px;
-  width: 100%;
-  cursor: pointer;
-}
-.profile-menu button:hover {
-  background: #2d8cf0;
-}
-#profile-btn {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-btn btn-primary {
-  color: #fff;
-}
-.container {
-  flex: 1 0 auto;
-}
+/* Shortcut menu overlay positioning if you absolutely position it later */
+.shortcut-menu { z-index: 1000; }
