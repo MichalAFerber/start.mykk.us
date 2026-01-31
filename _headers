@@ -1,0 +1,3 @@
+/*
+  Permissions-Policy: camera=*, microphone=*, fullscreen=*
+  X-Frame-Options: SAMEORIGIN

@@ -1,0 +1,3097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/chromium.svg">
+    <title>Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS for interactive maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: rgba(0, 0, 0, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        body.has-wallpaper {
+            background: none;
+        }
+
+        .wallpaper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: -1;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 380px 1fr 380px;
+            grid-template-rows: auto auto auto 1fr;
+            min-height: 100vh;
+            padding: 24px;
+            gap: 24px;
+        }
+
+        /* Top Row - Aligned date, search, actions */
+        .top-row {
+            display: contents;
+        }
+
+        .top-row > .date-card,
+        .top-row > .search-container,
+        .top-row > .action-buttons-card {
+            grid-row: 1;
+            align-self: stretch;
+            display: flex;
+            align-items: center;
+        }
+
+        .top-row > .date-card {
+            grid-column: 1;
+        }
+
+        .top-row > .search-container {
+            grid-column: 2;
+        }
+
+        .top-row > .action-buttons-card {
+            grid-column: 3;
+        }
+
+        /* Glass morphism card style */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px var(--glass-shadow);
+        }
+
+        /* Left Column */
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            grid-row: 2 / -1;
+            grid-column: 1;
+        }
+
+        /* Date Card */
+        .date-card {
+            padding: 16px 20px;
+        }
+
+        .date {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: left;
+        }
+
+        /* Time Card */
+        .time-card {
+            padding: 20px;
+        }
+
+        .datetime {
+            text-align: left;
+        }
+
+        .time {
+            font-size: 4.5rem;
+            font-weight: 600;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        .time .seconds {
+            font-size: 2rem;
+            font-weight: 300;
+            opacity: 0.7;
+        }
+
+        .time .period {
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-left: 8px;
+            opacity: 0.8;
+        }
+
+        /* Center Column */
+        .center-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            grid-column: 2;
+            grid-row: 2 / -1;
+        }
+
+        /* Search Bar */
+        .search-container {
+            padding: 12px;
+            width: 100%;
+        }
+
+        .search-container.hidden {
+            display: none;
+        }
+
+        /* Top row search - flex grow the form */
+        .top-row > .search-container {
+            padding: 12px;
+        }
+
+        .top-row > .search-container .search-form {
+            width: 100%;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 28px;
+            padding: 4px 8px 4px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .search-form:focus-within {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+
+        .search-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.7;
+            margin-right: 12px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1rem;
+            padding: 12px 0;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .search-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Shortcuts/Favorites Section */
+        .shortcuts-section {
+            padding: 20px;
+            width: 100%;
+        }
+
+        .shortcuts-section.hidden {
+            display: none;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        .add-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-style: solid;
+        }
+
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 16px;
+        }
+
+        .shortcut {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        .shortcut:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .shortcut-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .shortcut-icon img {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+        }
+
+        .shortcut-name {
+            font-size: 0.75rem;
+            text-align: center;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .shortcut-delete {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 0, 0, 0.7);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        .shortcut:hover .shortcut-delete {
+            display: flex;
+        }
+
+        /* Weather Widget */
+        .weather-widget {
+            padding: 20px;
+        }
+
+        .weather-widget.hidden {
+            display: none;
+        }
+
+        .weather-current {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .weather-icon {
+            font-size: 3rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .weather-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .weather-temp {
+            font-size: 3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .weather-temp:hover {
+            opacity: 0.8;
+        }
+
+        .weather-details {
+            flex: 1;
+        }
+
+        .weather-condition {
+            font-size: 1rem;
+            opacity: 0.9;
+            cursor: pointer;
+        }
+
+        .weather-condition:hover {
+            text-decoration: underline;
+        }
+
+        .weather-location {
+            font-size: 0.875rem;
+            opacity: 0.7;
+            margin-top: 4px;
+            cursor: pointer;
+        }
+
+        .weather-location:hover {
+            text-decoration: underline;
+        }
+
+        /* Radar Section */
+        .weather-radar {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .radar-container {
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+            position: relative;
+            height: 200px;
+        }
+
+        .radar-container .leaflet-container {
+            height: 100%;
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        .radar-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .radar-btn {
+            flex: 1;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .radar-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .radar-btn.active {
+            background: rgba(102, 126, 234, 0.5);
+            border-color: #667eea;
+        }
+
+        .radar-layer-selector {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .radar-layer-btn {
+            flex: 1;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            transition: all 0.2s ease;
+        }
+
+        .radar-layer-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .radar-layer-btn.active {
+            background: rgba(102, 126, 234, 0.5);
+            border-color: #667eea;
+        }
+
+        .weather-forecast {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .forecast-day {
+            text-align: center;
+            padding: 12px 4px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .forecast-day:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .forecast-day-name {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .forecast-icon {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+
+        .forecast-temp {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .forecast-temp-low {
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .weather-setup {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .weather-setup p {
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+
+        .weather-setup-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .weather-setup-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Right Column */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            grid-row: 2 / -1;
+            grid-column: 3;
+        }
+
+        /* Action Buttons Card - Top Right */
+        .action-buttons-card {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .top-row > .action-buttons-card {
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        .action-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* Calendar Widget */
+        .calendar-widget {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calendar-widget.hidden {
+            display: none;
+        }
+
+        /* Mini Calendar */
+        .mini-calendar {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mini-calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .mini-calendar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .mini-calendar-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mini-calendar-nav button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+
+        .mini-calendar-nav button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .mini-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        .mini-calendar-day-header {
+            text-align: center;
+            font-size: 0.65rem;
+            font-weight: 500;
+            opacity: 0.6;
+            padding: 4px 0;
+            text-transform: uppercase;
+        }
+
+        .mini-calendar-day {
+            text-align: center;
+            font-size: 0.75rem;
+            padding: 6px 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mini-calendar-day:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mini-calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .mini-calendar-day.today {
+            background: rgba(102, 126, 234, 0.5);
+            font-weight: 600;
+            border-radius: 50%;
+        }
+
+        .calendar-container {
+            flex: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .calendar-container iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            border: none;
+        }
+
+        .calendar-setup {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .calendar-setup p {
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: rgba(30, 30, 50, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-group {
+            margin-bottom: 24px;
+        }
+
+        .settings-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .settings-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .settings-input:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .settings-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .settings-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-family: monospace;
+            outline: none;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .settings-textarea:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .settings-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .settings-checkbox:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-checkbox input {
+            width: 20px;
+            height: 20px;
+            accent-color: #667eea;
+        }
+
+        .settings-checkbox span {
+            flex: 1;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .color-picker {
+            width: 50px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: none;
+        }
+
+        .color-presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .color-preset {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .color-preset:hover {
+            transform: scale(1.1);
+        }
+
+        .color-preset.active {
+            border-color: white;
+        }
+
+        .bg-type-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .bg-type-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .bg-type-btn.active {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .settings-save {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+        }
+
+        .settings-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .settings-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-action-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .settings-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .settings-action-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        #import-file {
+            display: none;
+        }
+
+        .settings-help {
+            opacity: 0.6;
+            font-size: 0.75rem;
+            display: block;
+            margin-top: 8px;
+        }
+
+        /* Weather Detail Modal */
+        .weather-detail-modal {
+            max-width: 450px;
+        }
+
+        .weather-detail-content {
+            text-align: center;
+        }
+
+        .weather-detail-icon {
+            font-size: 5rem;
+            margin-bottom: 16px;
+        }
+
+        .weather-detail-temp {
+            font-size: 4rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .weather-detail-desc {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            margin-bottom: 24px;
+            text-transform: capitalize;
+        }
+
+        .weather-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            text-align: left;
+        }
+
+        .weather-detail-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .weather-detail-item-label {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .weather-detail-item-value {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        /* Forecast Detail */
+        .forecast-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .forecast-detail-icon {
+            font-size: 3rem;
+        }
+
+        .forecast-detail-temps {
+            flex: 1;
+        }
+
+        .forecast-detail-high {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .forecast-detail-low {
+            font-size: 1.25rem;
+            opacity: 0.7;
+        }
+
+        /* Lightbox Styles */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: rgba(30, 30, 50, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lightbox-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .lightbox-tools {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tool-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .tool-btn.active {
+            background: rgba(102, 126, 234, 0.5);
+            border-color: #667eea;
+        }
+
+        .tool-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .tool-separator {
+            width: 1px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 0 8px;
+        }
+
+        .color-selector {
+            width: 36px;
+            height: 36px;
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #000000;
+        }
+
+        .stroke-size {
+            width: 80px;
+            accent-color: #667eea;
+        }
+
+        .lightbox-close {
+            background: rgba(255, 0, 0, 0.6);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .lightbox-close:hover {
+            background: rgba(255, 0, 0, 0.8);
+        }
+
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            overflow: auto;
+        }
+
+        #paint-canvas {
+            background: white;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        /* Fullscreen Paint Canvas */
+        .paint-lightbox .canvas-container {
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .paint-lightbox #paint-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
+        }
+
+        /* Text tool input */
+        .text-input-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+        }
+
+        .text-input-overlay.active {
+            display: flex;
+        }
+
+        .text-input-modal {
+            background: rgba(30, 30, 50, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            min-width: 300px;
+        }
+
+        .text-input-modal input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+
+        .text-input-modal input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .text-input-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .text-input-actions button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .text-input-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .text-input-confirm {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+        }
+
+        /* Radar Lightbox */
+        .radar-lightbox-container {
+            flex: 1;
+            padding: 24px;
+        }
+
+        .radar-lightbox-container .leaflet-container {
+            height: 100%;
+            width: 100%;
+            border-radius: 16px;
+        }
+
+        /* Webcam Lightbox - Fullscreen Mirror */
+        .webcam-lightbox .webcam-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #webcam-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .countdown-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 15rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 0 60px rgba(0, 0, 0, 0.9), 0 0 120px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .countdown-overlay.active {
+            opacity: 1;
+        }
+
+        .flash-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s ease;
+            z-index: 20;
+        }
+
+        .flash-overlay.active {
+            opacity: 1;
+        }
+
+        #selfie-canvas {
+            display: none;
+        }
+
+        .webcam-error {
+            text-align: center;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .webcam-error p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .permission-btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .permission-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Selfie button in webcam toolbar */
+        .selfie-toolbar-btn {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .selfie-toolbar-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .selfie-toolbar-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .selfie-toolbar-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Location Pin Marker */
+        .location-pin {
+            color: #ff4444;
+            font-size: 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+            }
+
+            .left-column {
+                grid-row: auto;
+            }
+
+            .center-column {
+                grid-column: 1;
+                grid-row: auto;
+            }
+
+            .right-column {
+                grid-column: 1;
+                grid-row: auto;
+            }
+
+            .calendar-widget {
+                min-height: 500px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .time {
+                font-size: 3rem;
+            }
+
+            .date {
+                font-size: 1.5rem;
+            }
+
+            .weather-forecast {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 4px;
+            }
+
+            .forecast-day {
+                padding: 8px 2px;
+            }
+
+            .shortcuts-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+        }
+
+        /* Loading state */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .loading::after {
+            content: '';
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="wallpaper" id="wallpaper"></div>
+    <div class="overlay" id="overlay"></div>
+
+    <div class="dashboard">
+        <!-- Top Row - Aligned Date, Search, Actions -->
+        <div class="top-row">
+            <!-- Date Card -->
+            <div class="date-card glass-card">
+                <div class="date" id="date">Jan 1</div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-container glass-card" id="search-widget">
+                <form class="search-form" id="search-form" action="https://www.google.com/search" method="GET">
+                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input type="text" name="q" class="search-input" placeholder="Search Google..." autocomplete="off" id="search-input">
+                    <button type="submit" class="search-btn">Search</button>
+                </form>
+            </div>
+
+            <!-- Action Buttons Card -->
+            <div class="action-buttons-card glass-card">
+                <button class="action-btn" id="fullscreen-btn" title="Toggle Fullscreen">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" id="fullscreen-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                    </svg>
+                </button>
+                <button class="action-btn" id="refresh-btn" title="Refresh Page">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </button>
+                <button class="action-btn" id="camera-btn" title="Mirror/Selfie">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </button>
+                <button class="action-btn" id="paint-btn" title="Paint Canvas">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                    </svg>
+                </button>
+                <button class="action-btn" id="settings-btn" title="Settings">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Left Column -->
+        <div class="left-column">
+            <!-- Time Card -->
+            <div class="time-card glass-card">
+                <div class="datetime">
+                    <div class="time">
+                        <span id="time-main">12:00</span><span class="seconds" id="time-seconds">:00</span><span class="period" id="time-period">AM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Widget -->
+            <div class="weather-widget glass-card" id="weather-widget">
+                <div class="section-header">
+                    <span class="section-title">Weather</span>
+                </div>
+                <div id="weather-content">
+                    <div class="weather-setup">
+                        <p>Enable weather to see current conditions and forecast</p>
+                        <button class="weather-setup-btn" id="weather-setup-btn">Set Location</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Column -->
+        <div class="center-column">
+            <!-- Shortcuts/Favorites -->
+            <div class="shortcuts-section glass-card" id="shortcuts-widget">
+                <div class="section-header">
+                    <span class="section-title">Favorites</span>
+                    <button class="add-btn" id="add-shortcut-btn">+ Add</button>
+                </div>
+                <div class="shortcuts-grid" id="shortcuts-grid">
+                    <!-- Shortcuts populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+            <!-- Calendar Widget -->
+            <div class="calendar-widget glass-card" id="calendar-widget">
+                <div class="section-header">
+                    <span class="section-title">Calendar</span>
+                </div>
+                <!-- Mini Calendar -->
+                <div class="mini-calendar" id="mini-calendar">
+                    <div class="mini-calendar-header">
+                        <span class="mini-calendar-title" id="mini-calendar-title">January 2024</span>
+                        <div class="mini-calendar-nav">
+                            <button id="mini-cal-prev">◀</button>
+                            <button id="mini-cal-next">▶</button>
+                        </div>
+                    </div>
+                    <div class="mini-calendar-grid" id="mini-calendar-grid">
+                        <!-- Calendar grid populated by JS -->
+                    </div>
+                </div>
+                <!-- Google Calendar Embed -->
+                <div class="calendar-container" id="calendar-container">
+                    <div class="calendar-setup">
+                        <p>Paste your Google Calendar embed URL in settings</p>
+                        <button class="weather-setup-btn" id="calendar-setup-btn">Configure Calendar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Settings</h2>
+                <button class="modal-close" id="modal-close">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Widget Toggles -->
+            <div class="settings-group">
+                <label class="settings-label">Widgets</label>
+                <label class="settings-checkbox">
+                    <input type="checkbox" id="toggle-search" checked>
+                    <span>Search Bar</span>
+                </label>
+                <label class="settings-checkbox" style="margin-top: 8px;">
+                    <input type="checkbox" id="toggle-weather" checked>
+                    <span>Weather Widget</span>
+                </label>
+                <label class="settings-checkbox" style="margin-top: 8px;">
+                    <input type="checkbox" id="toggle-calendar" checked>
+                    <span>Calendar Widget</span>
+                </label>
+                <label class="settings-checkbox" style="margin-top: 8px;">
+                    <input type="checkbox" id="toggle-favorites" checked>
+                    <span>Favorites</span>
+                </label>
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">Background Type</label>
+                <div class="bg-type-toggle">
+                    <button class="bg-type-btn active" data-type="gradient">Gradient</button>
+                    <button class="bg-type-btn" data-type="color">Solid Color</button>
+                    <button class="bg-type-btn" data-type="image">Image URL</button>
+                </div>
+            </div>
+
+            <div class="settings-group" id="gradient-settings">
+                <label class="settings-label">Gradient Presets</label>
+                <div class="color-presets">
+                    <button class="color-preset" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);" data-gradient="linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)"></button>
+                    <button class="color-preset" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" data-gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></button>
+                    <button class="color-preset" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" data-gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"></button>
+                    <button class="color-preset" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" data-gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"></button>
+                    <button class="color-preset" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" data-gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"></button>
+                    <button class="color-preset" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);" data-gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)"></button>
+                    <button class="color-preset" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);" data-gradient="linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"></button>
+                    <button class="color-preset" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);" data-gradient="linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"></button>
+                </div>
+            </div>
+
+            <div class="settings-group" id="color-settings" style="display: none;">
+                <label class="settings-label">Background Color</label>
+                <div class="color-picker-wrapper">
+                    <input type="color" class="color-picker" id="bg-color" value="#1a1a2e">
+                    <span id="color-value">#1a1a2e</span>
+                </div>
+            </div>
+
+            <div class="settings-group" id="image-settings" style="display: none;">
+                <label class="settings-label">Image URL</label>
+                <input type="url" class="settings-input" id="bg-image-url" placeholder="https://example.com/image.jpg">
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">OpenWeatherMap API Key</label>
+                <input type="text" class="settings-input" id="weather-api-key" placeholder="Your API key">
+                <small class="settings-help">Get a free API key at <a href="https://openweathermap.org/api" target="_blank" style="color: #667eea;">openweathermap.org</a></small>
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">Weather Location</label>
+                <input type="text" class="settings-input" id="weather-location" placeholder="City, Country OR Zip Code (e.g., 10001)">
+                <small class="settings-help">Enter a city name (e.g., "New York, US") or a US zip code (e.g., "10001")</small>
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">Temperature Unit</label>
+                <div class="bg-type-toggle">
+                    <button class="bg-type-btn active" data-unit="imperial">°F</button>
+                    <button class="bg-type-btn" data-unit="metric">°C</button>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">Google Calendar Embed URL</label>
+                <textarea class="settings-textarea" id="calendar-embed-url" placeholder="Paste your full Google Calendar embed URL here..."></textarea>
+                <small class="settings-help">
+                    Go to Google Calendar → Settings → Your Calendar → Integrate calendar → Copy the "Embed code" iframe src URL
+                </small>
+            </div>
+
+            <button class="settings-save" id="save-settings">Save Settings</button>
+
+            <div class="settings-actions">
+                <button class="settings-action-btn" id="export-settings">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                    Export
+                </button>
+                <button class="settings-action-btn" id="import-settings">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Import
+                </button>
+                <input type="file" id="import-file" accept=".json">
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Shortcut Modal -->
+    <div class="modal-overlay" id="shortcut-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="shortcut-modal-title">Add Shortcut</h2>
+                <button class="modal-close" id="shortcut-modal-close">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form class="shortcut-form" id="shortcut-form">
+                <div class="settings-group">
+                    <label class="settings-label">Name</label>
+                    <input type="text" class="settings-input" id="shortcut-name" placeholder="Google" required>
+                </div>
+                <div class="settings-group">
+                    <label class="settings-label">URL</label>
+                    <input type="url" class="settings-input" id="shortcut-url" placeholder="https://google.com" required>
+                </div>
+                <button type="submit" class="settings-save">Save Shortcut</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Weather Detail Modal -->
+    <div class="modal-overlay" id="weather-detail-modal">
+        <div class="modal weather-detail-modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="weather-detail-title">Current Weather</h2>
+                <button class="modal-close" id="weather-detail-close">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="weather-detail-content" id="weather-detail-content">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Paint Canvas Lightbox -->
+    <div class="lightbox paint-lightbox" id="paint-lightbox">
+        <div class="lightbox-header">
+            <span class="lightbox-title">🎨 Paint Canvas</span>
+            <div class="lightbox-tools">
+                <button class="tool-btn active" id="tool-brush" title="Brush">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                    </svg>
+                </button>
+                <button class="tool-btn" id="tool-line" title="Line">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20L20 4"></path>
+                    </svg>
+                </button>
+                <button class="tool-btn" id="tool-rect" title="Rectangle">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2" fill="none"></rect>
+                    </svg>
+                </button>
+                <button class="tool-btn" id="tool-circle" title="Circle">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="9" stroke-width="2" fill="none"></circle>
+                    </svg>
+                </button>
+                <button class="tool-btn" id="tool-text" title="Text">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 6v2m16-2v2M9 6v12m6-12v12M9 18h6"></path>
+                    </svg>
+                </button>
+                <button class="tool-btn" id="tool-eraser" title="Eraser">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                </button>
+                <div class="tool-separator"></div>
+                <input type="color" class="color-selector" id="paint-color" value="#000000" title="Color">
+                <input type="range" class="stroke-size" id="stroke-size" min="1" max="50" value="5" title="Brush Size">
+                <div class="tool-separator"></div>
+                <button class="tool-btn" id="clear-canvas" title="Clear Canvas">Clear</button>
+                <button class="tool-btn" id="save-canvas-png" title="Save as PNG">PNG</button>
+                <button class="tool-btn" id="save-canvas-pdf" title="Save as PDF">PDF</button>
+            </div>
+            <button class="lightbox-close" id="close-paint">✕ Close</button>
+        </div>
+        <div class="canvas-container">
+            <canvas id="paint-canvas"></canvas>
+        </div>
+    </div>
+
+    <!-- Text Input Overlay for Paint -->
+    <div class="text-input-overlay" id="text-input-overlay">
+        <div class="text-input-modal">
+            <input type="text" id="text-input-field" placeholder="Enter text..." autofocus>
+            <div class="text-input-actions">
+                <button class="text-input-cancel" id="text-cancel">Cancel</button>
+                <button class="text-input-confirm" id="text-confirm">Add Text</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Radar Lightbox -->
+    <div class="lightbox" id="radar-lightbox">
+        <div class="lightbox-header">
+            <span class="lightbox-title">🗺️ Weather Radar</span>
+            <div class="lightbox-tools">
+                <span style="opacity: 0.7; font-size: 0.875rem;">Use mouse/touch to pan and zoom</span>
+            </div>
+            <button class="lightbox-close" id="close-radar">✕ Close</button>
+        </div>
+        <div class="radar-lightbox-container" id="radar-lightbox-container">
+            <div id="radar-map-fullscreen"></div>
+        </div>
+    </div>
+
+    <!-- Webcam/Mirror Lightbox -->
+    <div class="lightbox webcam-lightbox" id="webcam-lightbox">
+        <div class="lightbox-header">
+            <span class="lightbox-title">📷 Mirror / Selfie</span>
+            <div class="lightbox-tools">
+                <button class="selfie-toolbar-btn" id="take-selfie-btn" title="Take Selfie (3s countdown)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Take Selfie
+                </button>
+            </div>
+            <button class="lightbox-close" id="close-webcam">✕ Close</button>
+        </div>
+        <div class="webcam-container" id="webcam-container">
+            <!-- Content populated by JS -->
+        </div>
+    </div>
+
+    <!-- Leaflet JS for interactive maps -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- jsPDF Library for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        // ============ State Management ============
+        const defaultSettings = {
+            bgType: 'gradient',
+            bgGradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+            bgColor: '#1a1a2e',
+            bgImage: '',
+            weatherApiKey: '',
+            weatherLocation: '',
+            weatherLat: null,
+            weatherLon: null,
+            weatherCity: '',
+            weatherCountry: '',
+            tempUnit: 'imperial',
+            calendarEmbedUrl: '',
+            showSearch: true,
+            showWeather: true,
+            showCalendar: true,
+            showFavorites: true
+        };
+
+        // Icon mapping for common services using dashboardicons.com
+        const iconMap = {
+            'google.com': 'google',
+            'youtube.com': 'youtube',
+            'github.com': 'github',
+            'mail.google.com': 'gmail',
+            'gmail.com': 'gmail',
+            'twitter.com': 'twitter',
+            'x.com': 'twitter',
+            'reddit.com': 'reddit',
+            'facebook.com': 'facebook',
+            'instagram.com': 'instagram',
+            'linkedin.com': 'linkedin',
+            'netflix.com': 'netflix',
+            'spotify.com': 'spotify',
+            'discord.com': 'discord',
+            'twitch.tv': 'twitch',
+            'amazon.com': 'amazon',
+            'drive.google.com': 'google-drive',
+            'docs.google.com': 'google-docs',
+            'calendar.google.com': 'google-calendar',
+            'slack.com': 'slack',
+            'notion.so': 'notion',
+            'trello.com': 'trello',
+            'dropbox.com': 'dropbox',
+            'pinterest.com': 'pinterest',
+            'tiktok.com': 'tiktok',
+            'whatsapp.com': 'whatsapp',
+            'telegram.org': 'telegram',
+            'zoom.us': 'zoom',
+            'microsoft.com': 'microsoft',
+            'office.com': 'microsoft-365',
+            'outlook.com': 'microsoft-outlook',
+            'apple.com': 'apple',
+            'icloud.com': 'icloud'
+        };
+
+        function getIconUrl(url, name) {
+            try {
+                const hostname = new URL(url).hostname.replace('www.', '');
+                // Check if we have a mapped icon
+                if (iconMap[hostname]) {
+                    return `https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/${iconMap[hostname]}.svg`;
+                }
+                // Try the domain name as the icon name
+                const baseDomain = hostname.split('.')[0];
+                return `https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/${baseDomain}.svg`;
+            } catch {
+                return null;
+            }
+        }
+
+        const defaultShortcuts = [
+            { id: 1, name: 'Google', url: 'https://google.com' },
+            { id: 2, name: 'YouTube', url: 'https://youtube.com' },
+            { id: 3, name: 'GitHub', url: 'https://github.com' },
+            { id: 4, name: 'Gmail', url: 'https://mail.google.com' },
+            { id: 5, name: 'Twitter', url: 'https://twitter.com' },
+            { id: 6, name: 'Reddit', url: 'https://reddit.com' }
+        ];
+
+        let settings = { ...defaultSettings };
+        let shortcuts = [...defaultShortcuts];
+        let editingShortcutId = null;
+        let weatherData = null;
+
+        // Mini calendar state
+        let miniCalendarDate = new Date();
+
+        // Map instances
+        let radarMap = null;
+        let radarMapFullscreen = null;
+        let radarLayer = null;
+        let locationMarker = null;
+        let currentRadarLayer = 'precipitation_new'; // Default to rain radar
+
+        // Available radar layers
+        const radarLayers = {
+            precipitation_new: 'Rain',
+            clouds_new: 'Clouds',
+            temp_new: 'Temp',
+            wind_new: 'Wind'
+        };
+
+        // Paint state
+        let paintTool = 'brush';
+        let isDrawing = false;
+        let startX, startY;
+        let paintCtx;
+        let canvasSnapshot;
+        let textX, textY; // For text tool positioning
+
+        // Webcam state
+        let webcamStream = null;
+
+        // ============ Local Storage ============
+        function loadSettings() {
+            const saved = localStorage.getItem('dashboard-settings');
+            if (saved) {
+                settings = { ...defaultSettings, ...JSON.parse(saved) };
+            }
+            applySettings();
+        }
+
+        function saveSettings() {
+            localStorage.setItem('dashboard-settings', JSON.stringify(settings));
+        }
+
+        function loadShortcuts() {
+            const saved = localStorage.getItem('dashboard-shortcuts');
+            if (saved) {
+                shortcuts = JSON.parse(saved);
+            }
+            renderShortcuts();
+        }
+
+        function saveShortcuts() {
+            localStorage.setItem('dashboard-shortcuts', JSON.stringify(shortcuts));
+        }
+
+        // ============ Export/Import ============
+        function exportSettings() {
+            const data = {
+                settings: settings,
+                shortcuts: shortcuts,
+                exportDate: new Date().toISOString(),
+                version: '4.0'
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dashboard-settings-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importSettings(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.settings) {
+                        settings = { ...defaultSettings, ...data.settings };
+                        saveSettings();
+                    }
+                    if (data.shortcuts && Array.isArray(data.shortcuts)) {
+                        shortcuts = data.shortcuts;
+                        saveShortcuts();
+                    }
+                    window.location.reload();
+                } catch (error) {
+                    alert('Error importing settings: Invalid file format');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ============ Date/Time ============
+        function updateDateTime() {
+            const now = new Date();
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            document.getElementById('date').textContent = `${months[now.getMonth()]} ${now.getDate()}`;
+
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const period = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+
+            document.getElementById('time-main').textContent = `${hours}:${minutes}`;
+            document.getElementById('time-seconds').textContent = `:${seconds}`;
+            document.getElementById('time-period').textContent = period;
+        }
+
+        // ============ Mini Calendar ============
+        function renderMiniCalendar() {
+            const grid = document.getElementById('mini-calendar-grid');
+            const title = document.getElementById('mini-calendar-title');
+
+            const year = miniCalendarDate.getFullYear();
+            const month = miniCalendarDate.getMonth();
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            title.textContent = `${months[month]} ${year}`;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay();
+            const daysInMonth = lastDay.getDate();
+
+            const today = new Date();
+            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+
+            let html = '';
+            const dayHeaders = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            dayHeaders.forEach(day => {
+                html += `<div class="mini-calendar-day-header">${day}</div>`;
+            });
+
+            const prevMonth = new Date(year, month, 0);
+            const prevMonthDays = prevMonth.getDate();
+            for (let i = startDay - 1; i >= 0; i--) {
+                html += `<div class="mini-calendar-day other-month">${prevMonthDays - i}</div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const isToday = isCurrentMonth && day === today.getDate();
+                html += `<div class="mini-calendar-day${isToday ? ' today' : ''}">${day}</div>`;
+            }
+
+            const remainingCells = 42 - (startDay + daysInMonth);
+            for (let day = 1; day <= remainingCells; day++) {
+                html += `<div class="mini-calendar-day other-month">${day}</div>`;
+            }
+
+            grid.innerHTML = html;
+        }
+
+        // ============ Background ============
+        function applySettings() {
+            const wallpaper = document.getElementById('wallpaper');
+            const overlay = document.getElementById('overlay');
+
+            document.body.classList.remove('has-wallpaper');
+            wallpaper.style.background = '';
+            wallpaper.style.backgroundImage = '';
+
+            if (settings.bgType === 'gradient') {
+                document.body.style.background = settings.bgGradient;
+                overlay.style.display = 'none';
+            } else if (settings.bgType === 'color') {
+                document.body.style.background = settings.bgColor;
+                overlay.style.display = 'none';
+            } else if (settings.bgType === 'image' && settings.bgImage) {
+                document.body.classList.add('has-wallpaper');
+                wallpaper.style.backgroundImage = `url(${settings.bgImage})`;
+                wallpaper.style.backgroundSize = 'cover';
+                wallpaper.style.backgroundPosition = 'center';
+                overlay.style.display = 'block';
+            }
+
+            document.getElementById('search-widget').classList.toggle('hidden', !settings.showSearch);
+            document.getElementById('weather-widget').classList.toggle('hidden', !settings.showWeather);
+            document.getElementById('calendar-widget').classList.toggle('hidden', !settings.showCalendar);
+            document.getElementById('shortcuts-widget').classList.toggle('hidden', !settings.showFavorites);
+
+            updateSettingsUI();
+
+            if (settings.weatherLocation && settings.weatherApiKey && settings.showWeather) {
+                loadWeather();
+            } else if (settings.showWeather && !settings.weatherApiKey) {
+                document.getElementById('weather-content').innerHTML = `
+                    <div class="weather-setup">
+                        <p>Please add your OpenWeatherMap API key in settings</p>
+                        <button class="weather-setup-btn" onclick="document.getElementById('settings-btn').click()">Configure</button>
+                    </div>
+                `;
+            }
+
+            if (settings.calendarEmbedUrl && settings.showCalendar) {
+                loadCalendar();
+            }
+
+            renderMiniCalendar();
+        }
+
+        function updateSettingsUI() {
+            document.querySelectorAll('.bg-type-btn[data-type]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === settings.bgType);
+            });
+
+            document.getElementById('gradient-settings').style.display = settings.bgType === 'gradient' ? 'block' : 'none';
+            document.getElementById('color-settings').style.display = settings.bgType === 'color' ? 'block' : 'none';
+            document.getElementById('image-settings').style.display = settings.bgType === 'image' ? 'block' : 'none';
+
+            document.getElementById('bg-color').value = settings.bgColor;
+            document.getElementById('color-value').textContent = settings.bgColor;
+            document.getElementById('bg-image-url').value = settings.bgImage || '';
+            document.getElementById('weather-api-key').value = settings.weatherApiKey || '';
+            document.getElementById('weather-location').value = settings.weatherLocation || '';
+
+            document.querySelectorAll('.bg-type-btn[data-unit]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.unit === settings.tempUnit);
+            });
+
+            document.getElementById('calendar-embed-url').value = settings.calendarEmbedUrl || '';
+
+            document.getElementById('toggle-search').checked = settings.showSearch;
+            document.getElementById('toggle-weather').checked = settings.showWeather;
+            document.getElementById('toggle-calendar').checked = settings.showCalendar;
+            document.getElementById('toggle-favorites').checked = settings.showFavorites;
+        }
+
+        // ============ Shortcuts ============
+        function renderShortcuts() {
+            const container = document.getElementById('shortcuts-grid');
+            container.innerHTML = shortcuts.map(shortcut => {
+                const iconUrl = getIconUrl(shortcut.url, shortcut.name);
+                const initial = shortcut.name.charAt(0).toUpperCase();
+
+                return `
+                    <a href="${shortcut.url}" class="shortcut" data-id="${shortcut.id}" title="${shortcut.name}">
+                        <button class="shortcut-delete" onclick="event.preventDefault(); event.stopPropagation(); deleteShortcut(${shortcut.id});">×</button>
+                        <div class="shortcut-icon">
+                            ${iconUrl ? `<img src="${iconUrl}" onerror="this.style.display='none'; this.parentElement.textContent='${initial}';">` : initial}
+                        </div>
+                        <span class="shortcut-name">${shortcut.name}</span>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        function deleteShortcut(id) {
+            shortcuts = shortcuts.filter(s => s.id !== id);
+            saveShortcuts();
+            renderShortcuts();
+        }
+
+        function addShortcut(name, url) {
+            const newId = shortcuts.length > 0 ? Math.max(...shortcuts.map(s => s.id)) + 1 : 1;
+            shortcuts.push({ id: newId, name, url });
+            saveShortcuts();
+            renderShortcuts();
+        }
+
+        // ============ Weather (OpenWeatherMap One Call API 3.0) ============
+        function isZipCode(str) {
+            return /^\d{5}(-\d{4})?$/.test(str.trim());
+        }
+
+        async function getCoordinates(location) {
+            const apiKey = settings.weatherApiKey;
+            let url;
+
+            if (isZipCode(location)) {
+                url = `https://api.openweathermap.org/geo/1.0/zip?zip=${location},US&appid=${apiKey}`;
+            } else {
+                url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)}&limit=1&appid=${apiKey}`;
+            }
+
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (Array.isArray(data) && data.length > 0) {
+                return { lat: data[0].lat, lon: data[0].lon, name: data[0].name, country: data[0].country };
+            } else if (data.lat && data.lon) {
+                return { lat: data.lat, lon: data.lon, name: data.name, country: data.country };
+            }
+            throw new Error('Location not found');
+        }
+
+        function getWeatherIcon(iconCode) {
+            const iconMap = {
+                '01d': '☀️', '01n': '🌙',
+                '02d': '⛅', '02n': '☁️',
+                '03d': '☁️', '03n': '☁️',
+                '04d': '☁️', '04n': '☁️',
+                '09d': '🌧️', '09n': '🌧️',
+                '10d': '🌦️', '10n': '🌧️',
+                '11d': '⛈️', '11n': '⛈️',
+                '13d': '❄️', '13n': '❄️',
+                '50d': '🌫️', '50n': '🌫️'
+            };
+            return iconMap[iconCode] || '☁️';
+        }
+
+        function showWeatherDetail(type, data) {
+            const modal = document.getElementById('weather-detail-modal');
+            const title = document.getElementById('weather-detail-title');
+            const content = document.getElementById('weather-detail-content');
+
+            if (type === 'current' && weatherData) {
+                const current = weatherData.current;
+                const unit = settings.tempUnit === 'imperial' ? '°F' : '°C';
+                const speedUnit = settings.tempUnit === 'imperial' ? 'mph' : 'm/s';
+
+                title.textContent = `Current Weather - ${settings.weatherCity}`;
+                content.innerHTML = `
+                    <div class="weather-detail-icon">${getWeatherIcon(current.weather[0].icon)}</div>
+                    <div class="weather-detail-temp">${Math.round(current.temp)}${unit}</div>
+                    <div class="weather-detail-desc">${current.weather[0].description}</div>
+                    <div class="weather-detail-grid">
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-item-label">Feels Like</div>
+                            <div class="weather-detail-item-value">${Math.round(current.feels_like)}${unit}</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-item-label">Humidity</div>
+                            <div class="weather-detail-item-value">${current.humidity}%</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-item-label">Wind</div>
+                            <div class="weather-detail-item-value">${Math.round(current.wind_speed)} ${speedUnit}</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-item-label">UV Index</div>
+                            <div class="weather-detail-item-value">${current.uvi}</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-item-label">Pressure</div>
+                            <div class="weather-detail-item-value">${current.pressure} hPa</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-item-label">Visibility</div>
+                            <div class="weather-detail-item-value">${Math.round(current.visibility / 1000)} km</div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'forecast' && data) {
+                const unit = settings.tempUnit === 'imperial' ? '°F' : '°C';
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const date = new Date(data.dt * 1000);
+
+                title.textContent = `${days[date.getDay()]} Forecast`;
+                content.innerHTML = `
+                    <div class="forecast-detail-header">
+                        <div class="forecast-detail-icon">${getWeatherIcon(data.weather[0].icon)}</div>
+                        <div class="forecast-detail-temps">
+                            <div class="forecast-detail-high">${Math.round(data.temp.max)}${unit}</div>
+                            <div class="forecast-detail-low">Low: ${Math.round(data.temp.min)}${unit}</div>
+                        </div>
+                    </div>
+                    <div class="weather-detail-desc">${data.weather[0].description}</div>
+                    <div class="weather-detail-grid">
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-item-label">Morning</div>
+                            <div class="weather-detail-item-value">${Math.round(data.temp.morn)}${unit}</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-item-label">Afternoon</div>
+                            <div class="weather-detail-item-value">${Math.round(data.temp.day)}${unit}</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-item-label">Evening</div>
+                            <div class="weather-detail-item-value">${Math.round(data.temp.eve)}${unit}</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-item-label">Night</div>
+                            <div class="weather-detail-item-value">${Math.round(data.temp.night)}${unit}</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-item-label">Humidity</div>
+                            <div class="weather-detail-item-value">${data.humidity}%</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-item-label">Rain Chance</div>
+                            <div class="weather-detail-item-value">${Math.round((data.pop || 0) * 100)}%</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            modal.classList.add('active');
+        }
+
+        function initRadarMap(containerId, lat, lon, zoom = 9) {
+            const container = document.getElementById(containerId);
+            if (!container) return null;
+
+            // Clear existing map
+            container.innerHTML = '';
+
+            const map = L.map(containerId).setView([lat, lon], zoom);
+
+            // Base layer (dark theme)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '©OpenStreetMap, ©CartoDB'
+            }).addTo(map);
+
+            // OpenWeatherMap radar layer (default to precipitation/rain)
+            const radarLayerInstance = L.tileLayer(`https://tile.openweathermap.org/map/${currentRadarLayer}/{z}/{x}/{y}.png?appid=${settings.weatherApiKey}`, {
+                opacity: 0.6
+            }).addTo(map);
+
+            // Location marker with pin
+            const pinIcon = L.divIcon({
+                html: '<div class="location-pin">📍</div>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30],
+                className: ''
+            });
+
+            const marker = L.marker([lat, lon], { icon: pinIcon }).addTo(map);
+            marker.bindPopup(`<b>${settings.weatherCity || 'Your Location'}</b>`);
+
+            return { map, radarLayer: radarLayerInstance, marker };
+        }
+
+        function switchRadarLayer(layerType) {
+            currentRadarLayer = layerType;
+
+            // Update widget radar
+            if (radarMap && radarMap.map) {
+                radarMap.map.removeLayer(radarMap.radarLayer);
+                radarMap.radarLayer = L.tileLayer(`https://tile.openweathermap.org/map/${layerType}/{z}/{x}/{y}.png?appid=${settings.weatherApiKey}`, {
+                    opacity: 0.6
+                }).addTo(radarMap.map);
+            }
+
+            // Update fullscreen radar
+            if (radarMapFullscreen && radarMapFullscreen.map) {
+                radarMapFullscreen.map.removeLayer(radarMapFullscreen.radarLayer);
+                radarMapFullscreen.radarLayer = L.tileLayer(`https://tile.openweathermap.org/map/${layerType}/{z}/{x}/{y}.png?appid=${settings.weatherApiKey}`, {
+                    opacity: 0.6
+                }).addTo(radarMapFullscreen.map);
+            }
+
+            // Update active button state
+            document.querySelectorAll('.radar-layer-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.layer === layerType);
+            });
+        }
+
+        function openRadarLightbox() {
+            const lightbox = document.getElementById('radar-lightbox');
+            lightbox.classList.add('active');
+
+            setTimeout(() => {
+                if (radarMapFullscreen) {
+                    radarMapFullscreen.map.remove();
+                }
+                radarMapFullscreen = initRadarMap('radar-map-fullscreen', settings.weatherLat, settings.weatherLon, 7);
+            }, 100);
+        }
+
+        async function loadWeather() {
+            const container = document.getElementById('weather-content');
+
+            if (!settings.weatherApiKey || !settings.weatherLocation) {
+                container.innerHTML = `
+                    <div class="weather-setup">
+                        <p>Please configure weather settings</p>
+                        <button class="weather-setup-btn" onclick="document.getElementById('settings-btn').click()">Configure</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '<div class="loading"></div>';
+
+            try {
+                const coords = await getCoordinates(settings.weatherLocation);
+                settings.weatherLat = coords.lat;
+                settings.weatherLon = coords.lon;
+                settings.weatherCity = coords.name;
+                settings.weatherCountry = coords.country;
+
+                const units = settings.tempUnit;
+                const weatherUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${coords.lat}&lon=${coords.lon}&units=${units}&appid=${settings.weatherApiKey}`;
+                const response = await fetch(weatherUrl);
+
+                if (!response.ok) throw new Error('Weather API error');
+
+                weatherData = await response.json();
+                const current = weatherData.current;
+                const daily = weatherData.daily;
+
+                const unit = settings.tempUnit === 'imperial' ? '°F' : '°C';
+                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+                container.innerHTML = `
+                    <div class="weather-current" onclick="showWeatherDetail('current')">
+                        <div class="weather-icon">${getWeatherIcon(current.weather[0].icon)}</div>
+                        <div class="weather-temp">${Math.round(current.temp)}${unit}</div>
+                        <div class="weather-details">
+                            <div class="weather-condition">${current.weather[0].description}</div>
+                            <div class="weather-location">${coords.name}, ${coords.country}</div>
+                        </div>
+                    </div>
+                    <div class="weather-radar">
+                        <div class="radar-layer-selector">
+                            <button class="radar-layer-btn active" data-layer="precipitation_new" onclick="switchRadarLayer('precipitation_new')">Rain</button>
+                            <button class="radar-layer-btn" data-layer="clouds_new" onclick="switchRadarLayer('clouds_new')">Clouds</button>
+                            <button class="radar-layer-btn" data-layer="temp_new" onclick="switchRadarLayer('temp_new')">Temp</button>
+                            <button class="radar-layer-btn" data-layer="wind_new" onclick="switchRadarLayer('wind_new')">Wind</button>
+                        </div>
+                        <div class="radar-container" id="radar-map-widget"></div>
+                        <div class="radar-actions">
+                            <button class="radar-btn" onclick="openRadarLightbox()">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                                </svg>
+                                Fullscreen Radar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="weather-forecast">
+                        ${daily.slice(1, 6).map((day, i) => {
+                            const d = new Date(day.dt * 1000);
+                            return `
+                                <div class="forecast-day" onclick="showWeatherDetail('forecast', weatherData.daily[${i + 1}])">
+                                    <div class="forecast-day-name">${days[d.getDay()]}</div>
+                                    <div class="forecast-icon">${getWeatherIcon(day.weather[0].icon)}</div>
+                                    <div class="forecast-temp">${Math.round(day.temp.max)}°</div>
+                                    <div class="forecast-temp-low">${Math.round(day.temp.min)}°</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+
+                // Initialize radar map in widget
+                setTimeout(() => {
+                    radarMap = initRadarMap('radar-map-widget', coords.lat, coords.lon, 8);
+                }, 100);
+
+            } catch (error) {
+                console.error('Weather error:', error);
+                container.innerHTML = `
+                    <div class="weather-setup">
+                        <p>Unable to load weather. Check your API key and location.</p>
+                        <button class="weather-setup-btn" onclick="document.getElementById('settings-btn').click()">Update Settings</button>
+                    </div>
+                `;
+            }
+        }
+
+        // ============ Calendar ============
+        function loadCalendar() {
+            const container = document.getElementById('calendar-container');
+
+            if (!settings.calendarEmbedUrl) {
+                container.innerHTML = `
+                    <div class="calendar-setup">
+                        <p>Paste your Google Calendar embed URL in settings</p>
+                        <button class="weather-setup-btn" onclick="document.getElementById('settings-btn').click()">Configure Calendar</button>
+                    </div>
+                `;
+                return;
+            }
+
+            let calendarSrc = settings.calendarEmbedUrl.trim();
+            const srcMatch = calendarSrc.match(/src="([^"]+)"/);
+            if (srcMatch) calendarSrc = srcMatch[1];
+
+            if (!calendarSrc.includes('calendar.google.com')) {
+                container.innerHTML = `
+                    <div class="calendar-setup">
+                        <p>Invalid Google Calendar URL.</p>
+                        <button class="weather-setup-btn" onclick="document.getElementById('settings-btn').click()">Configure Calendar</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `<iframe src="${calendarSrc}" frameborder="0" scrolling="no"></iframe>`;
+        }
+
+        // ============ Paint Canvas ============
+        function initPaintCanvas() {
+            const canvas = document.getElementById('paint-canvas');
+            const container = canvas.parentElement;
+
+            // Make canvas fullscreen
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+
+            paintCtx = canvas.getContext('2d');
+            paintCtx.fillStyle = 'white';
+            paintCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+
+            document.getElementById('tool-brush').addEventListener('click', () => setTool('brush'));
+            document.getElementById('tool-line').addEventListener('click', () => setTool('line'));
+            document.getElementById('tool-rect').addEventListener('click', () => setTool('rect'));
+            document.getElementById('tool-circle').addEventListener('click', () => setTool('circle'));
+            document.getElementById('tool-text').addEventListener('click', () => setTool('text'));
+            document.getElementById('tool-eraser').addEventListener('click', () => setTool('eraser'));
+            document.getElementById('clear-canvas').addEventListener('click', clearCanvas);
+            document.getElementById('save-canvas-png').addEventListener('click', saveCanvasPNG);
+            document.getElementById('save-canvas-pdf').addEventListener('click', saveCanvasPDF);
+
+            // Text input handlers
+            document.getElementById('text-cancel').addEventListener('click', () => {
+                document.getElementById('text-input-overlay').classList.remove('active');
+            });
+            document.getElementById('text-confirm').addEventListener('click', addTextToCanvas);
+            document.getElementById('text-input-field').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTextToCanvas();
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (document.getElementById('paint-lightbox').classList.contains('active')) {
+                    const imageData = paintCtx.getImageData(0, 0, canvas.width, canvas.height);
+                    canvas.width = container.clientWidth;
+                    canvas.height = container.clientHeight;
+                    paintCtx.fillStyle = 'white';
+                    paintCtx.fillRect(0, 0, canvas.width, canvas.height);
+                    paintCtx.putImageData(imageData, 0, 0);
+                }
+            });
+        }
+
+        function addTextToCanvas() {
+            const textInput = document.getElementById('text-input-field');
+            const text = textInput.value.trim();
+
+            if (text) {
+                const color = document.getElementById('paint-color').value;
+                const size = parseInt(document.getElementById('stroke-size').value) + 10;
+
+                paintCtx.fillStyle = color;
+                paintCtx.font = `${size}px Inter, sans-serif`;
+                paintCtx.fillText(text, textX, textY);
+            }
+
+            textInput.value = '';
+            document.getElementById('text-input-overlay').classList.remove('active');
+        }
+
+        function setTool(tool) {
+            paintTool = tool;
+            document.querySelectorAll('.lightbox-tools .tool-btn').forEach(btn => btn.classList.remove('active'));
+            const toolBtn = document.getElementById(`tool-${tool}`);
+            if (toolBtn) toolBtn.classList.add('active');
+        }
+
+        function getCanvasCoords(e) {
+            const canvas = document.getElementById('paint-canvas');
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (e.clientX - rect.left) * (canvas.width / rect.width),
+                y: (e.clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 'mousemove', {
+                clientX: touch.clientX, clientY: touch.clientY
+            });
+            document.getElementById('paint-canvas').dispatchEvent(mouseEvent);
+        }
+
+        function startDrawing(e) {
+            const coords = getCanvasCoords(e);
+            startX = coords.x;
+            startY = coords.y;
+
+            // Handle text tool - show input overlay
+            if (paintTool === 'text') {
+                textX = coords.x;
+                textY = coords.y;
+                document.getElementById('text-input-field').value = '';
+                document.getElementById('text-input-overlay').classList.add('active');
+                document.getElementById('text-input-field').focus();
+                return;
+            }
+
+            isDrawing = true;
+            if (paintTool === 'brush' || paintTool === 'eraser') {
+                paintCtx.beginPath();
+                paintCtx.moveTo(startX, startY);
+            } else {
+                canvasSnapshot = paintCtx.getImageData(0, 0, document.getElementById('paint-canvas').width, document.getElementById('paint-canvas').height);
+            }
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const coords = getCanvasCoords(e);
+            const color = document.getElementById('paint-color').value;
+            const size = document.getElementById('stroke-size').value;
+            paintCtx.lineWidth = size;
+            paintCtx.lineCap = 'round';
+            paintCtx.lineJoin = 'round';
+
+            if (paintTool === 'brush') {
+                paintCtx.strokeStyle = color;
+                paintCtx.lineTo(coords.x, coords.y);
+                paintCtx.stroke();
+            } else if (paintTool === 'eraser') {
+                paintCtx.strokeStyle = 'white';
+                paintCtx.lineTo(coords.x, coords.y);
+                paintCtx.stroke();
+            } else {
+                paintCtx.putImageData(canvasSnapshot, 0, 0);
+                paintCtx.strokeStyle = color;
+                if (paintTool === 'line') {
+                    paintCtx.beginPath();
+                    paintCtx.moveTo(startX, startY);
+                    paintCtx.lineTo(coords.x, coords.y);
+                    paintCtx.stroke();
+                } else if (paintTool === 'rect') {
+                    paintCtx.strokeRect(startX, startY, coords.x - startX, coords.y - startY);
+                } else if (paintTool === 'circle') {
+                    const radius = Math.sqrt(Math.pow(coords.x - startX, 2) + Math.pow(coords.y - startY, 2));
+                    paintCtx.beginPath();
+                    paintCtx.arc(startX, startY, radius, 0, Math.PI * 2);
+                    paintCtx.stroke();
+                }
+            }
+        }
+
+        function stopDrawing() {
+            if (isDrawing && (paintTool === 'brush' || paintTool === 'eraser')) paintCtx.closePath();
+            isDrawing = false;
+        }
+
+        function clearCanvas() {
+            const canvas = document.getElementById('paint-canvas');
+            paintCtx.fillStyle = 'white';
+            paintCtx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function saveCanvasPNG() {
+            const canvas = document.getElementById('paint-canvas');
+            const link = document.createElement('a');
+            link.download = `drawing-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function saveCanvasPDF() {
+            const canvas = document.getElementById('paint-canvas');
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('landscape', 'pt', [canvas.width, canvas.height]);
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
+            pdf.save(`drawing-${Date.now()}.pdf`);
+        }
+
+        // ============ Webcam/Selfie ============
+        function renderWebcamUI() {
+            const container = document.getElementById('webcam-container');
+            const selfieBtn = document.getElementById('take-selfie-btn');
+
+            // Stop any existing stream first
+            stopWebcam();
+
+            // Show loading state
+            container.innerHTML = `
+                <div class="webcam-error">
+                    <p>📷 Initializing camera...</p>
+                </div>
+            `;
+            if (selfieBtn) selfieBtn.disabled = true;
+
+            // Start webcam after a brief delay to ensure UI is updated
+            setTimeout(() => startWebcam(), 100);
+        }
+
+        async function startWebcam() {
+            const container = document.getElementById('webcam-container');
+            const selfieBtn = document.getElementById('take-selfie-btn');
+
+            // Check if mediaDevices is available
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                container.innerHTML = `
+                    <div class="webcam-error">
+                        <p>📷 Camera API not available.</p>
+                        <p>Please use HTTPS to enable camera access.</p>
+                    </div>
+                `;
+                if (selfieBtn) selfieBtn.disabled = true;
+                return;
+            }
+
+            // First check if we already have permission
+            try {
+                const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+                console.log('Camera permission status:', permissionStatus.state);
+            } catch (e) {
+                console.log('Permissions API not supported for camera');
+            }
+
+            try {
+                // Request camera permission - use simpler constraints first
+                console.log('Requesting camera access...');
+                webcamStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+
+                console.log('Camera access granted, stream:', webcamStream);
+
+                // Build the video UI
+                container.innerHTML = `
+                    <video id="webcam-video" autoplay playsinline muted></video>
+                    <canvas id="selfie-canvas"></canvas>
+                    <div class="countdown-overlay" id="countdown"></div>
+                    <div class="flash-overlay" id="flash"></div>
+                `;
+
+                const video = document.getElementById('webcam-video');
+                if (video) {
+                    video.srcObject = webcamStream;
+                    // Wait for video to be ready
+                    video.onloadedmetadata = () => {
+                        console.log('Video metadata loaded');
+                        video.play().catch(e => console.log('Video play error:', e));
+                    };
+                }
+                if (selfieBtn) selfieBtn.disabled = false;
+            } catch (error) {
+                console.error('Webcam error:', error.name, error.message);
+                let errorMessage = 'Camera access was denied or unavailable.';
+                let showRetry = true;
+
+                if (error.name === 'NotAllowedError') {
+                    errorMessage = 'Camera permission was denied. Click the camera icon in your browser\'s address bar to allow access, then try again.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage = 'No camera found. Please connect a camera and try again.';
+                } else if (error.name === 'NotReadableError') {
+                    errorMessage = 'Camera is in use by another application. Please close other apps using the camera.';
+                } else if (error.name === 'SecurityError') {
+                    errorMessage = 'Camera access requires HTTPS. Please ensure you are using a secure connection.';
+                } else if (error.name === 'AbortError') {
+                    errorMessage = 'Camera access was aborted. Please try again.';
+                } else if (error.name === 'OverconstrainedError') {
+                    errorMessage = 'Camera constraints could not be satisfied. Trying with basic settings...';
+                    showRetry = false;
+                    // Try again with minimal constraints
+                    try {
+                        webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                        container.innerHTML = `
+                            <video id="webcam-video" autoplay playsinline muted></video>
+                            <canvas id="selfie-canvas"></canvas>
+                            <div class="countdown-overlay" id="countdown"></div>
+                            <div class="flash-overlay" id="flash"></div>
+                        `;
+                        const video = document.getElementById('webcam-video');
+                        if (video) {
+                            video.srcObject = webcamStream;
+                            video.play();
+                        }
+                        if (selfieBtn) selfieBtn.disabled = false;
+                        return;
+                    } catch (e2) {
+                        errorMessage = 'Camera access failed. ' + e2.message;
+                        showRetry = true;
+                    }
+                }
+
+                container.innerHTML = `
+                    <div class="webcam-error">
+                        <p>📷 ${errorMessage}</p>
+                        ${showRetry ? '<button class="permission-btn" onclick="renderWebcamUI()">Try Again</button>' : ''}
+                    </div>
+                `;
+                if (selfieBtn) selfieBtn.disabled = true;
+            }
+        }
+
+        function stopWebcam() {
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                webcamStream = null;
+            }
+        }
+
+        function takeSelfie() {
+            const countdownEl = document.getElementById('countdown');
+            const flashEl = document.getElementById('flash');
+            const selfieBtn = document.getElementById('take-selfie-btn');
+
+            if (!countdownEl || !flashEl || !webcamStream) {
+                console.error('Cannot take selfie: missing elements or webcam not active');
+                return;
+            }
+
+            if (selfieBtn) selfieBtn.disabled = true;
+            let count = 3;
+            countdownEl.textContent = count;
+            countdownEl.classList.add('active');
+
+            const interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownEl.textContent = count;
+                } else {
+                    clearInterval(interval);
+                    countdownEl.classList.remove('active');
+                    flashEl.classList.add('active');
+                    setTimeout(() => flashEl.classList.remove('active'), 200);
+
+                    const video = document.getElementById('webcam-video');
+                    const canvas = document.getElementById('selfie-canvas');
+
+                    if (video && canvas) {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        const ctx = canvas.getContext('2d');
+                        ctx.translate(canvas.width, 0);
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(video, 0, 0);
+
+                        const link = document.createElement('a');
+                        link.download = `selfie-${Date.now()}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    }
+
+                    if (selfieBtn) selfieBtn.disabled = false;
+                }
+            }, 1000);
+        }
+
+        // ============ Event Listeners ============
+        function initEventListeners() {
+            const settingsBtn = document.getElementById('settings-btn');
+            const settingsModal = document.getElementById('settings-modal');
+            const modalClose = document.getElementById('modal-close');
+            const saveBtn = document.getElementById('save-settings');
+
+            settingsBtn.addEventListener('click', () => {
+                settingsModal.classList.add('active');
+                updateSettingsUI();
+            });
+
+            modalClose.addEventListener('click', () => settingsModal.classList.remove('active'));
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) settingsModal.classList.remove('active');
+            });
+
+            document.getElementById('toggle-search').addEventListener('change', (e) => settings.showSearch = e.target.checked);
+            document.getElementById('toggle-weather').addEventListener('change', (e) => settings.showWeather = e.target.checked);
+            document.getElementById('toggle-calendar').addEventListener('change', (e) => settings.showCalendar = e.target.checked);
+            document.getElementById('toggle-favorites').addEventListener('change', (e) => settings.showFavorites = e.target.checked);
+
+            document.querySelectorAll('.bg-type-btn[data-type]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    settings.bgType = btn.dataset.type;
+                    updateSettingsUI();
+                });
+            });
+
+            document.querySelectorAll('.color-preset[data-gradient]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    settings.bgGradient = btn.dataset.gradient;
+                    document.querySelectorAll('.color-preset').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            document.getElementById('bg-color').addEventListener('input', (e) => {
+                settings.bgColor = e.target.value;
+                document.getElementById('color-value').textContent = e.target.value;
+            });
+
+            document.getElementById('bg-image-url').addEventListener('input', (e) => settings.bgImage = e.target.value);
+            document.getElementById('weather-api-key').addEventListener('input', (e) => settings.weatherApiKey = e.target.value);
+            document.getElementById('weather-location').addEventListener('input', (e) => settings.weatherLocation = e.target.value);
+
+            document.querySelectorAll('.bg-type-btn[data-unit]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    settings.tempUnit = btn.dataset.unit;
+                    document.querySelectorAll('.bg-type-btn[data-unit]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            document.getElementById('calendar-embed-url').addEventListener('input', (e) => settings.calendarEmbedUrl = e.target.value);
+
+            saveBtn.addEventListener('click', () => {
+                saveSettings();
+                applySettings();
+                settingsModal.classList.remove('active');
+            });
+
+            document.getElementById('export-settings').addEventListener('click', exportSettings);
+            document.getElementById('import-settings').addEventListener('click', () => document.getElementById('import-file').click());
+            document.getElementById('import-file').addEventListener('change', (e) => {
+                if (e.target.files.length > 0) importSettings(e.target.files[0]);
+            });
+
+            // Shortcut modal
+            const addShortcutBtn = document.getElementById('add-shortcut-btn');
+            const shortcutModal = document.getElementById('shortcut-modal');
+            const shortcutModalClose = document.getElementById('shortcut-modal-close');
+            const shortcutForm = document.getElementById('shortcut-form');
+
+            addShortcutBtn.addEventListener('click', () => {
+                document.getElementById('shortcut-name').value = '';
+                document.getElementById('shortcut-url').value = '';
+                editingShortcutId = null;
+                shortcutModal.classList.add('active');
+            });
+
+            shortcutModalClose.addEventListener('click', () => shortcutModal.classList.remove('active'));
+            shortcutModal.addEventListener('click', (e) => {
+                if (e.target === shortcutModal) shortcutModal.classList.remove('active');
+            });
+
+            shortcutForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('shortcut-name').value;
+                const url = document.getElementById('shortcut-url').value;
+                if (editingShortcutId) {
+                    const idx = shortcuts.findIndex(s => s.id === editingShortcutId);
+                    if (idx !== -1) shortcuts[idx] = { ...shortcuts[idx], name, url };
+                } else {
+                    addShortcut(name, url);
+                }
+                saveShortcuts();
+                renderShortcuts();
+                shortcutModal.classList.remove('active');
+            });
+
+            document.getElementById('search-form').addEventListener('submit', (e) => {
+                if (!document.getElementById('search-input').value.trim()) e.preventDefault();
+            });
+
+            document.getElementById('mini-cal-prev').addEventListener('click', () => {
+                miniCalendarDate.setMonth(miniCalendarDate.getMonth() - 1);
+                renderMiniCalendar();
+            });
+
+            document.getElementById('mini-cal-next').addEventListener('click', () => {
+                miniCalendarDate.setMonth(miniCalendarDate.getMonth() + 1);
+                renderMiniCalendar();
+            });
+
+            // Weather detail modal
+            document.getElementById('weather-detail-close').addEventListener('click', () => {
+                document.getElementById('weather-detail-modal').classList.remove('active');
+            });
+            document.getElementById('weather-detail-modal').addEventListener('click', (e) => {
+                if (e.target.id === 'weather-detail-modal') e.target.classList.remove('active');
+            });
+
+            // Paint lightbox
+            document.getElementById('paint-btn').addEventListener('click', () => {
+                document.getElementById('paint-lightbox').classList.add('active');
+                initPaintCanvas();
+            });
+            document.getElementById('close-paint').addEventListener('click', () => {
+                document.getElementById('paint-lightbox').classList.remove('active');
+            });
+
+            // Radar lightbox
+            document.getElementById('close-radar').addEventListener('click', () => {
+                document.getElementById('radar-lightbox').classList.remove('active');
+            });
+
+            // Webcam lightbox
+            document.getElementById('camera-btn').addEventListener('click', () => {
+                document.getElementById('webcam-lightbox').classList.add('active');
+                renderWebcamUI();
+            });
+            document.getElementById('close-webcam').addEventListener('click', () => {
+                document.getElementById('webcam-lightbox').classList.remove('active');
+                stopWebcam();
+            });
+
+            // Selfie button in toolbar
+            document.getElementById('take-selfie-btn').addEventListener('click', takeSelfie);
+
+            // Fullscreen toggle
+            document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
+            document.addEventListener('fullscreenchange', updateFullscreenIcon);
+            document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+
+            // Refresh button
+            document.getElementById('refresh-btn').addEventListener('click', () => {
+                window.location.reload();
+            });
+        }
+
+        // ============ Fullscreen ============
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                // Enter fullscreen
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                }
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        }
+
+        function updateFullscreenIcon() {
+            const icon = document.getElementById('fullscreen-icon');
+            const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+
+            if (isFullscreen) {
+                // Show exit fullscreen icon
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25"></path>`;
+            } else {
+                // Show enter fullscreen icon
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>`;
+            }
+        }
+
+        // ============ Initialize ============
+        function init() {
+            loadSettings();
+            loadShortcuts();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            initEventListeners();
+            renderMiniCalendar();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
