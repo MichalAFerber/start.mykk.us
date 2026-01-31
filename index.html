@@ -118,6 +118,13 @@
         /* Date Card */
         .date-card {
             padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-card.hidden {
+            display: none;
         }
 
         .date {
@@ -125,16 +132,23 @@
             font-weight: 300;
             letter-spacing: 2px;
             text-transform: uppercase;
-            text-align: left;
+            text-align: center;
         }
 
         /* Time Card */
         .time-card {
             padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .time-card.hidden {
+            display: none;
         }
 
         .datetime {
-            text-align: left;
+            text-align: center;
         }
 
         .time {
@@ -309,7 +323,6 @@
             justify-content: center;
             font-size: 1.5rem;
             font-weight: 600;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .shortcut-icon img {
@@ -345,8 +358,51 @@
             line-height: 1;
         }
 
-        .shortcut:hover .shortcut-delete {
+        .shortcut-edit {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            background: rgba(102, 126, 234, 0.7);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            line-height: 1;
+        }
+
+        .shortcut:hover .shortcut-delete,
+        .shortcut:hover .shortcut-edit {
             display: flex;
+        }
+
+        /* Drag and drop styles */
+        .shortcut.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .shortcut.drag-over {
+            border: 2px dashed #667eea;
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        /* Shortcut icon styles */
+        .shortcut-icon-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .shortcut-icon-solid {
+            background: #667eea;
+        }
+
+        .shortcut-icon-transparent {
+            background: transparent;
         }
 
         /* Weather Widget */
@@ -856,6 +912,24 @@
             flex: 1;
         }
 
+        .zoom-slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .settings-range {
+            flex: 1;
+            height: 6px;
+            accent-color: #667eea;
+        }
+
+        .zoom-slider-wrapper span {
+            min-width: 30px;
+            text-align: center;
+            font-weight: 600;
+        }
+
         .color-picker-wrapper {
             display: flex;
             gap: 12px;
@@ -1188,6 +1262,34 @@
             border-radius: 0;
         }
 
+        /* Notepad Lightbox */
+        .notepad-lightbox .notepad-container {
+            flex: 1;
+            display: flex;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #notepad-textarea {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a2e;
+            border: none;
+            padding: 24px;
+            font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+        }
+
+        #notepad-textarea::placeholder {
+            color: rgba(26, 26, 46, 0.5);
+        }
+
         /* Text tool input */
         .text-input-overlay {
             position: fixed;
@@ -1482,7 +1584,7 @@
         <!-- Top Row - Aligned Date, Search, Actions -->
         <div class="top-row">
             <!-- Date Card -->
-            <div class="date-card glass-card">
+            <div class="date-card glass-card" id="date-widget">
                 <div class="date" id="date">Jan 1</div>
             </div>
 
@@ -1520,6 +1622,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                     </svg>
                 </button>
+                <button class="action-btn" id="notepad-btn" title="Notepad">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </button>
                 <button class="action-btn" id="settings-btn" title="Settings">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -1532,7 +1639,7 @@
         <!-- Left Column -->
         <div class="left-column">
             <!-- Time Card -->
-            <div class="time-card glass-card">
+            <div class="time-card glass-card" id="time-widget">
                 <div class="datetime">
                     <div class="time">
                         <span id="time-main">12:00</span><span class="seconds" id="time-seconds">:00</span><span class="period" id="time-period">AM</span>
@@ -1615,6 +1722,14 @@
             <div class="settings-group">
                 <label class="settings-label">Widgets</label>
                 <label class="settings-checkbox">
+                    <input type="checkbox" id="toggle-date" checked>
+                    <span>Date</span>
+                </label>
+                <label class="settings-checkbox" style="margin-top: 8px;">
+                    <input type="checkbox" id="toggle-time" checked>
+                    <span>Clock</span>
+                </label>
+                <label class="settings-checkbox" style="margin-top: 8px;">
                     <input type="checkbox" id="toggle-search" checked>
                     <span>Search Bar</span>
                 </label>
@@ -1696,6 +1811,49 @@
                 </small>
             </div>
 
+            <div class="settings-group">
+                <label class="settings-label">Date Format</label>
+                <div class="bg-type-toggle">
+                    <button class="bg-type-btn active" data-dateformat="short">Jan 1</button>
+                    <button class="bg-type-btn" data-dateformat="long">January 1, 2024</button>
+                    <button class="bg-type-btn" data-dateformat="numeric">01/31/2024</button>
+                    <button class="bg-type-btn" data-dateformat="iso">2024-01-31</button>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">Time Format</label>
+                <div class="bg-type-toggle">
+                    <button class="bg-type-btn active" data-timeformat="12h">12 Hour</button>
+                    <button class="bg-type-btn" data-timeformat="24h">24 Hour</button>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">Search Behavior</label>
+                <div class="bg-type-toggle">
+                    <button class="bg-type-btn active" data-searchtab="new">New Tab</button>
+                    <button class="bg-type-btn" data-searchtab="same">Same Tab</button>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">Weather Map Zoom Level</label>
+                <div class="zoom-slider-wrapper">
+                    <input type="range" class="settings-range" id="weather-zoom" min="3" max="15" value="9">
+                    <span id="weather-zoom-value">9</span>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">Favorites Button Style</label>
+                <div class="bg-type-toggle">
+                    <button class="bg-type-btn active" data-favstyle="gradient">Gradient</button>
+                    <button class="bg-type-btn" data-favstyle="solid">Solid Color</button>
+                    <button class="bg-type-btn" data-favstyle="transparent">Transparent</button>
+                </div>
+            </div>
+
             <button class="settings-save" id="save-settings">Save Settings</button>
 
             <div class="settings-actions">
@@ -1735,6 +1893,27 @@
                 <div class="settings-group">
                     <label class="settings-label">URL</label>
                     <input type="url" class="settings-input" id="shortcut-url" placeholder="https://google.com" required>
+                </div>
+                <div class="settings-group">
+                    <label class="settings-label">Custom Icon URL (optional)</label>
+                    <input type="url" class="settings-input" id="shortcut-icon-url" placeholder="https://example.com/icon.png">
+                    <small class="settings-help">Leave empty to auto-detect icon</small>
+                </div>
+                <div class="settings-group">
+                    <label class="settings-label">Icon Background Color</label>
+                    <div class="color-picker-wrapper">
+                        <input type="color" class="color-picker" id="shortcut-bg-color" value="#667eea">
+                        <span id="shortcut-color-value">#667eea</span>
+                    </div>
+                    <small class="settings-help">Only applies when Favorites Style is set to "Solid Color"</small>
+                </div>
+                <div class="settings-group">
+                    <label class="settings-label">Open In</label>
+                    <div class="bg-type-toggle">
+                        <button type="button" class="bg-type-btn active" data-target="_self">Same Tab</button>
+                        <button type="button" class="bg-type-btn" data-target="_blank">New Tab</button>
+                    </div>
+                    <input type="hidden" id="shortcut-target" value="_self">
                 </div>
                 <button type="submit" class="settings-save">Save Shortcut</button>
             </form>
@@ -1819,6 +1998,22 @@
         </div>
     </div>
 
+    <!-- Notepad Lightbox -->
+    <div class="lightbox notepad-lightbox" id="notepad-lightbox">
+        <div class="lightbox-header">
+            <span class="lightbox-title">📝 Notepad</span>
+            <div class="lightbox-tools">
+                <button class="tool-btn" id="notepad-clear" title="Clear Notes">Clear</button>
+                <button class="tool-btn" id="notepad-copy" title="Copy to Clipboard">Copy</button>
+                <button class="tool-btn" id="notepad-download" title="Download as TXT">Download</button>
+            </div>
+            <button class="lightbox-close" id="close-notepad">✕ Close</button>
+        </div>
+        <div class="notepad-container">
+            <textarea id="notepad-textarea" placeholder="Start typing your notes here..."></textarea>
+        </div>
+    </div>
+
     <!-- Radar Lightbox -->
     <div class="lightbox" id="radar-lightbox">
         <div class="lightbox-header">
@@ -1876,7 +2071,14 @@
             showSearch: true,
             showWeather: true,
             showCalendar: true,
-            showFavorites: true
+            showFavorites: true,
+            showDate: true,
+            showTime: true,
+            dateFormat: 'short',
+            timeFormat: '12h',
+            searchNewTab: true,
+            weatherMapZoom: 9,
+            favoritesStyle: 'gradient'
         };
 
         // Icon mapping for common services using dashboardicons.com
@@ -1916,16 +2118,41 @@
             'icloud.com': 'icloud'
         };
 
-        function getIconUrl(url, name) {
+        function getIconUrl(shortcut) {
+            // Priority 1: User custom icon URL
+            if (shortcut.iconUrl) {
+                return { url: shortcut.iconUrl, type: 'custom' };
+            }
+
             try {
-                const hostname = new URL(url).hostname.replace('www.', '');
-                // Check if we have a mapped icon
+                const hostname = new URL(shortcut.url).hostname.replace('www.', '');
+
+                // Priority 2: Dashboard icons (dashboardicons.com via CDN)
                 if (iconMap[hostname]) {
-                    return `https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/${iconMap[hostname]}.svg`;
+                    return {
+                        url: `https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/${iconMap[hostname]}.svg`,
+                        fallback: `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`,
+                        type: 'dashboard'
+                    };
                 }
+
                 // Try the domain name as the icon name
                 const baseDomain = hostname.split('.')[0];
-                return `https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/${baseDomain}.svg`;
+                return {
+                    url: `https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/${baseDomain}.svg`,
+                    fallback: `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`,
+                    type: 'dashboard'
+                };
+            } catch {
+                return null;
+            }
+        }
+
+        // Priority 3: Website favicon (used as fallback in onerror)
+        function getFaviconUrl(url) {
+            try {
+                const hostname = new URL(url).hostname;
+                return `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`;
             } catch {
                 return null;
             }
@@ -2043,18 +2270,46 @@
         // ============ Date/Time ============
         function updateDateTime() {
             const now = new Date();
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            document.getElementById('date').textContent = `${months[now.getMonth()]} ${now.getDate()}`;
+            const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const monthsLong = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
+            // Format date based on settings
+            let dateText;
+            const day = now.getDate();
+            const month = now.getMonth();
+            const year = now.getFullYear();
+
+            switch (settings.dateFormat) {
+                case 'long':
+                    dateText = `${monthsLong[month]} ${day}, ${year}`;
+                    break;
+                case 'numeric':
+                    dateText = `${(month + 1).toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}/${year}`;
+                    break;
+                case 'iso':
+                    dateText = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                    break;
+                default: // 'short'
+                    dateText = `${monthsShort[month]} ${day}`;
+            }
+            document.getElementById('date').textContent = dateText;
+
+            // Format time based on settings
             let hours = now.getHours();
             const minutes = now.getMinutes().toString().padStart(2, '0');
             const seconds = now.getSeconds().toString().padStart(2, '0');
-            const period = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12 || 12;
 
-            document.getElementById('time-main').textContent = `${hours}:${minutes}`;
-            document.getElementById('time-seconds').textContent = `:${seconds}`;
-            document.getElementById('time-period').textContent = period;
+            if (settings.timeFormat === '24h') {
+                document.getElementById('time-main').textContent = `${hours.toString().padStart(2, '0')}:${minutes}`;
+                document.getElementById('time-seconds').textContent = `:${seconds}`;
+                document.getElementById('time-period').textContent = '';
+            } else {
+                const period = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12 || 12;
+                document.getElementById('time-main').textContent = `${hours}:${minutes}`;
+                document.getElementById('time-seconds').textContent = `:${seconds}`;
+                document.getElementById('time-period').textContent = period;
+            }
         }
 
         // ============ Mini Calendar ============
@@ -2123,12 +2378,20 @@
                 overlay.style.display = 'block';
             }
 
+            document.getElementById('date-widget').classList.toggle('hidden', !settings.showDate);
+            document.getElementById('time-widget').classList.toggle('hidden', !settings.showTime);
             document.getElementById('search-widget').classList.toggle('hidden', !settings.showSearch);
             document.getElementById('weather-widget').classList.toggle('hidden', !settings.showWeather);
             document.getElementById('calendar-widget').classList.toggle('hidden', !settings.showCalendar);
             document.getElementById('shortcuts-widget').classList.toggle('hidden', !settings.showFavorites);
 
+            // Update search form target
+            const searchForm = document.getElementById('search-form');
+            searchForm.target = settings.searchNewTab ? '_blank' : '_self';
+
             updateSettingsUI();
+            updateDateTime();
+            renderShortcuts();
 
             if (settings.weatherLocation && settings.weatherApiKey && settings.showWeather) {
                 loadWeather();
@@ -2169,29 +2432,131 @@
 
             document.getElementById('calendar-embed-url').value = settings.calendarEmbedUrl || '';
 
+            document.getElementById('toggle-date').checked = settings.showDate;
+            document.getElementById('toggle-time').checked = settings.showTime;
             document.getElementById('toggle-search').checked = settings.showSearch;
             document.getElementById('toggle-weather').checked = settings.showWeather;
             document.getElementById('toggle-calendar').checked = settings.showCalendar;
             document.getElementById('toggle-favorites').checked = settings.showFavorites;
+
+            // Date format buttons
+            document.querySelectorAll('.bg-type-btn[data-dateformat]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.dateformat === settings.dateFormat);
+            });
+
+            // Time format buttons
+            document.querySelectorAll('.bg-type-btn[data-timeformat]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.timeformat === settings.timeFormat);
+            });
+
+            // Search tab buttons
+            document.querySelectorAll('.bg-type-btn[data-searchtab]').forEach(btn => {
+                btn.classList.toggle('active', (btn.dataset.searchtab === 'new') === settings.searchNewTab);
+            });
+
+            // Weather zoom
+            document.getElementById('weather-zoom').value = settings.weatherMapZoom;
+            document.getElementById('weather-zoom-value').textContent = settings.weatherMapZoom;
+
+            // Favorites style buttons
+            document.querySelectorAll('.bg-type-btn[data-favstyle]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.favstyle === settings.favoritesStyle);
+            });
         }
 
         // ============ Shortcuts ============
+        let draggedShortcut = null;
+
+        function getIconStyleClass() {
+            switch (settings.favoritesStyle) {
+                case 'transparent': return 'shortcut-icon-transparent';
+                case 'solid': return 'shortcut-icon-solid';
+                default: return 'shortcut-icon-gradient';
+            }
+        }
+
         function renderShortcuts() {
             const container = document.getElementById('shortcuts-grid');
             container.innerHTML = shortcuts.map(shortcut => {
-                const iconUrl = getIconUrl(shortcut.url, shortcut.name);
+                const iconData = getIconUrl(shortcut);
                 const initial = shortcut.name.charAt(0).toUpperCase();
+                const faviconUrl = getFaviconUrl(shortcut.url);
+                const target = shortcut.target || '_self';
+                const bgColor = shortcut.bgColor || '';
+                const styleClass = getIconStyleClass();
+
+                let iconHtml;
+                if (iconData) {
+                    const fallbackUrl = iconData.fallback || faviconUrl;
+                    iconHtml = `<img src="${iconData.url}" onerror="this.onerror=null; if('${fallbackUrl}'){this.src='${fallbackUrl}';}else{this.style.display='none'; this.parentElement.textContent='${initial}';}">`;
+                } else if (faviconUrl) {
+                    iconHtml = `<img src="${faviconUrl}" onerror="this.style.display='none'; this.parentElement.textContent='${initial}';">`;
+                } else {
+                    iconHtml = initial;
+                }
+
+                const customStyle = bgColor ? `style="background: ${bgColor};"` : '';
 
                 return `
-                    <a href="${shortcut.url}" class="shortcut" data-id="${shortcut.id}" title="${shortcut.name}">
+                    <a href="${shortcut.url}" target="${target}" class="shortcut" data-id="${shortcut.id}" title="${shortcut.name}" draggable="true">
+                        <button class="shortcut-edit" onclick="event.preventDefault(); event.stopPropagation(); openEditShortcut(${shortcut.id});">✎</button>
                         <button class="shortcut-delete" onclick="event.preventDefault(); event.stopPropagation(); deleteShortcut(${shortcut.id});">×</button>
-                        <div class="shortcut-icon">
-                            ${iconUrl ? `<img src="${iconUrl}" onerror="this.style.display='none'; this.parentElement.textContent='${initial}';">` : initial}
+                        <div class="shortcut-icon ${styleClass}" ${customStyle}>
+                            ${iconHtml}
                         </div>
                         <span class="shortcut-name">${shortcut.name}</span>
                     </a>
                 `;
             }).join('');
+
+            // Add drag and drop event listeners
+            initShortcutDragDrop();
+        }
+
+        function initShortcutDragDrop() {
+            const shortcuts_els = document.querySelectorAll('.shortcut');
+            shortcuts_els.forEach(shortcut => {
+                shortcut.addEventListener('dragstart', handleDragStart);
+                shortcut.addEventListener('dragover', handleDragOver);
+                shortcut.addEventListener('drop', handleDrop);
+                shortcut.addEventListener('dragend', handleDragEnd);
+            });
+        }
+
+        function handleDragStart(e) {
+            draggedShortcut = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            if (draggedShortcut !== this) {
+                const draggedId = parseInt(draggedShortcut.dataset.id);
+                const targetId = parseInt(this.dataset.id);
+
+                const draggedIndex = shortcuts.findIndex(s => s.id === draggedId);
+                const targetIndex = shortcuts.findIndex(s => s.id === targetId);
+
+                if (draggedIndex !== -1 && targetIndex !== -1) {
+                    const [removed] = shortcuts.splice(draggedIndex, 1);
+                    shortcuts.splice(targetIndex, 0, removed);
+                    saveShortcuts();
+                    renderShortcuts();
+                }
+            }
+            this.classList.remove('drag-over');
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.shortcut').forEach(s => s.classList.remove('drag-over'));
         }
 
         function deleteShortcut(id) {
@@ -2200,9 +2565,28 @@
             renderShortcuts();
         }
 
-        function addShortcut(name, url) {
+        function openEditShortcut(id) {
+            const shortcut = shortcuts.find(s => s.id === id);
+            if (!shortcut) return;
+
+            editingShortcutId = id;
+            document.getElementById('shortcut-modal-title').textContent = 'Edit Shortcut';
+            document.getElementById('shortcut-name').value = shortcut.name;
+            document.getElementById('shortcut-url').value = shortcut.url;
+            document.getElementById('shortcut-icon-url').value = shortcut.iconUrl || '';
+            document.getElementById('shortcut-bg-color').value = shortcut.bgColor || '#667eea';
+            document.getElementById('shortcut-color-value').textContent = shortcut.bgColor || '#667eea';
+            document.getElementById('shortcut-target').value = shortcut.target || '_self';
+            // Update target button state
+            document.querySelectorAll('.bg-type-btn[data-target]').forEach(b => {
+                b.classList.toggle('active', b.dataset.target === (shortcut.target || '_self'));
+            });
+            document.getElementById('shortcut-modal').classList.add('active');
+        }
+
+        function addShortcut(name, url, iconUrl = '', bgColor = '', target = '_self') {
             const newId = shortcuts.length > 0 ? Math.max(...shortcuts.map(s => s.id)) + 1 : 1;
-            shortcuts.push({ id: newId, name, url });
+            shortcuts.push({ id: newId, name, url, iconUrl, bgColor, target });
             saveShortcuts();
             renderShortcuts();
         }
@@ -2403,7 +2787,7 @@
                 if (radarMapFullscreen) {
                     radarMapFullscreen.map.remove();
                 }
-                radarMapFullscreen = initRadarMap('radar-map-fullscreen', settings.weatherLat, settings.weatherLon, 7);
+                radarMapFullscreen = initRadarMap('radar-map-fullscreen', settings.weatherLat, settings.weatherLon, settings.weatherMapZoom);
             }, 100);
         }
 
@@ -2485,7 +2869,7 @@
 
                 // Initialize radar map in widget
                 setTimeout(() => {
-                    radarMap = initRadarMap('radar-map-widget', coords.lat, coords.lon, 8);
+                    radarMap = initRadarMap('radar-map-widget', coords.lat, coords.lon, settings.weatherMapZoom);
                 }, 100);
 
             } catch (error) {
@@ -2712,6 +3096,49 @@
             pdf.save(`drawing-${Date.now()}.pdf`);
         }
 
+        // ============ Notepad ============
+        function loadNotepadContent() {
+            const textarea = document.getElementById('notepad-textarea');
+            const savedContent = localStorage.getItem('dashboard-notepad');
+            if (savedContent) {
+                textarea.value = savedContent;
+            }
+        }
+
+        function saveNotepadContent() {
+            const textarea = document.getElementById('notepad-textarea');
+            localStorage.setItem('dashboard-notepad', textarea.value);
+        }
+
+        function clearNotepad() {
+            if (confirm('Are you sure you want to clear all notes?')) {
+                const textarea = document.getElementById('notepad-textarea');
+                textarea.value = '';
+                localStorage.removeItem('dashboard-notepad');
+            }
+        }
+
+        function copyNotepad() {
+            const textarea = document.getElementById('notepad-textarea');
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                const btn = document.getElementById('notepad-copy');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = originalText, 2000);
+            });
+        }
+
+        function downloadNotepad() {
+            const textarea = document.getElementById('notepad-textarea');
+            const blob = new Blob([textarea.value], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `notes-${Date.now()}.txt`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
         // ============ Webcam/Selfie ============
         function renderWebcamUI() {
             const container = document.getElementById('webcam-container');
@@ -2905,6 +3332,8 @@
                 if (e.target === settingsModal) settingsModal.classList.remove('active');
             });
 
+            document.getElementById('toggle-date').addEventListener('change', (e) => settings.showDate = e.target.checked);
+            document.getElementById('toggle-time').addEventListener('change', (e) => settings.showTime = e.target.checked);
             document.getElementById('toggle-search').addEventListener('change', (e) => settings.showSearch = e.target.checked);
             document.getElementById('toggle-weather').addEventListener('change', (e) => settings.showWeather = e.target.checked);
             document.getElementById('toggle-calendar').addEventListener('change', (e) => settings.showCalendar = e.target.checked);
@@ -2944,6 +3373,48 @@
 
             document.getElementById('calendar-embed-url').addEventListener('input', (e) => settings.calendarEmbedUrl = e.target.value);
 
+            // Date format buttons
+            document.querySelectorAll('.bg-type-btn[data-dateformat]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    settings.dateFormat = btn.dataset.dateformat;
+                    document.querySelectorAll('.bg-type-btn[data-dateformat]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            // Time format buttons
+            document.querySelectorAll('.bg-type-btn[data-timeformat]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    settings.timeFormat = btn.dataset.timeformat;
+                    document.querySelectorAll('.bg-type-btn[data-timeformat]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            // Search tab buttons
+            document.querySelectorAll('.bg-type-btn[data-searchtab]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    settings.searchNewTab = btn.dataset.searchtab === 'new';
+                    document.querySelectorAll('.bg-type-btn[data-searchtab]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            // Weather zoom slider
+            document.getElementById('weather-zoom').addEventListener('input', (e) => {
+                settings.weatherMapZoom = parseInt(e.target.value);
+                document.getElementById('weather-zoom-value').textContent = e.target.value;
+            });
+
+            // Favorites style buttons
+            document.querySelectorAll('.bg-type-btn[data-favstyle]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    settings.favoritesStyle = btn.dataset.favstyle;
+                    document.querySelectorAll('.bg-type-btn[data-favstyle]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
             saveBtn.addEventListener('click', () => {
                 saveSettings();
                 applySettings();
@@ -2963,8 +3434,16 @@
             const shortcutForm = document.getElementById('shortcut-form');
 
             addShortcutBtn.addEventListener('click', () => {
+                document.getElementById('shortcut-modal-title').textContent = 'Add Shortcut';
                 document.getElementById('shortcut-name').value = '';
                 document.getElementById('shortcut-url').value = '';
+                document.getElementById('shortcut-icon-url').value = '';
+                document.getElementById('shortcut-bg-color').value = '#667eea';
+                document.getElementById('shortcut-color-value').textContent = '#667eea';
+                document.getElementById('shortcut-target').value = '_self';
+                document.querySelectorAll('.bg-type-btn[data-target]').forEach(b => {
+                    b.classList.toggle('active', b.dataset.target === '_self');
+                });
                 editingShortcutId = null;
                 shortcutModal.classList.add('active');
             });
@@ -2974,15 +3453,35 @@
                 if (e.target === shortcutModal) shortcutModal.classList.remove('active');
             });
 
+            // Shortcut target buttons
+            document.querySelectorAll('.bg-type-btn[data-target]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('shortcut-target').value = btn.dataset.target;
+                    document.querySelectorAll('.bg-type-btn[data-target]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            // Shortcut background color picker
+            document.getElementById('shortcut-bg-color').addEventListener('input', (e) => {
+                document.getElementById('shortcut-color-value').textContent = e.target.value;
+            });
+
             shortcutForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const name = document.getElementById('shortcut-name').value;
                 const url = document.getElementById('shortcut-url').value;
+                const iconUrl = document.getElementById('shortcut-icon-url').value;
+                const bgColor = document.getElementById('shortcut-bg-color').value;
+                const target = document.getElementById('shortcut-target').value;
+
                 if (editingShortcutId) {
                     const idx = shortcuts.findIndex(s => s.id === editingShortcutId);
-                    if (idx !== -1) shortcuts[idx] = { ...shortcuts[idx], name, url };
+                    if (idx !== -1) {
+                        shortcuts[idx] = { ...shortcuts[idx], name, url, iconUrl, bgColor, target };
+                    }
                 } else {
-                    addShortcut(name, url);
+                    addShortcut(name, url, iconUrl, bgColor, target);
                 }
                 saveShortcuts();
                 renderShortcuts();
@@ -2990,7 +3489,15 @@
             });
 
             document.getElementById('search-form').addEventListener('submit', (e) => {
-                if (!document.getElementById('search-input').value.trim()) e.preventDefault();
+                const searchInput = document.getElementById('search-input');
+                if (!searchInput.value.trim()) {
+                    e.preventDefault();
+                    return;
+                }
+                // If opening in new tab, clear the search bar after a short delay
+                if (settings.searchNewTab) {
+                    setTimeout(() => searchInput.value = '', 100);
+                }
             });
 
             document.getElementById('mini-cal-prev').addEventListener('click', () => {
@@ -3019,6 +3526,20 @@
             document.getElementById('close-paint').addEventListener('click', () => {
                 document.getElementById('paint-lightbox').classList.remove('active');
             });
+
+            // Notepad lightbox
+            document.getElementById('notepad-btn').addEventListener('click', () => {
+                document.getElementById('notepad-lightbox').classList.add('active');
+                loadNotepadContent();
+            });
+            document.getElementById('close-notepad').addEventListener('click', () => {
+                saveNotepadContent();
+                document.getElementById('notepad-lightbox').classList.remove('active');
+            });
+            document.getElementById('notepad-textarea').addEventListener('input', saveNotepadContent);
+            document.getElementById('notepad-clear').addEventListener('click', clearNotepad);
+            document.getElementById('notepad-copy').addEventListener('click', copyNotepad);
+            document.getElementById('notepad-download').addEventListener('click', downloadNotepad);
 
             // Radar lightbox
             document.getElementById('close-radar').addEventListener('click', () => {
