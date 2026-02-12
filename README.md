@@ -276,7 +276,9 @@ If hosting elsewhere, configure equivalent headers in your web server (Nginx, Ap
 
 ## Attribution
 
-MyKK Dashboard is built with the following open-source libraries, APIs, and services:
+MyKK Dashboard is built with the following open-source libraries, APIs, and services.
+
+> **Note:** All client-side code that runs in the browser is fully open-source (MIT, Apache 2.0, BSD 2-Clause, SIL OFL). The external *services* these libraries connect to — Firebase Auth/Firestore, OpenWeatherMap API, and Google Favicons — are free-tier proprietary services operated by Google and OpenWeather. The dashboard itself contains no proprietary code, and all service integrations are optional.
 
 ### Libraries
 
