@@ -47,6 +47,32 @@ Each toolbar button can be independently shown or hidden.
 - **Single File** — the entire app is one `index.html` with zero build dependencies
 - **No Backend Required** — runs entirely in the browser using localStorage. Firebase is optional for cloud sync only.
 
+## Roadmap
+
+### In Progress
+
+- [ ] **Accessibility (a11y)** — add ARIA labels, roles, and live regions across all widgets, modals, and interactive elements. Improve focus management and screen reader support.
+- [ ] **Touch-Friendly UI** — larger tap targets, swipe gestures, and touch-optimized controls for phones and tablets. Ensure all interactive elements meet minimum touch target sizes (48x48px).
+
+### Planned
+
+- [ ] **Browser Extension** — a Chrome/Firefox extension that sets MyKK as the new-tab page. The extension will be a separate, private product with a subscription ($1/month or $12/year) to cover hosting, maintenance, and browser store review costs. Premium features bundled with the extension:
+  - **PWA / Offline Mode** — service worker for instant load and full offline support
+  - **Keyboard Shortcuts** — `/` to focus search, `Esc` to close modals, arrow keys for navigation, and customizable bindings
+  - **Custom CSS** — inject your own stylesheets to personalize the dashboard beyond built-in themes
+- [ ] **Bookmark Folders** — collapsible groups/categories (Work, Social, Dev, etc.) to organize large bookmark collections
+- [ ] **Light / Dark Mode Toggle** — switchable theme with system preference detection
+- [ ] **Todo / Task List Widget** — structured checklist widget alongside the existing notepad
+- [ ] **Native RSS Widget** — parse and display RSS/Atom feeds directly instead of relying on iframes
+- [ ] **Additional Auth Providers** — GitHub, Apple, and email/password sign-in via Firebase
+- [ ] **High Contrast Mode** — a dedicated high-contrast theme for improved readability
+
+### Design Principles
+
+The core dashboard will always remain a **single-file, open-source HTML page** that anyone can download, self-host, or fork. No build step required. The browser extension is a separate paid product — the open-source project will never be paywalled.
+
+---
+
 ## Project Structure
 
 ```
