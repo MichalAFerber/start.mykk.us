@@ -2586,7 +2586,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
                 </button>
-                <button class="action-btn" id="camera-btn" title="Mirror/Selfie">
+                <button class="action-btn" id="camera-btn" title="Webcam/Selfie">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -3005,7 +3005,7 @@
                         </label>
                         <label class="settings-checkbox">
                             <input type="checkbox" id="toggle-camera" checked>
-                            <span>Camera</span>
+                            <span>Webcam</span>
                         </label>
                         <label class="settings-checkbox">
                             <input type="checkbox" id="toggle-paint" checked>
@@ -3026,6 +3026,7 @@
                         <input type="text" class="settings-input" id="weather-api-key" placeholder="Your API key">
                         <small class="settings-help">Get a free API key at <a href="https://openweathermap.org/api" target="_blank" style="color: #667eea;">openweathermap.org</a></small>
                     </div>
+                    <div id="weather-extra-settings" style="display: none;">
                     <div class="settings-group">
                         <label class="settings-label">Weather Location</label>
                         <input type="text" class="settings-input" id="weather-location" placeholder="City, Country OR Zip Code (e.g., 10001)">
@@ -3050,6 +3051,7 @@
                             <input type="checkbox" id="toggle-weather-animation" checked>
                             <span>Weather Animation Overlay (rain, snow, clouds, wind)</span>
                         </label>
+                    </div>
                     </div>
                 </div>
 
@@ -3315,11 +3317,11 @@
             },
             autoRefresh: true,
             autoRefreshMinutes: 15,
-            showFullscreen: true,
-            showRefresh: true,
-            showCamera: true,
-            showPaint: true,
-            showNotepad: true,
+            showFullscreen: false,
+            showRefresh: false,
+            showCamera: false,
+            showPaint: false,
+            showNotepad: false,
             showWeatherAnimation: true,
             firebaseConfig: {
                 apiKey: '',
@@ -4045,6 +4047,7 @@
             document.getElementById('bg-image-url').value = settings.bgImage || '';
             document.getElementById('weather-api-key').value = settings.weatherApiKey || '';
             document.getElementById('weather-location').value = settings.weatherLocation || '';
+            document.getElementById('weather-extra-settings').style.display = settings.weatherApiKey ? '' : 'none';
 
             document.querySelectorAll('.bg-type-btn[data-unit]').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.unit === settings.tempUnit);
@@ -5076,8 +5079,8 @@
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 container.innerHTML = `
                     <div class="webcam-error">
-                        <p>📷 Camera API not available.</p>
-                        <p>Please use HTTPS to enable camera access.</p>
+                        <p>📷 Webcam API not available.</p>
+                        <p>Please use HTTPS to enable webcam access.</p>
                     </div>
                 `;
                 if (selfieBtn) selfieBtn.disabled = true;
@@ -5087,20 +5090,20 @@
             // First check if we already have permission
             try {
                 const permissionStatus = await navigator.permissions.query({ name: 'camera' });
-                console.log('Camera permission status:', permissionStatus.state);
+                console.log('Webcam permission status:', permissionStatus.state);
             } catch (e) {
-                console.log('Permissions API not supported for camera');
+                console.log('Permissions API not supported for webcam');
             }
 
             try {
-                // Request camera permission - use simpler constraints first
-                console.log('Requesting camera access...');
+                // Request webcam permission - use simpler constraints first
+                console.log('Requesting webcam access...');
                 webcamStream = await navigator.mediaDevices.getUserMedia({
                     video: true,
                     audio: false
                 });
 
-                console.log('Camera access granted, stream:', webcamStream);
+                console.log('Webcam access granted, stream:', webcamStream);
 
                 // Build the video UI
                 container.innerHTML = `
@@ -5122,21 +5125,21 @@
                 if (selfieBtn) selfieBtn.disabled = false;
             } catch (error) {
                 console.error('Webcam error:', error.name, error.message);
-                let errorMessage = 'Camera access was denied or unavailable.';
+                let errorMessage = 'Webcam access was denied or unavailable.';
                 let showRetry = true;
 
                 if (error.name === 'NotAllowedError') {
-                    errorMessage = 'Camera permission was denied. Click the camera icon in your browser\'s address bar to allow access, then try again.';
+                    errorMessage = 'Webcam permission was denied. Click the camera icon in your browser\'s address bar to allow access, then try again.';
                 } else if (error.name === 'NotFoundError') {
-                    errorMessage = 'No camera found. Please connect a camera and try again.';
+                    errorMessage = 'No webcam found. Please connect a webcam and try again.';
                 } else if (error.name === 'NotReadableError') {
-                    errorMessage = 'Camera is in use by another application. Please close other apps using the camera.';
+                    errorMessage = 'Webcam is in use by another application. Please close other apps using the webcam.';
                 } else if (error.name === 'SecurityError') {
-                    errorMessage = 'Camera access requires HTTPS. Please ensure you are using a secure connection.';
+                    errorMessage = 'Webcam access requires HTTPS. Please ensure you are using a secure connection.';
                 } else if (error.name === 'AbortError') {
-                    errorMessage = 'Camera access was aborted. Please try again.';
+                    errorMessage = 'Webcam access was aborted. Please try again.';
                 } else if (error.name === 'OverconstrainedError') {
-                    errorMessage = 'Camera constraints could not be satisfied. Trying with basic settings...';
+                    errorMessage = 'Webcam constraints could not be satisfied. Trying with basic settings...';
                     showRetry = false;
                     // Try again with minimal constraints
                     try {
@@ -5155,7 +5158,7 @@
                         if (selfieBtn) selfieBtn.disabled = false;
                         return;
                     } catch (e2) {
-                        errorMessage = 'Camera access failed. ' + e2.message;
+                        errorMessage = 'Webcam access failed. ' + e2.message;
                         showRetry = true;
                     }
                 }
@@ -5483,7 +5486,10 @@
             });
 
             document.getElementById('bg-image-url').addEventListener('input', (e) => settings.bgImage = e.target.value);
-            document.getElementById('weather-api-key').addEventListener('input', (e) => settings.weatherApiKey = e.target.value);
+            document.getElementById('weather-api-key').addEventListener('input', (e) => {
+                settings.weatherApiKey = e.target.value;
+                document.getElementById('weather-extra-settings').style.display = e.target.value.trim() ? '' : 'none';
+            });
             document.getElementById('weather-location').addEventListener('input', (e) => settings.weatherLocation = e.target.value);
 
             document.querySelectorAll('.bg-type-btn[data-unit]').forEach(btn => {
