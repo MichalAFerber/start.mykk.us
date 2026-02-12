@@ -274,6 +274,58 @@ If hosting elsewhere, configure equivalent headers in your web server (Nginx, Ap
 
 ---
 
+## Attribution
+
+MyKK Dashboard is built with the following open-source libraries, APIs, and services:
+
+### Libraries
+
+| Library | Version | Use | License |
+|---|---|---|---|
+| [Firebase JavaScript SDK](https://firebase.google.com/docs/web/setup) | 10.12.0 | Authentication (Google Sign-In) and Cloud Firestore for settings sync | Apache 2.0 |
+| [Leaflet](https://leafletjs.com/) | 1.9.4 | Interactive weather radar maps | BSD 2-Clause |
+| [jsPDF](https://github.com/parallax/jsPDF) | 2.5.1 | Export paint canvas drawings as PDF | MIT |
+
+### Fonts
+
+| Font | Provider | Use |
+|---|---|---|
+| [Inter](https://rsms.me/inter/) | Google Fonts | Primary UI typeface (weights 300–700) |
+
+### APIs & Data Services
+
+| Service | Use |
+|---|---|
+| [OpenWeatherMap](https://openweathermap.org/api) | Current weather, 5-day forecast, and radar tile layers (One Call API 3.0 + weather map tiles) |
+| [Google Identity / Firebase Auth](https://firebase.google.com/docs/auth) | Google OAuth sign-in for cloud sync |
+| [Cloud Firestore](https://firebase.google.com/docs/firestore) | Cloud database for syncing user settings and bookmarks |
+
+### Map Tiles
+
+| Provider | Use | License |
+|---|---|---|
+| [CARTO](https://carto.com/basemaps/) | Dark base map tiles for the weather radar (`dark_all`) | CC BY 3.0, uses OpenStreetMap data |
+| [OpenStreetMap](https://www.openstreetmap.org/copyright) | Underlying map data used by CARTO tiles | ODbL |
+| [OpenWeatherMap](https://openweathermap.org/api/weathermaps) | Weather overlay tiles (precipitation, clouds, temperature, wind) | CC BY-SA 4.0 |
+
+### Icons
+
+| Source | Use |
+|---|---|
+| [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons) (homarr-labs) | SVG icons for 40+ popular services in the favorites widget, served via jsDelivr CDN |
+| [Google Favicons](https://www.google.com/s2/favicons) | Fallback favicon service for bookmark icons |
+
+### CDN
+
+| Provider | Use |
+|---|---|
+| [jsDelivr](https://www.jsdelivr.com/) | Serves Dashboard Icons SVGs from GitHub |
+| [unpkg](https://unpkg.com/) | Serves Leaflet CSS and JS |
+| [cdnjs](https://cdnjs.com/) (Cloudflare) | Serves jsPDF |
+| [Google Hosted Libraries](https://developers.google.com/speed/libraries) | Serves Firebase SDK and Google Fonts |
+
+---
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
