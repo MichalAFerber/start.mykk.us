@@ -1606,23 +1606,31 @@
         }
 
         .section-drag-handle {
-            display: none;
+            display: flex;
+            align-items: center;
             cursor: grab;
             padding: 4px;
-            opacity: 0.4;
+            opacity: 0;
             transition: opacity 0.2s ease;
             touch-action: none;
             user-select: none;
             -webkit-user-select: none;
             z-index: 5;
+            pointer-events: none;
+        }
+
+        [data-section]:hover > .section-drag-handle,
+        [data-section]:hover .section-drag-handle,
+        .section-drag-handle:active {
+            opacity: 0.4;
+            pointer-events: auto;
         }
 
         .section-drag-handle:active {
             cursor: grabbing;
         }
 
-        .section-drag-handle:hover,
-        .section-drag-handle:active {
+        .section-drag-handle:hover {
             opacity: 1;
         }
 
@@ -1963,10 +1971,10 @@
                 grid-row: auto !important;
             }
 
-            /* Show drag handles on tablet/mobile */
+            /* Always show drag handles on tablet/mobile (no hover) */
             .section-drag-handle {
-                display: flex;
-                align-items: center;
+                opacity: 0.4;
+                pointer-events: auto;
             }
         }
 
