@@ -4,6 +4,20 @@ A customizable browser start page / new-tab dashboard. Features include search, 
 
 **Live demo:** [start.mykk.us](https://start.mykk.us)
 
+## Quick Start
+
+MyKK is a single HTML file. No install, no build tools, no server required.
+
+1. **Download** [`index.html`](index.html)
+2. **Open** it in your browser
+3. **Done** — your dashboard is ready
+
+Everything saves to your browser's local storage. Works on any device, any OS, completely offline. Cloud sync via Google sign-in is optional if you want settings across devices.
+
+> Most dashboard projects (Homepage, Startpage, Homarr, etc.) require Docker, Node.js, or a dedicated server. MyKK runs from a single file on your desktop.
+
+---
+
 ## Features
 
 ### Widgets
