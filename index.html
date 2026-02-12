@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/chromium.svg">
-    <title>Dashboard</title>
+    <title>MyKK Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -104,7 +104,7 @@
 
         /* Grid widget overflow handling */
         .glass-card[data-widget] {
-            overflow: auto;
+            overflow: hidden;
         }
 
         /* Date Card */
@@ -617,6 +617,8 @@
         .action-btn {
             width: 44px;
             height: 44px;
+            min-width: 44px;
+            aspect-ratio: 1;
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -626,6 +628,7 @@
             color: var(--text-primary);
             cursor: pointer;
             transition: all 0.3s ease;
+            flex-shrink: 0;
         }
 
         .action-btn:hover {
@@ -851,10 +854,14 @@
         .mini-calendar-day {
             text-align: center;
             font-size: 0.75rem;
-            padding: 6px 4px;
-            border-radius: 6px;
+            padding: 0;
+            border-radius: 50%;
             cursor: pointer;
             transition: all 0.2s ease;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .mini-calendar-day:hover {
@@ -1723,12 +1730,11 @@
         .settings-page-body {
             flex: 1;
             overflow-y: auto;
-            padding: 32px;
         }
 
         .settings-page-content {
             max-width: 800px;
-            margin: 0 auto;
+            padding: 32px 32px 32px 16px;
             display: flex;
             flex-direction: column;
             gap: 24px;
@@ -1958,7 +1964,7 @@
         }
 
         /* Responsive - Tablet */
-        @media (max-width: 1200px) {
+        @media (max-width: 900px) {
             .dashboard {
                 grid-template-columns: repeat(6, 1fr);
                 gap: 12px;
@@ -1979,7 +1985,7 @@
         }
 
         /* Responsive - Phone */
-        @media (max-width: 600px) {
+        @media (max-width: 500px) {
             .dashboard {
                 grid-template-columns: 1fr;
                 grid-auto-rows: auto;
@@ -2072,7 +2078,7 @@
                 padding: 12px 16px;
             }
 
-            .settings-page-body {
+            .settings-page-content {
                 padding: 16px;
             }
 
@@ -2235,6 +2241,298 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Settings TOC Sidebar */
+        .settings-page-body {
+            display: flex;
+            gap: 0;
+        }
+
+        .settings-toc {
+            position: sticky;
+            top: 0;
+            width: 200px;
+            min-width: 200px;
+            padding: 32px 16px 32px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-self: flex-start;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .settings-toc a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8rem;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .settings-toc a:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-page-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        @media (max-width: 900px) {
+            .settings-toc { display: none; }
+            .settings-page-body { display: block; }
+        }
+
+        /* Firebase details arrow */
+        .firebase-config-details summary {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .firebase-config-details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .firebase-config-details summary::before {
+            content: '';
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-left: 6px solid var(--text-primary);
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            transition: transform 0.2s ease;
+        }
+
+        .firebase-config-details[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        /* Widget settings row with checkbox + size */
+        .widget-settings-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .widget-settings-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .widget-settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .widget-settings-header .settings-checkbox {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .widget-size-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+        }
+
+        .widget-size-inline label {
+            opacity: 0.7;
+            white-space: nowrap;
+        }
+
+        .widget-size-inline input[type="number"] {
+            width: 56px;
+            padding: 4px 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .widget-size-inline input[type="number"]:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .widget-settings-extra {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .widget-settings-extra.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* Search engine multi-select dropdown */
+        .engine-multi-select {
+            position: relative;
+        }
+
+        .engine-multi-select-trigger {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .engine-multi-select-trigger .arrow {
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid var(--text-primary);
+            opacity: 0.6;
+        }
+
+        .engine-multi-select-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: rgba(30, 30, 50, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px;
+            z-index: 10;
+            display: none;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .engine-multi-select-dropdown.open {
+            display: block;
+        }
+
+        .engine-multi-select-dropdown label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .engine-multi-select-dropdown label:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Search button engine selector on dashboard */
+        .search-btn-group {
+            display: flex;
+            align-items: stretch;
+            position: relative;
+        }
+
+        .search-btn-group .search-btn {
+            border-radius: 20px 0 0 20px;
+            padding-right: 12px;
+        }
+
+        .search-engine-toggle {
+            background: rgba(255, 255, 255, 0.25);
+            border: none;
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            padding: 10px 10px;
+            border-radius: 0 20px 20px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .search-engine-toggle:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .search-engine-toggle svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .search-engine-popup {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            right: 0;
+            background: rgba(30, 30, 50, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 6px;
+            z-index: 20;
+            display: none;
+            min-width: 160px;
+        }
+
+        .search-engine-popup.open {
+            display: block;
+        }
+
+        .search-engine-popup button {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        .search-engine-popup button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .search-engine-popup button.active {
+            background: rgba(102, 126, 234, 0.3);
+        }
+
+        /* Cloud sign-in spacing */
+        .cloud-sync-signed-out .settings-help {
+            margin-bottom: 16px;
+        }
+
+        /* Default engine selector */
+        .default-engine-select {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .default-engine-select option {
+            background: #1e1e32;
+            color: var(--text-primary);
+        }
+
     </style>
 </head>
 <body>
@@ -2257,7 +2555,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                     <input type="text" name="q" class="search-input" placeholder="Search Google..." autocomplete="off" id="search-input">
-                    <button type="submit" class="search-btn">Search</button>
+                    <div class="search-btn-group">
+                        <button type="submit" class="search-btn">Search</button>
+                        <button type="button" class="search-engine-toggle" id="search-engine-toggle" title="Choose search engine">
+                            <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </button>
+                    </div>
+                    <div class="search-engine-popup" id="search-engine-popup"></div>
                 </form>
             </div>
 
@@ -2393,11 +2697,96 @@
         </div>
 
         <div class="settings-page-body">
+            <!-- Table of Contents -->
+            <nav class="settings-toc">
+                <a href="#section-cloud">Cloud Sync</a>
+                <a href="#section-general">General</a>
+                <a href="#section-appearance">Appearance</a>
+                <a href="#section-widgets">Widgets & Layout</a>
+                <a href="#section-toolbar">Toolbar Buttons</a>
+                <a href="#section-weather">Weather</a>
+                <a href="#section-iframe">iFrame Widgets</a>
+                <a href="#section-data">Data</a>
+            </nav>
+
             <div class="settings-page-content">
 
+                <!-- Cloud Sync (Google / Firebase) -->
+                <div class="settings-section" id="section-cloud">
+                    <h3 class="settings-section-title">Cloud Sync (Google / Firebase)</h3>
+
+                    <div class="cloud-sync-status" id="cloud-sync-status">
+                        <div class="cloud-sync-signed-out" id="cloud-signed-out">
+                            <p class="settings-help" style="margin-bottom: 16px;">Sign in with Google to sync your settings across devices. Requires a Firebase project.</p>
+                            <button class="settings-action-btn cloud-signin-btn" id="cloud-signin-btn">
+                                <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                                Sign in with Google
+                            </button>
+                        </div>
+                        <div class="cloud-sync-signed-in hidden" id="cloud-signed-in">
+                            <div class="cloud-user-info">
+                                <img class="cloud-user-avatar" id="cloud-user-avatar" src="" alt="">
+                                <div class="cloud-user-details">
+                                    <span class="cloud-user-name" id="cloud-user-name"></span>
+                                    <span class="cloud-user-email" id="cloud-user-email"></span>
+                                </div>
+                            </div>
+                            <div class="cloud-sync-actions">
+                                <button class="settings-action-btn" id="cloud-push-btn">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                    </svg>
+                                    Push to Cloud
+                                </button>
+                                <button class="settings-action-btn" id="cloud-pull-btn">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                    </svg>
+                                    Pull from Cloud
+                                </button>
+                                <button class="settings-action-btn cloud-signout-btn" id="cloud-signout-btn">
+                                    Sign Out
+                                </button>
+                            </div>
+                            <div class="cloud-sync-indicator" id="cloud-sync-indicator">
+                                <span class="sync-dot"></span>
+                                <span id="cloud-sync-text">Synced</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <details class="firebase-config-details">
+                        <summary class="settings-label" style="cursor: pointer; user-select: none;">Firebase Configuration</summary>
+                        <div class="firebase-config-fields">
+                            <small class="settings-help" style="display: block; margin-bottom: 12px;">
+                                Create a Firebase project at <strong>console.firebase.google.com</strong>, enable Authentication (Google provider) and Firestore Database, then paste your web app config values below.
+                            </small>
+                            <div class="settings-group">
+                                <label class="settings-label">API Key</label>
+                                <input type="text" class="settings-input" id="firebase-api-key" placeholder="AIzaSy...">
+                            </div>
+                            <div class="settings-group">
+                                <label class="settings-label">Auth Domain</label>
+                                <input type="text" class="settings-input" id="firebase-auth-domain" placeholder="your-project.firebaseapp.com">
+                            </div>
+                            <div class="settings-group">
+                                <label class="settings-label">Project ID</label>
+                                <input type="text" class="settings-input" id="firebase-project-id" placeholder="your-project-id">
+                            </div>
+                            <button class="settings-action-btn" id="firebase-save-config-btn" style="margin-top: 8px;">
+                                Save &amp; Connect
+                            </button>
+                        </div>
+                    </details>
+                </div>
+
                 <!-- General -->
-                <div class="settings-section">
+                <div class="settings-section" id="section-general">
                     <h3 class="settings-section-title">General</h3>
+                    <div class="settings-group">
+                        <label class="settings-label">Page Title</label>
+                        <input type="text" class="settings-input" id="page-title-input" placeholder="MyKK Dashboard">
+                    </div>
                     <div class="settings-group">
                         <label class="settings-checkbox">
                             <input type="checkbox" id="toggle-auto-refresh" checked>
@@ -2407,170 +2796,14 @@
                     <div class="settings-group" id="auto-refresh-interval-group">
                         <label class="settings-label">Refresh Interval (minutes)</label>
                         <div class="zoom-slider-wrapper">
-                            <input type="range" class="settings-range" id="auto-refresh-minutes" min="1" max="30" value="3">
-                            <span id="auto-refresh-value">3</span>
+                            <input type="range" class="settings-range" id="auto-refresh-minutes" min="0" max="60" value="15">
+                            <span id="auto-refresh-value">15</span>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Widgets -->
-                <div class="settings-section">
-                    <h3 class="settings-section-title">Widgets</h3>
-                    <div class="settings-checkbox-grid">
-                        <label class="settings-checkbox">
-                            <input type="checkbox" id="toggle-date" checked>
-                            <span>Date</span>
-                        </label>
-                        <label class="settings-checkbox">
-                            <input type="checkbox" id="toggle-time" checked>
-                            <span>Clock</span>
-                        </label>
-                        <label class="settings-checkbox">
-                            <input type="checkbox" id="toggle-search" checked>
-                            <span>Search Bar</span>
-                        </label>
-                        <label class="settings-checkbox">
-                            <input type="checkbox" id="toggle-weather" checked>
-                            <span>Weather</span>
-                        </label>
-                        <label class="settings-checkbox">
-                            <input type="checkbox" id="toggle-mini-calendar" checked>
-                            <span>Mini Calendar</span>
-                        </label>
-                        <label class="settings-checkbox">
-                            <input type="checkbox" id="toggle-favorites" checked>
-                            <span>Favorites</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Widget Sizes -->
-                <div class="settings-section">
-                    <h3 class="settings-section-title">Widget Sizes (12-Column Grid)</h3>
-                    <div class="widget-size-grid" id="widget-size-grid">
-                        <div class="widget-size-item" data-size-widget="date">
-                            <div class="widget-size-item-label">Date</div>
-                            <div class="widget-size-controls">
-                                <div class="widget-size-field">
-                                    <label>Width (1-12)</label>
-                                    <input type="number" min="1" max="12" value="3" data-size-col="date">
-                                </div>
-                                <div class="widget-size-field">
-                                    <label>Height (1-8)</label>
-                                    <input type="number" min="1" max="8" value="1" data-size-row="date">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="widget-size-item" data-size-widget="search">
-                            <div class="widget-size-item-label">Search</div>
-                            <div class="widget-size-controls">
-                                <div class="widget-size-field">
-                                    <label>Width (1-12)</label>
-                                    <input type="number" min="1" max="12" value="6" data-size-col="search">
-                                </div>
-                                <div class="widget-size-field">
-                                    <label>Height (1-8)</label>
-                                    <input type="number" min="1" max="8" value="1" data-size-row="search">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="widget-size-item" data-size-widget="actions">
-                            <div class="widget-size-item-label">Toolbar</div>
-                            <div class="widget-size-controls">
-                                <div class="widget-size-field">
-                                    <label>Width (1-12)</label>
-                                    <input type="number" min="1" max="12" value="3" data-size-col="actions">
-                                </div>
-                                <div class="widget-size-field">
-                                    <label>Height (1-8)</label>
-                                    <input type="number" min="1" max="8" value="1" data-size-row="actions">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="widget-size-item" data-size-widget="time">
-                            <div class="widget-size-item-label">Clock</div>
-                            <div class="widget-size-controls">
-                                <div class="widget-size-field">
-                                    <label>Width (1-12)</label>
-                                    <input type="number" min="1" max="12" value="4" data-size-col="time">
-                                </div>
-                                <div class="widget-size-field">
-                                    <label>Height (1-8)</label>
-                                    <input type="number" min="1" max="8" value="2" data-size-row="time">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="widget-size-item" data-size-widget="weather">
-                            <div class="widget-size-item-label">Weather</div>
-                            <div class="widget-size-controls">
-                                <div class="widget-size-field">
-                                    <label>Width (1-12)</label>
-                                    <input type="number" min="1" max="12" value="4" data-size-col="weather">
-                                </div>
-                                <div class="widget-size-field">
-                                    <label>Height (1-8)</label>
-                                    <input type="number" min="1" max="8" value="5" data-size-row="weather">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="widget-size-item" data-size-widget="shortcuts">
-                            <div class="widget-size-item-label">Favorites</div>
-                            <div class="widget-size-controls">
-                                <div class="widget-size-field">
-                                    <label>Width (1-12)</label>
-                                    <input type="number" min="1" max="12" value="4" data-size-col="shortcuts">
-                                </div>
-                                <div class="widget-size-field">
-                                    <label>Height (1-8)</label>
-                                    <input type="number" min="1" max="8" value="4" data-size-row="shortcuts">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="widget-size-item" data-size-widget="mini-calendar">
-                            <div class="widget-size-item-label">Mini Calendar</div>
-                            <div class="widget-size-controls">
-                                <div class="widget-size-field">
-                                    <label>Width (1-12)</label>
-                                    <input type="number" min="1" max="12" value="4" data-size-col="mini-calendar">
-                                </div>
-                                <div class="widget-size-field">
-                                    <label>Height (1-8)</label>
-                                    <input type="number" min="1" max="8" value="4" data-size-row="mini-calendar">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Toolbar Buttons -->
-                <div class="settings-section">
-                    <h3 class="settings-section-title">Toolbar Buttons</h3>
-                    <div class="settings-checkbox-grid">
-                        <label class="settings-checkbox">
-                            <input type="checkbox" id="toggle-fullscreen" checked>
-                            <span>Fullscreen</span>
-                        </label>
-                        <label class="settings-checkbox">
-                            <input type="checkbox" id="toggle-refresh" checked>
-                            <span>Refresh</span>
-                        </label>
-                        <label class="settings-checkbox">
-                            <input type="checkbox" id="toggle-camera" checked>
-                            <span>Camera</span>
-                        </label>
-                        <label class="settings-checkbox">
-                            <input type="checkbox" id="toggle-paint" checked>
-                            <span>Paint</span>
-                        </label>
-                        <label class="settings-checkbox">
-                            <input type="checkbox" id="toggle-notepad" checked>
-                            <span>Notepad</span>
-                        </label>
                     </div>
                 </div>
 
                 <!-- Appearance -->
-                <div class="settings-section">
+                <div class="settings-section" id="section-appearance">
                     <h3 class="settings-section-title">Appearance</h3>
                     <div class="settings-group">
                         <label class="settings-label">Background Type</label>
@@ -2614,53 +2847,192 @@
                     </div>
                 </div>
 
-                <!-- Date & Time -->
-                <div class="settings-section">
-                    <h3 class="settings-section-title">Date & Time</h3>
-                    <div class="settings-group">
-                        <label class="settings-label">Date Format</label>
-                        <div class="bg-type-toggle">
-                            <button class="bg-type-btn active" data-dateformat="short">Jan 1</button>
-                            <button class="bg-type-btn" data-dateformat="long">January 1, 2024</button>
-                            <button class="bg-type-btn" data-dateformat="numeric">01/31/2024</button>
-                            <button class="bg-type-btn" data-dateformat="iso">2024-01-31</button>
+                <!-- Widgets & Layout (combined checkboxes + sizes + related settings) -->
+                <div class="settings-section" id="section-widgets">
+                    <h3 class="settings-section-title">Widgets & Layout (12-Column Grid)</h3>
+
+                    <!-- Date Widget -->
+                    <div class="widget-settings-item">
+                        <div class="widget-settings-header">
+                            <label class="settings-checkbox">
+                                <input type="checkbox" id="toggle-date">
+                                <span>Date</span>
+                            </label>
+                            <div class="widget-size-inline" id="date-size-controls">
+                                <label>W</label>
+                                <input type="number" min="1" max="12" value="2" data-size-col="date">
+                                <label>H</label>
+                                <input type="number" min="1" max="8" value="1" data-size-row="date">
+                            </div>
+                        </div>
+                        <div class="widget-settings-extra" id="date-settings-extra">
+                            <div class="settings-group">
+                                <label class="settings-label">Date Format</label>
+                                <div class="bg-type-toggle">
+                                    <button class="bg-type-btn active" data-dateformat="short">Jan 1</button>
+                                    <button class="bg-type-btn" data-dateformat="long">January 1, 2024</button>
+                                    <button class="bg-type-btn" data-dateformat="numeric">01/31/2024</button>
+                                    <button class="bg-type-btn" data-dateformat="iso">2024-01-31</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="settings-group">
-                        <label class="settings-label">Time Format</label>
-                        <div class="bg-type-toggle">
-                            <button class="bg-type-btn active" data-timeformat="12h">12 Hour</button>
-                            <button class="bg-type-btn" data-timeformat="24h">24 Hour</button>
+
+                    <!-- Clock Widget -->
+                    <div class="widget-settings-item">
+                        <div class="widget-settings-header">
+                            <label class="settings-checkbox">
+                                <input type="checkbox" id="toggle-time">
+                                <span>Clock</span>
+                            </label>
+                            <div class="widget-size-inline" id="time-size-controls">
+                                <label>W</label>
+                                <input type="number" min="1" max="12" value="2" data-size-col="time">
+                                <label>H</label>
+                                <input type="number" min="1" max="8" value="1" data-size-row="time">
+                            </div>
+                        </div>
+                        <div class="widget-settings-extra" id="time-settings-extra">
+                            <div class="settings-group">
+                                <label class="settings-label">Time Format</label>
+                                <div class="bg-type-toggle">
+                                    <button class="bg-type-btn active" data-timeformat="12h">12 Hour</button>
+                                    <button class="bg-type-btn" data-timeformat="24h">24 Hour</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Widget -->
+                    <div class="widget-settings-item">
+                        <div class="widget-settings-header">
+                            <label class="settings-checkbox">
+                                <input type="checkbox" id="toggle-search" checked>
+                                <span>Search Bar</span>
+                            </label>
+                            <div class="widget-size-inline" id="search-size-controls">
+                                <label>W</label>
+                                <input type="number" min="1" max="12" value="8" data-size-col="search">
+                                <label>H</label>
+                                <input type="number" min="1" max="8" value="1" data-size-row="search">
+                            </div>
+                        </div>
+                        <div class="widget-settings-extra" id="search-settings-extra">
+                            <div class="settings-group">
+                                <label class="settings-label">Search Engines</label>
+                                <div class="engine-multi-select" id="engine-multi-select">
+                                    <button type="button" class="engine-multi-select-trigger" id="engine-select-trigger">
+                                        <span id="engine-select-label">Google</span>
+                                        <span class="arrow"></span>
+                                    </button>
+                                    <div class="engine-multi-select-dropdown" id="engine-select-dropdown"></div>
+                                </div>
+                            </div>
+                            <div class="settings-group">
+                                <label class="settings-label">Default Engine</label>
+                                <select class="default-engine-select" id="default-engine-select"></select>
+                            </div>
+                            <div class="settings-group">
+                                <label class="settings-label">Search Behavior</label>
+                                <div class="bg-type-toggle">
+                                    <button class="bg-type-btn active" data-searchtab="new">New Tab</button>
+                                    <button class="bg-type-btn" data-searchtab="same">Same Tab</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weather Widget -->
+                    <div class="widget-settings-item">
+                        <div class="widget-settings-header">
+                            <label class="settings-checkbox">
+                                <input type="checkbox" id="toggle-weather">
+                                <span>Weather</span>
+                            </label>
+                            <div class="widget-size-inline" id="weather-size-controls">
+                                <label>W</label>
+                                <input type="number" min="1" max="12" value="4" data-size-col="weather">
+                                <label>H</label>
+                                <input type="number" min="1" max="8" value="4" data-size-row="weather">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mini Calendar Widget -->
+                    <div class="widget-settings-item">
+                        <div class="widget-settings-header">
+                            <label class="settings-checkbox">
+                                <input type="checkbox" id="toggle-mini-calendar">
+                                <span>Mini Calendar</span>
+                            </label>
+                            <div class="widget-size-inline" id="mini-calendar-size-controls">
+                                <label>W</label>
+                                <input type="number" min="1" max="12" value="4" data-size-col="mini-calendar">
+                                <label>H</label>
+                                <input type="number" min="1" max="8" value="3" data-size-row="mini-calendar">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Favorites Widget -->
+                    <div class="widget-settings-item">
+                        <div class="widget-settings-header">
+                            <label class="settings-checkbox">
+                                <input type="checkbox" id="toggle-favorites" checked>
+                                <span>Favorites</span>
+                            </label>
+                            <div class="widget-size-inline" id="shortcuts-size-controls">
+                                <label>W</label>
+                                <input type="number" min="1" max="12" value="8" data-size-col="shortcuts">
+                                <label>H</label>
+                                <input type="number" min="1" max="8" value="2" data-size-row="shortcuts">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Toolbar (actions) size -->
+                    <div class="widget-settings-item">
+                        <div class="widget-settings-header">
+                            <span style="font-size: 0.85rem; opacity: 0.7;">Toolbar Size</span>
+                            <div class="widget-size-inline">
+                                <label>W</label>
+                                <input type="number" min="1" max="12" value="4" data-size-col="actions">
+                                <label>H</label>
+                                <input type="number" min="1" max="8" value="1" data-size-row="actions">
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Search -->
-                <div class="settings-section">
-                    <h3 class="settings-section-title">Search</h3>
-                    <div class="settings-group">
-                        <label class="settings-label">Search Engine</label>
-                        <div class="bg-type-toggle" style="flex-wrap: wrap;">
-                            <button class="bg-type-btn active" data-engine="google">Google</button>
-                            <button class="bg-type-btn" data-engine="bing">Bing</button>
-                            <button class="bg-type-btn" data-engine="duckduckgo">DuckDuckGo</button>
-                            <button class="bg-type-btn" data-engine="yahoo">Yahoo</button>
-                            <button class="bg-type-btn" data-engine="brave">Brave</button>
-                            <button class="bg-type-btn" data-engine="ecosia">Ecosia</button>
-                            <button class="bg-type-btn" data-engine="startpage">Startpage</button>
-                        </div>
-                    </div>
-                    <div class="settings-group">
-                        <label class="settings-label">Search Behavior</label>
-                        <div class="bg-type-toggle">
-                            <button class="bg-type-btn active" data-searchtab="new">New Tab</button>
-                            <button class="bg-type-btn" data-searchtab="same">Same Tab</button>
-                        </div>
+                <!-- Toolbar Buttons -->
+                <div class="settings-section" id="section-toolbar">
+                    <h3 class="settings-section-title">Toolbar Buttons</h3>
+                    <div class="settings-checkbox-grid">
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-fullscreen" checked>
+                            <span>Fullscreen</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-refresh" checked>
+                            <span>Refresh</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-camera" checked>
+                            <span>Camera</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-paint" checked>
+                            <span>Paint</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-notepad" checked>
+                            <span>Notepad</span>
+                        </label>
                     </div>
                 </div>
 
                 <!-- Weather -->
-                <div class="settings-section">
+                <div class="settings-section" id="section-weather">
                     <h3 class="settings-section-title">Weather</h3>
                     <div class="settings-group">
                         <label class="settings-label">OpenWeatherMap API Key</label>
@@ -2695,10 +3067,11 @@
                 </div>
 
                 <!-- iFrame Widgets -->
-                <div class="settings-section">
+                <div class="settings-section" id="section-iframe">
                     <h3 class="settings-section-title">iFrame Widgets</h3>
                     <p class="settings-help" style="margin-bottom: 12px;">
                         Add embeddable widgets from any service — calendars, dashboards, weather maps, etc.
+                        <a href="https://iframe-generator.org/" target="_blank" style="color: #667eea;">Use an iFrame generator</a> to find embed codes.
                     </p>
                     <div id="iframe-widgets-settings-list"></div>
                     <button class="settings-action-btn" id="add-iframe-widget-btn" style="margin-top: 8px;">
@@ -2709,81 +3082,10 @@
                     </button>
                 </div>
 
-                <!-- Cloud Sync -->
-                <div class="settings-section">
-                    <h3 class="settings-section-title">Cloud Sync (Google / Firebase)</h3>
-
-                    <!-- Auth Status -->
-                    <div class="cloud-sync-status" id="cloud-sync-status">
-                        <div class="cloud-sync-signed-out" id="cloud-signed-out">
-                            <p class="settings-help">Sign in with Google to sync your settings across devices. Requires a Firebase project.</p>
-                            <button class="settings-action-btn cloud-signin-btn" id="cloud-signin-btn">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                                Sign in with Google
-                            </button>
-                        </div>
-                        <div class="cloud-sync-signed-in hidden" id="cloud-signed-in">
-                            <div class="cloud-user-info">
-                                <img class="cloud-user-avatar" id="cloud-user-avatar" src="" alt="">
-                                <div class="cloud-user-details">
-                                    <span class="cloud-user-name" id="cloud-user-name"></span>
-                                    <span class="cloud-user-email" id="cloud-user-email"></span>
-                                </div>
-                            </div>
-                            <div class="cloud-sync-actions">
-                                <button class="settings-action-btn" id="cloud-push-btn">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                    </svg>
-                                    Push to Cloud
-                                </button>
-                                <button class="settings-action-btn" id="cloud-pull-btn">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                                    </svg>
-                                    Pull from Cloud
-                                </button>
-                                <button class="settings-action-btn cloud-signout-btn" id="cloud-signout-btn">
-                                    Sign Out
-                                </button>
-                            </div>
-                            <div class="cloud-sync-indicator" id="cloud-sync-indicator">
-                                <span class="sync-dot"></span>
-                                <span id="cloud-sync-text">Synced</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Firebase Config -->
-                    <details class="firebase-config-details">
-                        <summary class="settings-label" style="cursor: pointer; user-select: none;">Firebase Configuration</summary>
-                        <div class="firebase-config-fields">
-                            <small class="settings-help" style="display: block; margin-bottom: 12px;">
-                                Create a Firebase project at <strong>console.firebase.google.com</strong>, enable Authentication (Google provider) and Firestore Database, then paste your web app config values below.
-                            </small>
-                            <div class="settings-group">
-                                <label class="settings-label">API Key</label>
-                                <input type="text" class="settings-input" id="firebase-api-key" placeholder="AIzaSy...">
-                            </div>
-                            <div class="settings-group">
-                                <label class="settings-label">Auth Domain</label>
-                                <input type="text" class="settings-input" id="firebase-auth-domain" placeholder="your-project.firebaseapp.com">
-                            </div>
-                            <div class="settings-group">
-                                <label class="settings-label">Project ID</label>
-                                <input type="text" class="settings-input" id="firebase-project-id" placeholder="your-project-id">
-                            </div>
-                            <button class="settings-action-btn" id="firebase-save-config-btn" style="margin-top: 8px;">
-                                Save &amp; Connect
-                            </button>
-                        </div>
-                    </details>
-                </div>
-
                 <!-- Data -->
-                <div class="settings-section">
+                <div class="settings-section" id="section-data">
                     <h3 class="settings-section-title">Data</h3>
-                    <div class="settings-actions">
+                    <div style="display: flex; gap: 12px;">
                         <button class="settings-action-btn" id="export-settings">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
@@ -2987,6 +3289,7 @@
     <script>
         // ============ State Management ============
         const defaultSettings = {
+            pageTitle: 'MyKK Dashboard',
             bgType: 'gradient',
             bgGradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
             bgColor: '#1a1a2e',
@@ -2999,14 +3302,15 @@
             weatherCountry: '',
             tempUnit: 'imperial',
             showSearch: true,
-            showWeather: true,
-            showMiniCalendar: true,
+            showWeather: false,
+            showMiniCalendar: false,
             showFavorites: true,
-            showDate: true,
-            showTime: true,
+            showDate: false,
+            showTime: false,
             dateFormat: 'short',
             timeFormat: '12h',
             searchEngine: 'google',
+            enabledEngines: ['google'],
             searchNewTab: true,
             weatherMapZoom: 9,
             favoritesStyle: 'gradient',
@@ -3014,16 +3318,16 @@
                 { id: 'iframe-calendar', name: 'Google Calendar', url: '', enabled: true }
             ],
             widgetSizes: {
-                date:      { cols: 3, rows: 1 },
-                search:    { cols: 6, rows: 1 },
-                actions:   { cols: 3, rows: 1 },
-                time:      { cols: 4, rows: 2 },
-                weather:   { cols: 4, rows: 5 },
-                shortcuts: { cols: 4, rows: 4 },
-                'mini-calendar': { cols: 4, rows: 4 }
+                date:      { cols: 2, rows: 1 },
+                search:    { cols: 8, rows: 1 },
+                actions:   { cols: 4, rows: 1 },
+                time:      { cols: 2, rows: 1 },
+                weather:   { cols: 4, rows: 4 },
+                shortcuts: { cols: 8, rows: 2 },
+                'mini-calendar': { cols: 4, rows: 3 }
             },
             autoRefresh: true,
-            autoRefreshMinutes: 3,
+            autoRefreshMinutes: 15,
             showFullscreen: true,
             showRefresh: true,
             showCamera: true,
@@ -3095,13 +3399,93 @@
             });
         }
 
-        function applySearchEngine() {
-            const engine = searchEngines[settings.searchEngine] || searchEngines.google;
+        function applySearchEngine(engineKey) {
+            const key = engineKey || settings.searchEngine;
+            const engine = searchEngines[key] || searchEngines.google;
             const form = document.getElementById('search-form');
             const input = document.getElementById('search-input');
             form.action = engine.action;
             input.name = engine.param;
             input.placeholder = engine.placeholder;
+        }
+
+        function renderSearchEnginePopup() {
+            const popup = document.getElementById('search-engine-popup');
+            if (!popup) return;
+            const engines = settings.enabledEngines || ['google'];
+            popup.innerHTML = engines.map(key => {
+                const eng = searchEngines[key];
+                if (!eng) return '';
+                const isActive = key === settings.searchEngine ? ' active' : '';
+                return `<button type="button" class="search-engine-option${isActive}" data-popup-engine="${key}">${eng.name}</button>`;
+            }).join('');
+            popup.querySelectorAll('[data-popup-engine]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    applySearchEngine(btn.dataset.popupEngine);
+                    popup.classList.remove('open');
+                    popup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+        }
+
+        function renderEngineMultiSelect() {
+            const dropdown = document.getElementById('engine-select-dropdown');
+            const label = document.getElementById('engine-select-label');
+            const defaultSelect = document.getElementById('default-engine-select');
+            if (!dropdown || !label || !defaultSelect) return;
+
+            const enabled = settings.enabledEngines || ['google'];
+            label.textContent = enabled.map(k => (searchEngines[k] || {}).name).join(', ');
+
+            dropdown.innerHTML = Object.entries(searchEngines).map(([key, eng]) => {
+                const checked = enabled.includes(key) ? 'checked' : '';
+                return `<label><input type="checkbox" value="${key}" ${checked}> ${eng.name}</label>`;
+            }).join('');
+
+            dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const checked = Array.from(dropdown.querySelectorAll('input:checked')).map(i => i.value);
+                    if (checked.length === 0) {
+                        cb.checked = true;
+                        return;
+                    }
+                    settings.enabledEngines = checked;
+                    if (!checked.includes(settings.searchEngine)) {
+                        settings.searchEngine = checked[0];
+                    }
+                    renderEngineMultiSelect();
+                });
+            });
+
+            // Update default engine dropdown
+            defaultSelect.innerHTML = enabled.map(key => {
+                const eng = searchEngines[key];
+                if (!eng) return '';
+                const selected = key === settings.searchEngine ? ' selected' : '';
+                return `<option value="${key}"${selected}>${eng.name}</option>`;
+            }).join('');
+        }
+
+        function scaleDateTimeFonts() {
+            const sizes = settings.widgetSizes || {};
+            // Scale date font
+            const dateSize = sizes.date || { cols: 2, rows: 1 };
+            const dateScale = Math.min(dateSize.cols / 3, dateSize.rows / 1);
+            const dateFontSize = Math.max(0.8, Math.min(2.5, 2 * dateScale));
+            document.getElementById('date').style.fontSize = dateFontSize + 'rem';
+
+            // Scale time font
+            const timeSize = sizes.time || { cols: 2, rows: 1 };
+            const timeScale = Math.min(timeSize.cols / 3, timeSize.rows / 1.5);
+            const timeFontSize = Math.max(1.2, Math.min(4.5, 4.5 * timeScale));
+            const timeMain = document.getElementById('time-main');
+            if (timeMain) timeMain.style.fontSize = timeFontSize + 'rem';
+            const seconds = document.querySelector('.time .seconds');
+            if (seconds) seconds.style.fontSize = (timeFontSize * 0.44) + 'rem';
+            const period = document.querySelector('.time .period');
+            if (period) period.style.fontSize = (timeFontSize * 0.33) + 'rem';
         }
 
         function getIconUrl(shortcut) {
@@ -3198,6 +3582,10 @@
                 // Ensure iframeWidgets array exists
                 if (!Array.isArray(settings.iframeWidgets)) {
                     settings.iframeWidgets = [...defaultSettings.iframeWidgets];
+                }
+                // Ensure enabledEngines array exists
+                if (!Array.isArray(settings.enabledEngines)) {
+                    settings.enabledEngines = [settings.searchEngine || 'google'];
                 }
                 // Migrate old calendarEmbedUrl → first iframe widget
                 if (parsed.calendarEmbedUrl && !parsed.iframeWidgets) {
@@ -3573,6 +3961,9 @@
 
         // ============ Background ============
         function applySettings() {
+            // Page title
+            document.title = settings.pageTitle || 'MyKK Dashboard';
+
             const wallpaper = document.getElementById('wallpaper');
             const overlay = document.getElementById('overlay');
 
@@ -3623,9 +4014,11 @@
             const searchForm = document.getElementById('search-form');
             searchForm.target = settings.searchNewTab ? '_blank' : '_self';
             applySearchEngine();
+            renderSearchEnginePopup();
 
-            // Apply widget grid sizes
+            // Apply widget grid sizes and font scaling
             applyWidgetSizes();
+            scaleDateTimeFonts();
 
             // Restart auto-refresh timer
             startAutoRefresh();
@@ -3649,6 +4042,9 @@
         }
 
         function updateSettingsUI() {
+            // Page title
+            document.getElementById('page-title-input').value = settings.pageTitle || 'MyKK Dashboard';
+
             document.querySelectorAll('.bg-type-btn[data-type]').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.type === settings.bgType);
             });
@@ -3691,12 +4087,16 @@
             document.getElementById('auto-refresh-value').textContent = settings.autoRefreshMinutes;
             document.getElementById('auto-refresh-interval-group').style.display = settings.autoRefresh ? 'block' : 'none';
 
+            // Widget toggles
             document.getElementById('toggle-date').checked = settings.showDate;
             document.getElementById('toggle-time').checked = settings.showTime;
             document.getElementById('toggle-search').checked = settings.showSearch;
             document.getElementById('toggle-weather').checked = settings.showWeather;
             document.getElementById('toggle-mini-calendar').checked = settings.showMiniCalendar;
             document.getElementById('toggle-favorites').checked = settings.showFavorites;
+
+            // Disable size controls when widget is unchecked
+            updateWidgetSizeDisabledState();
 
             // Action button toggles
             document.getElementById('toggle-fullscreen').checked = settings.showFullscreen;
@@ -3708,10 +4108,8 @@
             // Weather animation toggle
             document.getElementById('toggle-weather-animation').checked = settings.showWeatherAnimation;
 
-            // Search engine buttons
-            document.querySelectorAll('.bg-type-btn[data-engine]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.engine === settings.searchEngine);
-            });
+            // Search engine multi-select
+            renderEngineMultiSelect();
 
             // Date format buttons
             document.querySelectorAll('.bg-type-btn[data-dateformat]').forEach(btn => {
@@ -3735,6 +4133,32 @@
             // Favorites style buttons
             document.querySelectorAll('.bg-type-btn[data-favstyle]').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.favstyle === settings.favoritesStyle);
+            });
+        }
+
+        function updateWidgetSizeDisabledState() {
+            const map = {
+                'date': 'showDate',
+                'time': 'showTime',
+                'search': 'showSearch',
+                'weather': 'showWeather',
+                'mini-calendar': 'showMiniCalendar',
+                'shortcuts': 'showFavorites'
+            };
+            Object.entries(map).forEach(([widget, settingKey]) => {
+                const enabled = settings[settingKey];
+                const colInput = document.querySelector(`[data-size-col="${widget}"]`);
+                const rowInput = document.querySelector(`[data-size-row="${widget}"]`);
+                if (colInput) colInput.disabled = !enabled;
+                if (rowInput) rowInput.disabled = !enabled;
+                // Disable extra settings
+                const extraId = widget === 'time' ? 'time-settings-extra' :
+                               widget === 'date' ? 'date-settings-extra' :
+                               widget === 'search' ? 'search-settings-extra' : null;
+                if (extraId) {
+                    const extra = document.getElementById(extraId);
+                    if (extra) extra.classList.toggle('disabled', !enabled);
+                }
             });
         }
 
@@ -4968,10 +5392,19 @@
 
             settingsBtn.addEventListener('click', () => {
                 settingsPage.classList.add('active');
+                stopAutoRefresh();
                 updateSettingsUI();
             });
 
-            settingsBack.addEventListener('click', () => settingsPage.classList.remove('active'));
+            settingsBack.addEventListener('click', () => {
+                settingsPage.classList.remove('active');
+                startAutoRefresh();
+            });
+
+            // Page title
+            document.getElementById('page-title-input').addEventListener('input', (e) => {
+                settings.pageTitle = e.target.value;
+            });
 
             // Auto-refresh
             document.getElementById('toggle-auto-refresh').addEventListener('change', (e) => {
@@ -5003,13 +5436,13 @@
                 });
             });
 
-            // Widget toggles
-            document.getElementById('toggle-date').addEventListener('change', (e) => settings.showDate = e.target.checked);
-            document.getElementById('toggle-time').addEventListener('change', (e) => settings.showTime = e.target.checked);
-            document.getElementById('toggle-search').addEventListener('change', (e) => settings.showSearch = e.target.checked);
-            document.getElementById('toggle-weather').addEventListener('change', (e) => settings.showWeather = e.target.checked);
-            document.getElementById('toggle-mini-calendar').addEventListener('change', (e) => settings.showMiniCalendar = e.target.checked);
-            document.getElementById('toggle-favorites').addEventListener('change', (e) => settings.showFavorites = e.target.checked);
+            // Widget toggles (also update disabled state of size controls)
+            document.getElementById('toggle-date').addEventListener('change', (e) => { settings.showDate = e.target.checked; updateWidgetSizeDisabledState(); });
+            document.getElementById('toggle-time').addEventListener('change', (e) => { settings.showTime = e.target.checked; updateWidgetSizeDisabledState(); });
+            document.getElementById('toggle-search').addEventListener('change', (e) => { settings.showSearch = e.target.checked; updateWidgetSizeDisabledState(); });
+            document.getElementById('toggle-weather').addEventListener('change', (e) => { settings.showWeather = e.target.checked; updateWidgetSizeDisabledState(); });
+            document.getElementById('toggle-mini-calendar').addEventListener('change', (e) => { settings.showMiniCalendar = e.target.checked; updateWidgetSizeDisabledState(); });
+            document.getElementById('toggle-favorites').addEventListener('change', (e) => { settings.showFavorites = e.target.checked; updateWidgetSizeDisabledState(); });
 
             // Action button toggles
             document.getElementById('toggle-fullscreen').addEventListener('change', (e) => settings.showFullscreen = e.target.checked);
@@ -5021,13 +5454,30 @@
             // Weather animation toggle
             document.getElementById('toggle-weather-animation').addEventListener('change', (e) => settings.showWeatherAnimation = e.target.checked);
 
-            // Search engine selector
-            document.querySelectorAll('.bg-type-btn[data-engine]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    settings.searchEngine = btn.dataset.engine;
-                    document.querySelectorAll('.bg-type-btn[data-engine]').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                });
+            // Search engine multi-select trigger
+            document.getElementById('engine-select-trigger').addEventListener('click', () => {
+                document.getElementById('engine-select-dropdown').classList.toggle('open');
+            });
+
+            // Default engine selector
+            document.getElementById('default-engine-select').addEventListener('change', (e) => {
+                settings.searchEngine = e.target.value;
+            });
+
+            // Close engine dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#engine-multi-select')) {
+                    document.getElementById('engine-select-dropdown').classList.remove('open');
+                }
+                if (!e.target.closest('.search-btn-group') && !e.target.closest('.search-engine-popup')) {
+                    document.getElementById('search-engine-popup').classList.remove('open');
+                }
+            });
+
+            // Search engine toggle on dashboard
+            document.getElementById('search-engine-toggle').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('search-engine-popup').classList.toggle('open');
             });
 
             document.querySelectorAll('.bg-type-btn[data-type]').forEach(btn => {
@@ -5068,7 +5518,6 @@
             // Cloud Sync buttons
             document.getElementById('cloud-action-btn').addEventListener('click', () => {
                 if (cloudSyncState.user) {
-                    // If signed in, scroll to cloud sync section in settings
                     document.getElementById('settings-btn').click();
                     setTimeout(() => {
                         document.getElementById('cloud-sync-status').scrollIntoView({ behavior: 'smooth' });
@@ -5134,6 +5583,20 @@
                     settings.favoritesStyle = btn.dataset.favstyle;
                     document.querySelectorAll('.bg-type-btn[data-favstyle]').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
+                });
+            });
+
+            // Settings TOC smooth scroll within settings-page-body
+            document.querySelectorAll('.settings-toc a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = document.querySelector(link.getAttribute('href'));
+                    if (target) {
+                        const body = document.querySelector('.settings-page-body');
+                        const targetRect = target.getBoundingClientRect();
+                        const bodyRect = body.getBoundingClientRect();
+                        body.scrollTo({ top: body.scrollTop + targetRect.top - bodyRect.top - 16, behavior: 'smooth' });
+                    }
                 });
             });
 
