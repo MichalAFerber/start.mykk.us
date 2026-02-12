@@ -2136,6 +2136,24 @@
         <div class="settings-page-body">
             <div class="settings-page-content">
 
+                <!-- General -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">General</h3>
+                    <div class="settings-group">
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-auto-refresh" checked>
+                            <span>Auto-refresh page</span>
+                        </label>
+                    </div>
+                    <div class="settings-group" id="auto-refresh-interval-group">
+                        <label class="settings-label">Refresh Interval (minutes)</label>
+                        <div class="zoom-slider-wrapper">
+                            <input type="range" class="settings-range" id="auto-refresh-minutes" min="1" max="30" value="3">
+                            <span id="auto-refresh-value">3</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Widgets -->
                 <div class="settings-section">
                     <h3 class="settings-section-title">Widgets</h3>
@@ -2562,6 +2580,8 @@
             searchNewTab: true,
             weatherMapZoom: 9,
             favoritesStyle: 'gradient',
+            autoRefresh: true,
+            autoRefreshMinutes: 3,
             showFullscreen: true,
             showRefresh: true,
             showCamera: true,
@@ -2917,6 +2937,9 @@
             searchForm.target = settings.searchNewTab ? '_blank' : '_self';
             applySearchEngine();
 
+            // Restart auto-refresh timer
+            startAutoRefresh();
+
             updateSettingsUI();
             updateDateTime();
             renderShortcuts();
@@ -2959,6 +2982,12 @@
             });
 
             document.getElementById('calendar-embed-url').value = settings.calendarEmbedUrl || '';
+
+            // Auto-refresh
+            document.getElementById('toggle-auto-refresh').checked = settings.autoRefresh;
+            document.getElementById('auto-refresh-minutes').value = settings.autoRefreshMinutes;
+            document.getElementById('auto-refresh-value').textContent = settings.autoRefreshMinutes;
+            document.getElementById('auto-refresh-interval-group').style.display = settings.autoRefresh ? 'block' : 'none';
 
             document.getElementById('toggle-date').checked = settings.showDate;
             document.getElementById('toggle-time').checked = settings.showTime;
@@ -4124,6 +4153,16 @@
 
             settingsBack.addEventListener('click', () => settingsPage.classList.remove('active'));
 
+            // Auto-refresh
+            document.getElementById('toggle-auto-refresh').addEventListener('change', (e) => {
+                settings.autoRefresh = e.target.checked;
+                document.getElementById('auto-refresh-interval-group').style.display = e.target.checked ? 'block' : 'none';
+            });
+            document.getElementById('auto-refresh-minutes').addEventListener('input', (e) => {
+                settings.autoRefreshMinutes = parseInt(e.target.value);
+                document.getElementById('auto-refresh-value').textContent = e.target.value;
+            });
+
             // Widget toggles
             document.getElementById('toggle-date').addEventListener('change', (e) => settings.showDate = e.target.checked);
             document.getElementById('toggle-time').addEventListener('change', (e) => settings.showTime = e.target.checked);
@@ -4414,6 +4453,25 @@
             }
         }
 
+        // ============ Auto-Refresh ============
+        let autoRefreshTimer = null;
+
+        function startAutoRefresh() {
+            stopAutoRefresh();
+            if (settings.autoRefresh && settings.autoRefreshMinutes > 0) {
+                autoRefreshTimer = setTimeout(() => {
+                    window.location.reload();
+                }, settings.autoRefreshMinutes * 60 * 1000);
+            }
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshTimer) {
+                clearTimeout(autoRefreshTimer);
+                autoRefreshTimer = null;
+            }
+        }
+
         // ============ Initialize ============
         function init() {
             loadSettings();
@@ -4424,6 +4482,7 @@
             initEventListeners();
             initSectionDragDrop();
             renderMiniCalendar();
+            startAutoRefresh();
         }
 
         document.addEventListener('DOMContentLoaded', init);
