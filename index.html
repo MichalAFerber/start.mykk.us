@@ -1830,26 +1830,6 @@
             gap: 8px;
         }
 
-        /* Cloud Sync UI */
-        .cloud-action-btn {
-            position: relative;
-        }
-
-        .cloud-action-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .cloud-action-avatar.hidden {
-            display: none;
-        }
-
-        .cloud-action-avatar:not(.hidden) ~ .cloud-icon-default {
-            display: none;
-        }
-
         .cloud-sync-status {
             margin-bottom: 16px;
         }
@@ -2660,12 +2640,6 @@
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                </button>
-                <button class="action-btn cloud-action-btn" id="cloud-action-btn" title="Cloud Sync">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="cloud-icon-default">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
-                    </svg>
-                    <img class="cloud-action-avatar hidden" id="cloud-action-avatar" src="" alt="">
                 </button>
                 <button class="action-btn" id="settings-btn" title="Settings">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3811,12 +3785,6 @@
             updateCloudSyncUI(user ? 'signed-in' : 'signed-out');
 
             if (user) {
-                // Show avatar in action bar
-                const avatar = document.getElementById('cloud-action-avatar');
-                if (user.photoURL) {
-                    avatar.src = user.photoURL;
-                    avatar.classList.remove('hidden');
-                }
                 // Update settings panel
                 const nameEl = document.getElementById('cloud-user-name');
                 const emailEl = document.getElementById('cloud-user-email');
@@ -3825,9 +3793,7 @@
                 if (emailEl) emailEl.textContent = user.email || '';
                 if (avatarSettings && user.photoURL) avatarSettings.src = user.photoURL;
             } else {
-                const avatar = document.getElementById('cloud-action-avatar');
-                avatar.classList.add('hidden');
-                avatar.src = '';
+                // Clear settings panel
             }
         }
 
@@ -5656,16 +5622,6 @@
             document.getElementById('add-iframe-widget-btn').addEventListener('click', addIframeWidget);
 
             // Cloud Sync buttons
-            document.getElementById('cloud-action-btn').addEventListener('click', () => {
-                if (cloudSyncState.user) {
-                    document.getElementById('settings-btn').click();
-                    setTimeout(() => {
-                        document.getElementById('cloud-sync-status').scrollIntoView({ behavior: 'smooth' });
-                    }, 300);
-                } else {
-                    signInWithGoogle();
-                }
-            });
             document.getElementById('cloud-signin-btn').addEventListener('click', signInWithGoogle);
             document.getElementById('cloud-signout-btn').addEventListener('click', signOutUser);
             document.getElementById('cloud-push-btn').addEventListener('click', syncToCloud);
