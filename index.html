@@ -3811,12 +3811,8 @@
             updateCloudSyncUI(user ? 'signed-in' : 'signed-out');
 
             if (user) {
-                // Show avatar in action bar
-                const avatar = document.getElementById('cloud-action-avatar');
-                if (user.photoURL) {
-                    avatar.src = user.photoURL;
-                    avatar.classList.remove('hidden');
-                }
+                // Hide cloud button when signed in
+                document.getElementById('cloud-action-btn').classList.add('hidden');
                 // Update settings panel
                 const nameEl = document.getElementById('cloud-user-name');
                 const emailEl = document.getElementById('cloud-user-email');
@@ -3825,9 +3821,7 @@
                 if (emailEl) emailEl.textContent = user.email || '';
                 if (avatarSettings && user.photoURL) avatarSettings.src = user.photoURL;
             } else {
-                const avatar = document.getElementById('cloud-action-avatar');
-                avatar.classList.add('hidden');
-                avatar.src = '';
+                document.getElementById('cloud-action-btn').classList.remove('hidden');
             }
         }
 
