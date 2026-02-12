@@ -1157,6 +1157,15 @@
             margin-top: 8px;
         }
 
+        details.settings-section > summary {
+            list-style: none;
+        }
+        details.settings-section > summary::-webkit-details-marker {
+            display: none;
+        }
+        details.settings-section[open] > summary span {
+            display: none;
+        }
         .faq-item {
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
@@ -3143,8 +3152,11 @@
                 </div>
 
                 <!-- FAQ -->
-                <div class="settings-section" id="section-faq">
-                    <h3 class="settings-section-title">FAQ</h3>
+                <details class="settings-section" id="section-faq">
+                    <summary class="settings-section-title" style="cursor: pointer; list-style: none;">
+                        <h3 class="settings-section-title" style="display: inline; margin: 0;">FAQ</h3>
+                        <span style="opacity: 0.5; font-size: 0.8rem; margin-left: 8px;">(click to expand)</span>
+                    </summary>
 
                     <details class="faq-item">
                         <summary>What is MyKK Dashboard?</summary>
@@ -3232,7 +3244,7 @@
                         </div>
                     </details>
 
-                </div>
+                </details>
 
                 <button class="settings-save" id="save-settings">Save Settings</button>
             </div>
