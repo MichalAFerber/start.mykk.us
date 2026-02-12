@@ -1157,6 +1157,56 @@
             margin-top: 8px;
         }
 
+        .faq-item {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .faq-item summary {
+            cursor: pointer;
+            padding: 12px 0;
+            font-weight: 500;
+            font-size: 0.9rem;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .faq-item summary::before {
+            content: '▸';
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+        .faq-item[open] summary::before {
+            transform: rotate(90deg);
+        }
+        .faq-item summary::-webkit-details-marker {
+            display: none;
+        }
+        .faq-answer {
+            padding: 0 0 12px 20px;
+            opacity: 0.8;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .faq-answer ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        .faq-answer ol li {
+            margin-bottom: 4px;
+        }
+        .faq-answer a {
+            color: #667eea;
+        }
+        .faq-answer code {
+            background: rgba(255,255,255,0.1);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
         /* Weather Detail Modal */
         .weather-detail-modal {
             max-width: 450px;
@@ -2716,6 +2766,7 @@
                 <a href="#section-weather">Weather</a>
                 <a href="#section-iframe">iFrame Widgets</a>
                 <a href="#section-data">Data</a>
+                <a href="#section-faq">FAQ</a>
             </nav>
 
             <div class="settings-page-content">
@@ -3091,6 +3142,98 @@
                     </div>
                 </div>
 
+                <!-- FAQ -->
+                <div class="settings-section" id="section-faq">
+                    <h3 class="settings-section-title">FAQ</h3>
+
+                    <details class="faq-item">
+                        <summary>What is MyKK Dashboard?</summary>
+                        <div class="faq-answer">
+                            MyKK Dashboard is a customizable browser start page. You can add widgets for weather, bookmarks, clocks, calendars, and more. Set it as your browser's homepage or new tab page for quick access to everything you need.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Do I need to sign in?</summary>
+                        <div class="faq-answer">
+                            No. The dashboard works entirely in your browser without signing in. Signing in with Google lets you sync settings across all your devices automatically. Without signing in, you can use Export/Import in the Data section to transfer settings manually.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>How do I get a weather API key?</summary>
+                        <div class="faq-answer">
+                            <ol>
+                                <li>Go to <a href="https://openweathermap.org/api" target="_blank">openweathermap.org/api</a></li>
+                                <li>Create a free account</li>
+                                <li>Subscribe to the "One Call API 3.0" (includes 1,000 free calls/day)</li>
+                                <li>Copy your API key from your account dashboard and paste it in the Weather section above</li>
+                            </ol>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>What are iFrame Widgets?</summary>
+                        <div class="faq-answer">
+                            iFrame Widgets let you embed external content directly on your dashboard. Any service that provides an embed code or embeddable URL can be added as an iFrame widget. Go to the iFrame Widgets section above, click "Add iFrame Widget", give it a name, and paste the embed URL.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>How do I add Google Calendar?</summary>
+                        <div class="faq-answer">
+                            <ol>
+                                <li>Open <a href="https://calendar.google.com/calendar/r/settings" target="_blank">Google Calendar Settings</a></li>
+                                <li>Click on the calendar you want to embed (under "Settings for my calendars")</li>
+                                <li>Scroll to "Integrate calendar" and find the "Embed code" section</li>
+                                <li>Click "Customize" to adjust the look, then copy the <code>src="..."</code> URL from the embed code</li>
+                                <li>Add an iFrame Widget above and paste that URL</li>
+                            </ol>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>How do I add an RSS or news feed?</summary>
+                        <div class="faq-answer">
+                            Use a free RSS-to-embed service to generate an embeddable URL:
+                            <ol>
+                                <li>Go to <a href="https://rss.app/" target="_blank">rss.app</a> or <a href="https://feed.mikle.com/" target="_blank">feed.mikle.com</a></li>
+                                <li>Enter the RSS feed URL you want to display (e.g., from your favorite news site)</li>
+                                <li>Customize the appearance and generate the embed code</li>
+                                <li>Copy the embed URL and add it as an iFrame Widget</li>
+                            </ol>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>How do I embed Twitter / X?</summary>
+                        <div class="faq-answer">
+                            <ol>
+                                <li>Go to <a href="https://publish.twitter.com/" target="_blank">publish.twitter.com</a></li>
+                                <li>Enter the URL of a Twitter/X profile or timeline you want to embed</li>
+                                <li>Choose "Embedded Timeline" and customize the options</li>
+                                <li>Copy the generated embed code URL and add it as an iFrame Widget</li>
+                            </ol>
+                            Note: Twitter/X embeds may have limited iFrame support. An alternative is to use a service like <a href="https://rss.app/" target="_blank">rss.app</a> to convert a Twitter feed to an embeddable widget.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>How do I find embed codes for other services?</summary>
+                        <div class="faq-answer">
+                            Most web services offer an "Embed" or "Share" option that provides iFrame code. Look for a share/embed button within the service. You can also use <a href="https://iframe-generator.org/" target="_blank">iframe-generator.org</a> to help create embed codes. The URL you need is the <code>src="..."</code> value from any <code>&lt;iframe&gt;</code> embed code.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>How do I reorder sections on the dashboard?</summary>
+                        <div class="faq-answer">
+                            Hover over any widget to reveal a drag handle (three lines icon) in the top-right corner. Click and drag the handle to move the widget to a new position. On mobile, the drag handles are always visible. Your layout order is saved automatically.
+                        </div>
+                    </details>
+
+                </div>
+
                 <button class="settings-save" id="save-settings">Save Settings</button>
             </div>
         </div>
@@ -3303,9 +3446,7 @@
             searchNewTab: true,
             weatherMapZoom: 9,
             favoritesStyle: 'gradient',
-            iframeWidgets: [
-                { id: 'iframe-calendar', name: 'Google Calendar', url: '', enabled: false }
-            ],
+            iframeWidgets: [],
             widgetSizes: {
                 date:      { cols: 2, rows: 1 },
                 search:    { cols: 8, rows: 1 },
@@ -3576,13 +3717,14 @@
                 if (!Array.isArray(settings.enabledEngines)) {
                     settings.enabledEngines = [settings.searchEngine || 'google'];
                 }
-                // Migrate old calendarEmbedUrl → first iframe widget
+                // Migrate old calendarEmbedUrl → iframe widget
                 if (parsed.calendarEmbedUrl && !parsed.iframeWidgets) {
-                    const calWidget = settings.iframeWidgets.find(w => w.id === 'iframe-calendar');
-                    if (calWidget) {
-                        calWidget.url = parsed.calendarEmbedUrl;
-                        calWidget.enabled = parsed.showCalendar !== false;
-                    }
+                    settings.iframeWidgets.push({
+                        id: 'iframe-calendar',
+                        name: 'Google Calendar',
+                        url: parsed.calendarEmbedUrl,
+                        enabled: parsed.showCalendar !== false
+                    });
                 }
                 // Migrate old showCalendar → showMiniCalendar
                 if (parsed.showCalendar !== undefined && parsed.showMiniCalendar === undefined) {
@@ -5228,7 +5370,7 @@
         }
 
         // ============ Section Reordering ============
-        const defaultSectionOrder = ['time', 'weather', 'shortcuts', 'mini-calendar', 'iframe-calendar'];
+        const defaultSectionOrder = ['time', 'weather', 'shortcuts', 'mini-calendar'];
         let sectionDragState = null;
 
         function loadSectionOrder() {
