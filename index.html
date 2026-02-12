@@ -2551,6 +2551,234 @@
             background: rgba(102, 126, 234, 0.3);
         }
 
+        /* ============ Donetick Widget ============ */
+        .donetick-widget {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .donetick-widget .section-header {
+            flex-shrink: 0;
+        }
+
+        .donetick-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 4px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.2) transparent;
+        }
+
+        .donetick-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .donetick-content::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+        }
+
+        .donetick-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0 8px;
+            flex-shrink: 0;
+        }
+
+        .donetick-filter {
+            flex: 1;
+            padding: 5px 8px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text-primary);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-family: inherit;
+        }
+
+        .donetick-filter option {
+            background: #1e1e32;
+            color: var(--text-primary);
+        }
+
+        .donetick-refresh-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            padding: 4px 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .donetick-refresh-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .donetick-chore {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            transition: background 0.15s;
+        }
+
+        .donetick-chore:last-child {
+            border-bottom: none;
+        }
+
+        .donetick-chore:hover {
+            background: rgba(255,255,255,0.04);
+            border-radius: 6px;
+        }
+
+        .donetick-complete-btn {
+            flex-shrink: 0;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1px;
+            transition: all 0.2s;
+        }
+
+        .donetick-complete-btn:hover {
+            border-color: #43e97b;
+            background: rgba(67, 233, 123, 0.15);
+        }
+
+        .donetick-complete-btn.completing {
+            border-color: #43e97b;
+            background: #43e97b;
+        }
+
+        .donetick-complete-btn svg {
+            width: 12px;
+            height: 12px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .donetick-complete-btn:hover svg,
+        .donetick-complete-btn.completing svg {
+            opacity: 1;
+        }
+
+        .donetick-chore-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .donetick-chore-name {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        .donetick-chore-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .donetick-chore-assignee {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100px;
+        }
+
+        .donetick-due-overdue {
+            color: #f5576c;
+            font-weight: 600;
+            opacity: 1;
+        }
+
+        .donetick-due-today {
+            color: #fbbf24;
+            font-weight: 600;
+            opacity: 1;
+        }
+
+        .donetick-due-soon {
+            color: #43e97b;
+            opacity: 1;
+        }
+
+        .donetick-priority {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .donetick-priority-1 { background: #f5576c; }
+        .donetick-priority-2 { background: #fbbf24; }
+        .donetick-priority-3 { background: #4facfe; }
+
+        .donetick-setup {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 12px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .donetick-setup p {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .donetick-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+            font-size: 0.82rem;
+            opacity: 0.5;
+        }
+
+        .donetick-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+            font-size: 0.82rem;
+            opacity: 0.5;
+        }
+
+        .donetick-error {
+            padding: 12px;
+            font-size: 0.8rem;
+            color: #f5576c;
+            text-align: center;
+        }
+
+        .donetick-chore.completed .donetick-chore-name {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
         /* Cloud sign-in spacing */
         .cloud-sync-signed-out .settings-help {
             margin-bottom: 16px;
@@ -2723,6 +2951,22 @@
             </div>
         </div>
 
+        <!-- Donetick Widget -->
+        <div class="donetick-widget glass-card hidden" id="donetick-widget" data-section="donetick" data-widget="donetick">
+            <div class="section-header">
+                <span class="section-drag-handle" aria-label="Drag to reorder">
+                    <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                </span>
+                <span class="section-title">Chores</span>
+            </div>
+            <div id="donetick-content">
+                <div class="donetick-setup">
+                    <p>Connect your Donetick server to see and complete chores</p>
+                    <button class="weather-setup-btn" onclick="document.getElementById('settings-btn').click()">Configure</button>
+                </div>
+            </div>
+        </div>
+
         <!-- iFrame Widgets (dynamically rendered) -->
         <div id="iframe-widgets-container" style="display: contents"></div>
     </div>
@@ -2748,6 +2992,7 @@
                 <a href="#section-toolbar">Toolbar Buttons</a>
                 <a href="#section-weather">Weather</a>
                 <a href="#section-iframe">iFrame Widgets</a>
+                <a href="#section-donetick" id="toc-donetick" class="hidden">Donetick</a>
                 <a href="#section-data">Data</a>
                 <a href="#section-faq">FAQ</a>
             </nav>
@@ -3105,6 +3350,40 @@
                     </button>
                 </div>
 
+                <!-- Donetick (extension-gated) -->
+                <div class="settings-section hidden" id="section-donetick">
+                    <h3 class="settings-section-title">Donetick</h3>
+                    <p class="settings-help" style="margin-bottom: 12px;">
+                        Connect your self-hosted <a href="https://donetick.com" target="_blank" style="color: #667eea;">Donetick</a> server to view and complete chores from your dashboard.
+                    </p>
+                    <div class="settings-group">
+                        <label class="settings-label">Donetick Server URL</label>
+                        <input type="url" class="settings-input" id="donetick-url" placeholder="https://donetick.example.com">
+                        <small class="settings-help">The base URL of your Donetick instance (no trailing slash)</small>
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-label">API Token</label>
+                        <input type="password" class="settings-input" id="donetick-api-token" placeholder="Your Donetick API token">
+                        <small class="settings-help">Generate a token in Donetick under Settings &rarr; API Tokens</small>
+                    </div>
+                    <div id="donetick-extra-settings" style="display: none;">
+                        <div class="widget-settings-item">
+                            <div class="widget-settings-header">
+                                <label class="settings-checkbox">
+                                    <input type="checkbox" id="toggle-donetick">
+                                    <span>Show Chores Widget</span>
+                                </label>
+                                <div class="widget-size-inline" id="donetick-size-controls">
+                                    <label>W</label>
+                                    <input type="number" min="1" max="12" value="4" data-size-col="donetick">
+                                    <label>H</label>
+                                    <input type="number" min="1" max="8" value="4" data-size-row="donetick">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Data -->
                 <div class="settings-section" id="section-data">
                     <h3 class="settings-section-title">Data</h3>
@@ -3455,7 +3734,8 @@
                 time:      { cols: 3, rows: 1 },
                 weather:   { cols: 3, rows: 4 },
                 shortcuts: { cols: 6, rows: 4 },
-                'mini-calendar': { cols: 3, rows: 3 }
+                'mini-calendar': { cols: 3, rows: 3 },
+                'donetick': { cols: 4, rows: 4 }
             },
             autoRefresh: true,
             autoRefreshMinutes: 15,
@@ -3465,6 +3745,10 @@
             showPaint: false,
             showNotepad: false,
             showWeatherAnimation: true,
+            showDonetick: false,
+            donetickUrl: '',
+            donetickApiToken: '',
+            donetickFilterUser: 0,
             firebaseConfig: {
                 apiKey: '',
                 authDomain: '',
@@ -4099,6 +4383,16 @@
             document.getElementById('mini-calendar-widget').classList.toggle('hidden', !settings.showMiniCalendar);
             document.getElementById('shortcuts-widget').classList.toggle('hidden', !settings.showFavorites);
 
+            // Donetick widget
+            const donetickVisible = settings.showDonetick && isExtensionSubscriptionActive();
+            document.getElementById('donetick-widget').classList.toggle('hidden', !donetickVisible);
+            updateDonetickVisibility();
+            if (donetickVisible && settings.donetickUrl && settings.donetickApiToken) {
+                loadDonetickData();
+            } else if (donetickVisible) {
+                renderDonetickContent();
+            }
+
             // Render iframe widgets
             renderIframeWidgets();
 
@@ -4210,6 +4504,17 @@
             // Weather animation toggle
             document.getElementById('toggle-weather-animation').checked = settings.showWeatherAnimation;
 
+            // Donetick settings
+            const donetickUrlInput = document.getElementById('donetick-url');
+            const donetickTokenInput = document.getElementById('donetick-api-token');
+            if (donetickUrlInput) donetickUrlInput.value = settings.donetickUrl || '';
+            if (donetickTokenInput) donetickTokenInput.value = settings.donetickApiToken || '';
+            const donetickExtra = document.getElementById('donetick-extra-settings');
+            if (donetickExtra) donetickExtra.style.display = (settings.donetickUrl && settings.donetickApiToken) ? '' : 'none';
+            const toggleDonetick = document.getElementById('toggle-donetick');
+            if (toggleDonetick) toggleDonetick.checked = settings.showDonetick;
+            updateDonetickVisibility();
+
             // Search engine multi-select
             renderEngineMultiSelect();
 
@@ -4245,7 +4550,8 @@
                 'search': 'showSearch',
                 'weather': 'showWeather',
                 'mini-calendar': 'showMiniCalendar',
-                'shortcuts': 'showFavorites'
+                'shortcuts': 'showFavorites',
+                'donetick': 'showDonetick'
             };
             Object.entries(map).forEach(([widget, settingKey]) => {
                 const enabled = settings[settingKey];
@@ -4944,6 +5250,247 @@
             renderIframeWidgetSettings();
         }
 
+        // ============ Donetick Integration ============
+        let donetickChores = [];
+        let donetickMembers = [];
+        let donetickLoading = false;
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function isExtensionSubscriptionActive() {
+            return !!(window.mykkExtension && window.mykkExtension.subscription && window.mykkExtension.subscription.active);
+        }
+
+        function updateDonetickVisibility() {
+            const active = isExtensionSubscriptionActive();
+            const tocLink = document.getElementById('toc-donetick');
+            const settingsSection = document.getElementById('section-donetick');
+            if (tocLink) tocLink.classList.toggle('hidden', !active);
+            if (settingsSection) settingsSection.classList.toggle('hidden', !active);
+            // Hide widget if extension not active
+            if (!active && settings.showDonetick) {
+                document.getElementById('donetick-widget').classList.add('hidden');
+            }
+        }
+
+        async function fetchDonetickChores() {
+            const url = settings.donetickUrl;
+            const token = settings.donetickApiToken;
+            if (!url || !token) return [];
+
+            const resp = await fetch(`${url}/eapi/v1/chore`, {
+                headers: { 'secretkey': token }
+            });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            return data.res || data || [];
+        }
+
+        async function fetchDonetickMembers() {
+            const url = settings.donetickUrl;
+            const token = settings.donetickApiToken;
+            if (!url || !token) return [];
+
+            try {
+                const resp = await fetch(`${url}/eapi/v1/circle/members`, {
+                    headers: { 'secretkey': token }
+                });
+                if (!resp.ok) return [];
+                const data = await resp.json();
+                return data.res || data || [];
+            } catch {
+                return [];
+            }
+        }
+
+        async function completeDonetickChore(choreId, completedBy) {
+            const url = settings.donetickUrl;
+            const token = settings.donetickApiToken;
+            if (!url || !token) return;
+
+            const query = completedBy ? `?completedBy=${completedBy}` : '';
+            const resp = await fetch(`${url}/eapi/v1/chore/${choreId}/complete${query}`, {
+                method: 'POST',
+                headers: { 'secretkey': token }
+            });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return resp.json();
+        }
+
+        async function loadDonetickData() {
+            if (!settings.donetickUrl || !settings.donetickApiToken) return;
+            if (!settings.showDonetick) return;
+            if (!isExtensionSubscriptionActive()) return;
+
+            donetickLoading = true;
+            renderDonetickContent();
+
+            try {
+                const [chores, members] = await Promise.all([
+                    fetchDonetickChores(),
+                    fetchDonetickMembers()
+                ]);
+                donetickChores = chores;
+                donetickMembers = members;
+            } catch (err) {
+                donetickChores = [];
+                donetickMembers = [];
+                donetickLoading = false;
+                const content = document.getElementById('donetick-content');
+                content.innerHTML = `<div class="donetick-error">Failed to load chores. Check your server URL and API token.</div>`;
+                return;
+            }
+
+            donetickLoading = false;
+            renderDonetickContent();
+        }
+
+        function getMemberName(userId) {
+            const member = donetickMembers.find(m => m.id === userId || m.userId === userId);
+            return member ? (member.displayName || member.username || `User ${userId}`) : '';
+        }
+
+        function formatDueDate(dateStr) {
+            if (!dateStr) return null;
+            const due = new Date(dateStr);
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const dueDay = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+            const diffDays = Math.round((dueDay - today) / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) return { text: `${Math.abs(diffDays)}d overdue`, className: 'donetick-due-overdue' };
+            if (diffDays === 0) return { text: 'Due today', className: 'donetick-due-today' };
+            if (diffDays === 1) return { text: 'Tomorrow', className: 'donetick-due-soon' };
+            if (diffDays <= 7) return { text: `In ${diffDays}d`, className: 'donetick-due-soon' };
+            return { text: dueDay.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), className: '' };
+        }
+
+        function renderDonetickContent() {
+            const content = document.getElementById('donetick-content');
+            if (!content) return;
+
+            if (!settings.donetickUrl || !settings.donetickApiToken) {
+                content.innerHTML = `
+                    <div class="donetick-setup">
+                        <p>Connect your Donetick server to see and complete chores</p>
+                        <button class="weather-setup-btn" onclick="document.getElementById('settings-btn').click()">Configure</button>
+                    </div>`;
+                return;
+            }
+
+            if (donetickLoading) {
+                content.innerHTML = `<div class="donetick-loading">Loading chores...</div>`;
+                return;
+            }
+
+            // Build toolbar with user filter
+            let toolbarHtml = '<div class="donetick-toolbar">';
+            if (donetickMembers.length > 0) {
+                toolbarHtml += `<select class="donetick-filter" id="donetick-user-filter">
+                    <option value="0">All Members</option>
+                    ${donetickMembers.map(m => {
+                        const name = escapeHtml(m.displayName || m.username || `User ${m.id || m.userId}`);
+                        const id = m.id || m.userId;
+                        return `<option value="${id}" ${settings.donetickFilterUser == id ? 'selected' : ''}>${name}</option>`;
+                    }).join('')}
+                </select>`;
+            }
+            toolbarHtml += `<button class="donetick-refresh-btn" id="donetick-refresh" title="Refresh chores">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+            </button></div>`;
+
+            // Filter chores
+            let filtered = donetickChores.filter(c => c.isActive !== false);
+            if (settings.donetickFilterUser > 0) {
+                filtered = filtered.filter(c => c.assignedTo === settings.donetickFilterUser);
+            }
+
+            // Sort: overdue first, then by due date
+            filtered.sort((a, b) => {
+                const aDate = a.nextDueDate ? new Date(a.nextDueDate) : new Date('9999-12-31');
+                const bDate = b.nextDueDate ? new Date(b.nextDueDate) : new Date('9999-12-31');
+                return aDate - bDate;
+            });
+
+            if (filtered.length === 0) {
+                content.innerHTML = toolbarHtml + `<div class="donetick-empty">No chores to show</div>`;
+                attachDonetickToolbarEvents();
+                return;
+            }
+
+            let choresHtml = filtered.map(chore => {
+                const due = formatDueDate(chore.nextDueDate);
+                const assignee = escapeHtml(getMemberName(chore.assignedTo));
+                const choreName = escapeHtml(chore.name);
+                const priorityDot = chore.priority && chore.priority > 0 && chore.priority <= 3
+                    ? `<span class="donetick-priority donetick-priority-${chore.priority}"></span>` : '';
+
+                let metaParts = [];
+                if (due) metaParts.push(`<span class="${due.className}">${due.text}</span>`);
+                if (assignee) metaParts.push(`<span class="donetick-chore-assignee">${assignee}</span>`);
+
+                return `<div class="donetick-chore" data-chore-id="${chore.id}">
+                    <button class="donetick-complete-btn" data-chore-id="${chore.id}" title="Complete chore">
+                        <svg fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </button>
+                    <div class="donetick-chore-info">
+                        <div class="donetick-chore-name">${priorityDot} ${choreName}</div>
+                        ${metaParts.length > 0 ? `<div class="donetick-chore-meta">${metaParts.join('')}</div>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+
+            content.innerHTML = toolbarHtml + `<div class="donetick-content">${choresHtml}</div>`;
+            attachDonetickToolbarEvents();
+            attachDonetickCompleteEvents();
+        }
+
+        function attachDonetickToolbarEvents() {
+            const filter = document.getElementById('donetick-user-filter');
+            if (filter) {
+                filter.addEventListener('change', (e) => {
+                    settings.donetickFilterUser = parseInt(e.target.value);
+                    renderDonetickContent();
+                });
+            }
+            const refreshBtn = document.getElementById('donetick-refresh');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', () => loadDonetickData());
+            }
+        }
+
+        function attachDonetickCompleteEvents() {
+            document.querySelectorAll('.donetick-complete-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const choreId = btn.dataset.choreId;
+                    const choreEl = btn.closest('.donetick-chore');
+                    btn.classList.add('completing');
+
+                    try {
+                        const completedBy = settings.donetickFilterUser > 0 ? settings.donetickFilterUser : undefined;
+                        await completeDonetickChore(choreId, completedBy);
+                        choreEl.classList.add('completed');
+                        setTimeout(() => {
+                            donetickChores = donetickChores.filter(c => c.id != choreId);
+                            renderDonetickContent();
+                        }, 600);
+                    } catch (err) {
+                        btn.classList.remove('completing');
+                        btn.style.borderColor = '#f5576c';
+                        setTimeout(() => btn.style.borderColor = '', 1500);
+                    }
+                });
+            });
+        }
+
         // ============ Paint Canvas ============
         function initPaintCanvas() {
             const canvas = document.getElementById('paint-canvas');
@@ -5557,6 +6104,22 @@
             // Weather animation toggle
             document.getElementById('toggle-weather-animation').addEventListener('change', (e) => settings.showWeatherAnimation = e.target.checked);
 
+            // Donetick settings
+            document.getElementById('donetick-url').addEventListener('input', (e) => {
+                settings.donetickUrl = e.target.value.replace(/\/+$/, '');
+                const hasConfig = settings.donetickUrl && settings.donetickApiToken;
+                document.getElementById('donetick-extra-settings').style.display = hasConfig ? '' : 'none';
+            });
+            document.getElementById('donetick-api-token').addEventListener('input', (e) => {
+                settings.donetickApiToken = e.target.value;
+                const hasConfig = settings.donetickUrl && settings.donetickApiToken;
+                document.getElementById('donetick-extra-settings').style.display = hasConfig ? '' : 'none';
+            });
+            document.getElementById('toggle-donetick').addEventListener('change', (e) => {
+                settings.showDonetick = e.target.checked;
+                updateWidgetSizeDisabledState();
+            });
+
             // Search engine multi-select trigger
             document.getElementById('engine-select-trigger').addEventListener('click', () => {
                 document.getElementById('engine-select-dropdown').classList.toggle('open');
@@ -5902,6 +6465,18 @@
             startAutoRefresh();
             // Initialize Firebase if configured
             initFirebase();
+            // Check for extension subscription and update Donetick visibility
+            updateDonetickVisibility();
+            // Listen for extension messages (extension may load after dashboard)
+            window.addEventListener('message', (e) => {
+                if (e.data && e.data.type === 'mykk-extension-status') {
+                    window.mykkExtension = e.data.extension;
+                    updateDonetickVisibility();
+                    if (isExtensionSubscriptionActive() && settings.showDonetick) {
+                        loadDonetickData();
+                    }
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', init);
