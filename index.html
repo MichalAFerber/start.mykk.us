@@ -10,6 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Leaflet CSS for interactive maps -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Firebase SDK (Cloud Sync) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -63,37 +67,29 @@
 
         .dashboard {
             display: grid;
-            grid-template-columns: 380px 1fr 380px;
-            grid-template-rows: auto auto auto 1fr;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: 80px;
+            grid-auto-flow: dense;
             min-height: 100vh;
-            padding: 24px;
-            gap: 24px;
+            padding: 20px;
+            gap: 16px;
         }
 
-        /* Top Row - Aligned date, search, actions */
-        .top-row {
+        /* All structural containers become transparent to grid */
+        .top-row,
+        .left-column,
+        .center-column,
+        .right-column {
             display: contents;
         }
 
+        /* All widgets are direct grid items */
         .top-row > .date-card,
         .top-row > .search-container,
         .top-row > .action-buttons-card {
-            grid-row: 1;
             align-self: stretch;
             display: flex;
             align-items: center;
-        }
-
-        .top-row > .date-card {
-            grid-column: 1;
-        }
-
-        .top-row > .search-container {
-            grid-column: 2;
-        }
-
-        .top-row > .action-buttons-card {
-            grid-column: 3;
         }
 
         /* Glass morphism card style */
@@ -106,13 +102,9 @@
             box-shadow: 0 8px 32px var(--glass-shadow);
         }
 
-        /* Left Column */
-        .left-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            grid-row: 2 / -1;
-            grid-column: 1;
+        /* Grid widget overflow handling */
+        .glass-card[data-widget] {
+            overflow: auto;
         }
 
         /* Date Card */
@@ -171,14 +163,7 @@
             opacity: 0.8;
         }
 
-        /* Center Column */
-        .center-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            grid-column: 2;
-            grid-row: 2 / -1;
-        }
+        /* (center-column removed — grid layout) */
 
         /* Search Bar */
         .search-container {
@@ -615,14 +600,7 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
-        /* Right Column */
-        .right-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            grid-row: 2 / -1;
-            grid-column: 3;
-        }
+        /* (right-column removed — grid layout) */
 
         /* Action Buttons Card - Top Right */
         .action-buttons-card {
@@ -660,23 +638,163 @@
             height: 22px;
         }
 
-        /* Calendar Widget */
-        .calendar-widget {
+        /* Mini Calendar Card (standalone widget) */
+        .mini-calendar-card {
             padding: 20px;
-            flex: 1;
             display: flex;
             flex-direction: column;
         }
 
-        .calendar-widget.hidden {
+        .mini-calendar-card.hidden {
             display: none;
+        }
+
+        /* Generic iFrame Widget */
+        .iframe-widget {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .iframe-widget.hidden {
+            display: none;
+        }
+
+        .iframe-widget .section-header {
+            padding: 12px 16px;
+        }
+
+        .iframe-widget-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .iframe-widget-body iframe {
+            width: 100%;
+            flex: 1;
+            border: none;
+            min-height: 200px;
+        }
+
+        .iframe-widget-setup {
+            text-align: center;
+            padding: 40px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .iframe-widget-setup p {
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+
+        /* iFrame Widget Settings */
+        .iframe-widget-settings-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+        }
+
+        .iframe-widget-settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .iframe-widget-settings-header input {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 4px 8px;
+            flex: 1;
+            margin-right: 12px;
+        }
+
+        .iframe-widget-settings-header input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .iframe-widget-delete-btn {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .iframe-widget-delete-btn:hover {
+            background: rgba(239, 68, 68, 0.4);
+        }
+
+        .iframe-widget-settings-body {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .iframe-widget-settings-body textarea {
+            width: 100%;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .iframe-widget-settings-body textarea:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .iframe-widget-settings-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .iframe-widget-settings-row label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            white-space: nowrap;
+        }
+
+        .iframe-widget-settings-row input[type="number"] {
+            width: 60px;
+            padding: 4px 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .iframe-widget-settings-row input[type="number"]:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
         /* Mini Calendar */
         .mini-calendar {
-            margin-bottom: 16px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 4px;
         }
 
         .mini-calendar-header {
@@ -753,29 +871,7 @@
             border-radius: 50%;
         }
 
-        .calendar-container {
-            flex: 1;
-            border-radius: 12px;
-            overflow: hidden;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .calendar-container iframe {
-            width: 100%;
-            height: 100%;
-            min-height: 400px;
-            border: none;
-        }
-
-        .calendar-setup {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .calendar-setup p {
-            margin-bottom: 16px;
-            opacity: 0.8;
-        }
+        /* (calendar-container removed — using iframe-widget styles) */
 
         /* Modal Styles */
         .modal-overlay {
@@ -1504,33 +1600,392 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* Responsive */
+        /* Section Drag Handles */
+        [data-section] {
+            position: relative;
+        }
+
+        .section-drag-handle {
+            display: none;
+            cursor: grab;
+            padding: 4px;
+            opacity: 0.4;
+            transition: opacity 0.2s ease;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            z-index: 5;
+        }
+
+        .section-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .section-drag-handle:hover,
+        .section-drag-handle:active {
+            opacity: 1;
+        }
+
+        .section-drag-handle svg {
+            width: 18px;
+            height: 18px;
+            pointer-events: none;
+        }
+
+        .section-drag-handle-floating {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+        }
+
+        /* Section dragging states */
+        [data-section].section-dragging {
+            opacity: 0.4;
+            transform: scale(0.97);
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        [data-section].section-drag-over {
+            box-shadow: 0 0 0 2px #667eea, 0 8px 32px var(--glass-shadow);
+            transition: box-shadow 0.2s ease;
+        }
+
+        /* Hidden action buttons */
+        .action-btn.hidden {
+            display: none;
+        }
+
+        /* Full-Page Settings */
+        .settings-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 30, 0.98);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .settings-page.active {
+            display: flex;
+        }
+
+        .settings-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .settings-back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .settings-back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .settings-back-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .settings-page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .settings-page-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        .settings-page-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .settings-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .settings-section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .settings-section .settings-group {
+            margin-bottom: 16px;
+        }
+
+        .settings-section .settings-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+        }
+
+        /* Cloud Sync UI */
+        .cloud-action-btn {
+            position: relative;
+        }
+
+        .cloud-action-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .cloud-action-avatar:not(.hidden) ~ .cloud-icon-default {
+            display: none;
+        }
+
+        .cloud-sync-status {
+            margin-bottom: 16px;
+        }
+
+        .cloud-sync-signed-in.hidden,
+        .cloud-sync-signed-out.hidden {
+            display: none;
+        }
+
+        .cloud-signin-btn {
+            gap: 8px;
+        }
+
+        .cloud-signin-btn svg {
+            flex-shrink: 0;
+        }
+
+        .cloud-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .cloud-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .cloud-user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .cloud-user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .cloud-user-email {
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        .cloud-sync-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .cloud-signout-btn {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
+            color: #f87171 !important;
+        }
+
+        .cloud-signout-btn:hover {
+            background: rgba(239, 68, 68, 0.3) !important;
+        }
+
+        .cloud-sync-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+        }
+
+        .sync-dot.syncing {
+            background: #facc15;
+            animation: pulse-sync 1s ease infinite;
+        }
+
+        .sync-dot.error {
+            background: #f87171;
+        }
+
+        @keyframes pulse-sync {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .firebase-config-details {
+            margin-top: 8px;
+        }
+
+        .firebase-config-details summary {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            padding: 8px 0;
+        }
+
+        .firebase-config-details summary:hover {
+            opacity: 1;
+        }
+
+        .firebase-config-fields {
+            margin-top: 8px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+        }
+
+        /* Widget Size Controls */
+        .widget-size-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .widget-size-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .widget-size-item-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .widget-size-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .widget-size-field {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .widget-size-field label {
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .widget-size-field input {
+            width: 100%;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .widget-size-field input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Responsive - Tablet */
         @media (max-width: 1200px) {
             .dashboard {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto;
+                grid-template-columns: repeat(6, 1fr);
+                gap: 12px;
+                padding: 16px;
             }
 
-            .left-column {
-                grid-row: auto;
+            /* Force all widgets to at least half width on tablet */
+            [data-widget] {
+                grid-column: span 6 !important;
+                grid-row: auto !important;
             }
 
-            .center-column {
-                grid-column: 1;
-                grid-row: auto;
-            }
-
-            .right-column {
-                grid-column: 1;
-                grid-row: auto;
-            }
-
-            .calendar-widget {
-                min-height: 500px;
+            /* Show drag handles on tablet/mobile */
+            .section-drag-handle {
+                display: flex;
+                align-items: center;
             }
         }
 
+        /* Responsive - Phone */
         @media (max-width: 600px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                grid-auto-rows: auto;
+                padding: 12px;
+                gap: 10px;
+            }
+
+            /* All widgets single column, auto height */
+            [data-widget] {
+                grid-column: 1 / -1 !important;
+                grid-row: auto !important;
+            }
+
+            .action-buttons-card {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
             .time {
                 font-size: 3rem;
             }
@@ -1551,6 +2006,200 @@
             .shortcuts-grid {
                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
             }
+
+            .glass-card {
+                border-radius: 12px;
+            }
+
+            .modal {
+                padding: 20px;
+                border-radius: 16px;
+            }
+
+            .lightbox-header {
+                flex-wrap: wrap;
+                padding: 12px 16px;
+                gap: 8px;
+            }
+
+            .lightbox-tools {
+                gap: 4px;
+            }
+
+            .tool-btn {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+
+            .action-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .radar-container {
+                height: 180px;
+            }
+
+            .iframe-widget-body iframe {
+                min-height: 300px;
+            }
+
+            .weather-current {
+                flex-wrap: wrap;
+            }
+
+            .weather-temp {
+                font-size: 2.5rem;
+            }
+
+            .weather-icon {
+                font-size: 2.5rem;
+            }
+
+            .settings-page-header {
+                padding: 12px 16px;
+            }
+
+            .settings-page-body {
+                padding: 16px;
+            }
+
+            .settings-section {
+                padding: 16px;
+            }
+
+            .settings-back-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .settings-page-title {
+                font-size: 1.2rem;
+            }
+
+            .settings-checkbox-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Weather Animation Overlay */
+        .weather-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* Rain */
+        .weather-animation.rain .raindrop {
+            position: absolute;
+            top: -20px;
+            width: 2px;
+            background: linear-gradient(transparent, rgba(174, 194, 224, 0.6));
+            border-radius: 0 0 2px 2px;
+            animation: rainfall linear infinite;
+        }
+
+        @keyframes rainfall {
+            0% { transform: translateY(-20px); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(105vh); opacity: 0.3; }
+        }
+
+        /* Thunderstorm — rain + flashes */
+        .weather-animation.thunderstorm .raindrop {
+            position: absolute;
+            top: -20px;
+            width: 2px;
+            background: linear-gradient(transparent, rgba(174, 194, 224, 0.7));
+            border-radius: 0 0 2px 2px;
+            animation: rainfall linear infinite;
+        }
+
+        .weather-animation.thunderstorm .lightning {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: lightning-flash 6s infinite;
+            opacity: 0;
+        }
+
+        @keyframes lightning-flash {
+            0%, 92%, 96%, 100% { opacity: 0; }
+            93% { opacity: 0.8; }
+            94% { opacity: 0.2; }
+            95% { opacity: 0.9; }
+        }
+
+        /* Snow */
+        .weather-animation.snow .snowflake {
+            position: absolute;
+            top: -10px;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: snowfall linear infinite;
+        }
+
+        @keyframes snowfall {
+            0% { transform: translateY(-10px) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(105vh) translateX(40px) rotate(360deg); opacity: 0.3; }
+        }
+
+        /* Clouds */
+        .weather-animation.clouds .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            filter: blur(30px);
+            animation: cloud-drift linear infinite;
+        }
+
+        @keyframes cloud-drift {
+            0% { transform: translateX(-200px); }
+            100% { transform: translateX(calc(100vw + 200px)); }
+        }
+
+        /* Mist / Fog */
+        .weather-animation.mist .mist-layer {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.04) 20%,
+                rgba(255, 255, 255, 0.08) 50%,
+                rgba(255, 255, 255, 0.04) 80%,
+                transparent 100%);
+            animation: mist-drift linear infinite;
+        }
+
+        @keyframes mist-drift {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+
+        /* Wind */
+        .weather-animation.wind .wind-streak {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: wind-blow linear infinite;
+        }
+
+        @keyframes wind-blow {
+            0% { transform: translateX(-100px); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
         }
 
         /* Loading state */
@@ -1579,17 +2228,18 @@
 <body>
     <div class="wallpaper" id="wallpaper"></div>
     <div class="overlay" id="overlay"></div>
+    <div class="weather-animation" id="weather-animation"></div>
 
     <div class="dashboard">
         <!-- Top Row - Aligned Date, Search, Actions -->
         <div class="top-row">
             <!-- Date Card -->
-            <div class="date-card glass-card" id="date-widget">
+            <div class="date-card glass-card" id="date-widget" data-widget="date">
                 <div class="date" id="date">Jan 1</div>
             </div>
 
             <!-- Search Bar -->
-            <div class="search-container glass-card" id="search-widget">
+            <div class="search-container glass-card" id="search-widget" data-widget="search">
                 <form class="search-form" id="search-form" action="https://www.google.com/search" method="GET">
                     <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -1600,7 +2250,7 @@
             </div>
 
             <!-- Action Buttons Card -->
-            <div class="action-buttons-card glass-card">
+            <div class="action-buttons-card glass-card" id="actions-widget" data-widget="actions">
                 <button class="action-btn" id="fullscreen-btn" title="Toggle Fullscreen">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" id="fullscreen-icon">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
@@ -1627,6 +2277,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                 </button>
+                <button class="action-btn cloud-action-btn" id="cloud-action-btn" title="Cloud Sync">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="cloud-icon-default">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+                    </svg>
+                    <img class="cloud-action-avatar hidden" id="cloud-action-avatar" src="" alt="">
+                </button>
                 <button class="action-btn" id="settings-btn" title="Settings">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -1639,7 +2295,10 @@
         <!-- Left Column -->
         <div class="left-column">
             <!-- Time Card -->
-            <div class="time-card glass-card" id="time-widget">
+            <div class="time-card glass-card" id="time-widget" data-section="time" data-widget="time">
+                <span class="section-drag-handle section-drag-handle-floating" aria-label="Drag to reorder">
+                    <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                </span>
                 <div class="datetime">
                     <div class="time">
                         <span id="time-main">12:00</span><span class="seconds" id="time-seconds">:00</span><span class="period" id="time-period">AM</span>
@@ -1648,8 +2307,11 @@
             </div>
 
             <!-- Weather Widget -->
-            <div class="weather-widget glass-card" id="weather-widget">
+            <div class="weather-widget glass-card" id="weather-widget" data-section="weather" data-widget="weather">
                 <div class="section-header">
+                    <span class="section-drag-handle" aria-label="Drag to reorder">
+                        <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                    </span>
                     <span class="section-title">Weather</span>
                 </div>
                 <div id="weather-content">
@@ -1664,8 +2326,11 @@
         <!-- Center Column -->
         <div class="center-column">
             <!-- Shortcuts/Favorites -->
-            <div class="shortcuts-section glass-card" id="shortcuts-widget">
+            <div class="shortcuts-section glass-card" id="shortcuts-widget" data-section="shortcuts" data-widget="shortcuts">
                 <div class="section-header">
+                    <span class="section-drag-handle" aria-label="Drag to reorder">
+                        <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                    </span>
                     <span class="section-title">Favorites</span>
                     <button class="add-btn" id="add-shortcut-btn">+ Add</button>
                 </div>
@@ -1677,12 +2342,14 @@
 
         <!-- Right Column -->
         <div class="right-column">
-            <!-- Calendar Widget -->
-            <div class="calendar-widget glass-card" id="calendar-widget">
+            <!-- Mini Calendar Widget (standalone) -->
+            <div class="mini-calendar-card glass-card" id="mini-calendar-widget" data-section="mini-calendar" data-widget="mini-calendar">
                 <div class="section-header">
-                    <span class="section-title">Calendar</span>
+                    <span class="section-drag-handle" aria-label="Drag to reorder">
+                        <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                    </span>
+                    <span class="section-title">Mini Calendar</span>
                 </div>
-                <!-- Mini Calendar -->
                 <div class="mini-calendar" id="mini-calendar">
                     <div class="mini-calendar-header">
                         <span class="mini-calendar-title" id="mini-calendar-title">January 2024</span>
@@ -1695,181 +2362,433 @@
                         <!-- Calendar grid populated by JS -->
                     </div>
                 </div>
-                <!-- Google Calendar Embed -->
-                <div class="calendar-container" id="calendar-container">
-                    <div class="calendar-setup">
-                        <p>Paste your Google Calendar embed URL in settings</p>
-                        <button class="weather-setup-btn" id="calendar-setup-btn">Configure Calendar</button>
-                    </div>
-                </div>
             </div>
         </div>
+
+        <!-- iFrame Widgets (dynamically rendered) -->
+        <div id="iframe-widgets-container" style="display: contents"></div>
     </div>
 
-    <!-- Settings Modal -->
-    <div class="modal-overlay" id="settings-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Settings</h2>
-                <button class="modal-close" id="modal-close">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
+    <!-- Full-Page Settings -->
+    <div class="settings-page" id="settings-page">
+        <div class="settings-page-header">
+            <button class="settings-back-btn" id="settings-back">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                Back to Dashboard
+            </button>
+            <h2 class="settings-page-title">Settings</h2>
+            <div style="width: 160px;"></div>
+        </div>
 
-            <!-- Widget Toggles -->
-            <div class="settings-group">
-                <label class="settings-label">Widgets</label>
-                <label class="settings-checkbox">
-                    <input type="checkbox" id="toggle-date" checked>
-                    <span>Date</span>
-                </label>
-                <label class="settings-checkbox" style="margin-top: 8px;">
-                    <input type="checkbox" id="toggle-time" checked>
-                    <span>Clock</span>
-                </label>
-                <label class="settings-checkbox" style="margin-top: 8px;">
-                    <input type="checkbox" id="toggle-search" checked>
-                    <span>Search Bar</span>
-                </label>
-                <label class="settings-checkbox" style="margin-top: 8px;">
-                    <input type="checkbox" id="toggle-weather" checked>
-                    <span>Weather Widget</span>
-                </label>
-                <label class="settings-checkbox" style="margin-top: 8px;">
-                    <input type="checkbox" id="toggle-calendar" checked>
-                    <span>Calendar Widget</span>
-                </label>
-                <label class="settings-checkbox" style="margin-top: 8px;">
-                    <input type="checkbox" id="toggle-favorites" checked>
-                    <span>Favorites</span>
-                </label>
-            </div>
+        <div class="settings-page-body">
+            <div class="settings-page-content">
 
-            <div class="settings-group">
-                <label class="settings-label">Background Type</label>
-                <div class="bg-type-toggle">
-                    <button class="bg-type-btn active" data-type="gradient">Gradient</button>
-                    <button class="bg-type-btn" data-type="color">Solid Color</button>
-                    <button class="bg-type-btn" data-type="image">Image URL</button>
+                <!-- General -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">General</h3>
+                    <div class="settings-group">
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-auto-refresh" checked>
+                            <span>Auto-refresh page</span>
+                        </label>
+                    </div>
+                    <div class="settings-group" id="auto-refresh-interval-group">
+                        <label class="settings-label">Refresh Interval (minutes)</label>
+                        <div class="zoom-slider-wrapper">
+                            <input type="range" class="settings-range" id="auto-refresh-minutes" min="1" max="30" value="3">
+                            <span id="auto-refresh-value">3</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group" id="gradient-settings">
-                <label class="settings-label">Gradient Presets</label>
-                <div class="color-presets">
-                    <button class="color-preset" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);" data-gradient="linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" data-gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" data-gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" data-gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" data-gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);" data-gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);" data-gradient="linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);" data-gradient="linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"></button>
+                <!-- Widgets -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Widgets</h3>
+                    <div class="settings-checkbox-grid">
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-date" checked>
+                            <span>Date</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-time" checked>
+                            <span>Clock</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-search" checked>
+                            <span>Search Bar</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-weather" checked>
+                            <span>Weather</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-mini-calendar" checked>
+                            <span>Mini Calendar</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-favorites" checked>
+                            <span>Favorites</span>
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group" id="color-settings" style="display: none;">
-                <label class="settings-label">Background Color</label>
-                <div class="color-picker-wrapper">
-                    <input type="color" class="color-picker" id="bg-color" value="#1a1a2e">
-                    <span id="color-value">#1a1a2e</span>
+                <!-- Widget Sizes -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Widget Sizes (12-Column Grid)</h3>
+                    <div class="widget-size-grid" id="widget-size-grid">
+                        <div class="widget-size-item" data-size-widget="date">
+                            <div class="widget-size-item-label">Date</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="3" data-size-col="date">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="1" data-size-row="date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-size-item" data-size-widget="search">
+                            <div class="widget-size-item-label">Search</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="6" data-size-col="search">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="1" data-size-row="search">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-size-item" data-size-widget="actions">
+                            <div class="widget-size-item-label">Toolbar</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="3" data-size-col="actions">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="1" data-size-row="actions">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-size-item" data-size-widget="time">
+                            <div class="widget-size-item-label">Clock</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="4" data-size-col="time">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="2" data-size-row="time">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-size-item" data-size-widget="weather">
+                            <div class="widget-size-item-label">Weather</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="4" data-size-col="weather">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="5" data-size-row="weather">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-size-item" data-size-widget="shortcuts">
+                            <div class="widget-size-item-label">Favorites</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="4" data-size-col="shortcuts">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="4" data-size-row="shortcuts">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-size-item" data-size-widget="mini-calendar">
+                            <div class="widget-size-item-label">Mini Calendar</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="4" data-size-col="mini-calendar">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="4" data-size-row="mini-calendar">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group" id="image-settings" style="display: none;">
-                <label class="settings-label">Image URL</label>
-                <input type="url" class="settings-input" id="bg-image-url" placeholder="https://example.com/image.jpg">
-            </div>
-
-            <div class="settings-group">
-                <label class="settings-label">OpenWeatherMap API Key</label>
-                <input type="text" class="settings-input" id="weather-api-key" placeholder="Your API key">
-                <small class="settings-help">Get a free API key at <a href="https://openweathermap.org/api" target="_blank" style="color: #667eea;">openweathermap.org</a></small>
-            </div>
-
-            <div class="settings-group">
-                <label class="settings-label">Weather Location</label>
-                <input type="text" class="settings-input" id="weather-location" placeholder="City, Country OR Zip Code (e.g., 10001)">
-                <small class="settings-help">Enter a city name (e.g., "New York, US") or a US zip code (e.g., "10001")</small>
-            </div>
-
-            <div class="settings-group">
-                <label class="settings-label">Temperature Unit</label>
-                <div class="bg-type-toggle">
-                    <button class="bg-type-btn active" data-unit="imperial">°F</button>
-                    <button class="bg-type-btn" data-unit="metric">°C</button>
+                <!-- Toolbar Buttons -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Toolbar Buttons</h3>
+                    <div class="settings-checkbox-grid">
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-fullscreen" checked>
+                            <span>Fullscreen</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-refresh" checked>
+                            <span>Refresh</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-camera" checked>
+                            <span>Camera</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-paint" checked>
+                            <span>Paint</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-notepad" checked>
+                            <span>Notepad</span>
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group">
-                <label class="settings-label">Google Calendar Embed URL</label>
-                <textarea class="settings-textarea" id="calendar-embed-url" placeholder="Paste your full Google Calendar embed URL here..."></textarea>
-                <small class="settings-help">
-                    Go to Google Calendar → Settings → Your Calendar → Integrate calendar → Copy the "Embed code" iframe src URL
-                </small>
-            </div>
-
-            <div class="settings-group">
-                <label class="settings-label">Date Format</label>
-                <div class="bg-type-toggle">
-                    <button class="bg-type-btn active" data-dateformat="short">Jan 1</button>
-                    <button class="bg-type-btn" data-dateformat="long">January 1, 2024</button>
-                    <button class="bg-type-btn" data-dateformat="numeric">01/31/2024</button>
-                    <button class="bg-type-btn" data-dateformat="iso">2024-01-31</button>
+                <!-- Appearance -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Appearance</h3>
+                    <div class="settings-group">
+                        <label class="settings-label">Background Type</label>
+                        <div class="bg-type-toggle">
+                            <button class="bg-type-btn active" data-type="gradient">Gradient</button>
+                            <button class="bg-type-btn" data-type="color">Solid Color</button>
+                            <button class="bg-type-btn" data-type="image">Image URL</button>
+                        </div>
+                    </div>
+                    <div class="settings-group" id="gradient-settings">
+                        <label class="settings-label">Gradient Presets</label>
+                        <div class="color-presets">
+                            <button class="color-preset" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);" data-gradient="linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" data-gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" data-gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" data-gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" data-gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);" data-gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);" data-gradient="linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);" data-gradient="linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"></button>
+                        </div>
+                    </div>
+                    <div class="settings-group" id="color-settings" style="display: none;">
+                        <label class="settings-label">Background Color</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" class="color-picker" id="bg-color" value="#1a1a2e">
+                            <span id="color-value">#1a1a2e</span>
+                        </div>
+                    </div>
+                    <div class="settings-group" id="image-settings" style="display: none;">
+                        <label class="settings-label">Image URL</label>
+                        <input type="url" class="settings-input" id="bg-image-url" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-label">Favorites Button Style</label>
+                        <div class="bg-type-toggle">
+                            <button class="bg-type-btn active" data-favstyle="gradient">Gradient</button>
+                            <button class="bg-type-btn" data-favstyle="solid">Solid Color</button>
+                            <button class="bg-type-btn" data-favstyle="transparent">Transparent</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group">
-                <label class="settings-label">Time Format</label>
-                <div class="bg-type-toggle">
-                    <button class="bg-type-btn active" data-timeformat="12h">12 Hour</button>
-                    <button class="bg-type-btn" data-timeformat="24h">24 Hour</button>
+                <!-- Date & Time -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Date & Time</h3>
+                    <div class="settings-group">
+                        <label class="settings-label">Date Format</label>
+                        <div class="bg-type-toggle">
+                            <button class="bg-type-btn active" data-dateformat="short">Jan 1</button>
+                            <button class="bg-type-btn" data-dateformat="long">January 1, 2024</button>
+                            <button class="bg-type-btn" data-dateformat="numeric">01/31/2024</button>
+                            <button class="bg-type-btn" data-dateformat="iso">2024-01-31</button>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-label">Time Format</label>
+                        <div class="bg-type-toggle">
+                            <button class="bg-type-btn active" data-timeformat="12h">12 Hour</button>
+                            <button class="bg-type-btn" data-timeformat="24h">24 Hour</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group">
-                <label class="settings-label">Search Behavior</label>
-                <div class="bg-type-toggle">
-                    <button class="bg-type-btn active" data-searchtab="new">New Tab</button>
-                    <button class="bg-type-btn" data-searchtab="same">Same Tab</button>
+                <!-- Search -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Search</h3>
+                    <div class="settings-group">
+                        <label class="settings-label">Search Engine</label>
+                        <div class="bg-type-toggle" style="flex-wrap: wrap;">
+                            <button class="bg-type-btn active" data-engine="google">Google</button>
+                            <button class="bg-type-btn" data-engine="bing">Bing</button>
+                            <button class="bg-type-btn" data-engine="duckduckgo">DuckDuckGo</button>
+                            <button class="bg-type-btn" data-engine="yahoo">Yahoo</button>
+                            <button class="bg-type-btn" data-engine="brave">Brave</button>
+                            <button class="bg-type-btn" data-engine="ecosia">Ecosia</button>
+                            <button class="bg-type-btn" data-engine="startpage">Startpage</button>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-label">Search Behavior</label>
+                        <div class="bg-type-toggle">
+                            <button class="bg-type-btn active" data-searchtab="new">New Tab</button>
+                            <button class="bg-type-btn" data-searchtab="same">Same Tab</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group">
-                <label class="settings-label">Weather Map Zoom Level</label>
-                <div class="zoom-slider-wrapper">
-                    <input type="range" class="settings-range" id="weather-zoom" min="3" max="15" value="9">
-                    <span id="weather-zoom-value">9</span>
+                <!-- Weather -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Weather</h3>
+                    <div class="settings-group">
+                        <label class="settings-label">OpenWeatherMap API Key</label>
+                        <input type="text" class="settings-input" id="weather-api-key" placeholder="Your API key">
+                        <small class="settings-help">Get a free API key at <a href="https://openweathermap.org/api" target="_blank" style="color: #667eea;">openweathermap.org</a></small>
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-label">Weather Location</label>
+                        <input type="text" class="settings-input" id="weather-location" placeholder="City, Country OR Zip Code (e.g., 10001)">
+                        <small class="settings-help">Enter a city name (e.g., "New York, US") or a US zip code (e.g., "10001")</small>
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-label">Temperature Unit</label>
+                        <div class="bg-type-toggle">
+                            <button class="bg-type-btn active" data-unit="imperial">°F</button>
+                            <button class="bg-type-btn" data-unit="metric">°C</button>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-label">Weather Map Zoom Level</label>
+                        <div class="zoom-slider-wrapper">
+                            <input type="range" class="settings-range" id="weather-zoom" min="3" max="15" value="9">
+                            <span id="weather-zoom-value">9</span>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-weather-animation" checked>
+                            <span>Weather Animation Overlay (rain, snow, clouds, wind)</span>
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group">
-                <label class="settings-label">Favorites Button Style</label>
-                <div class="bg-type-toggle">
-                    <button class="bg-type-btn active" data-favstyle="gradient">Gradient</button>
-                    <button class="bg-type-btn" data-favstyle="solid">Solid Color</button>
-                    <button class="bg-type-btn" data-favstyle="transparent">Transparent</button>
+                <!-- iFrame Widgets -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">iFrame Widgets</h3>
+                    <p class="settings-help" style="margin-bottom: 12px;">
+                        Add embeddable widgets from any service — calendars, dashboards, weather maps, etc.
+                    </p>
+                    <div id="iframe-widgets-settings-list"></div>
+                    <button class="settings-action-btn" id="add-iframe-widget-btn" style="margin-top: 8px;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Add iFrame Widget
+                    </button>
                 </div>
-            </div>
 
-            <button class="settings-save" id="save-settings">Save Settings</button>
+                <!-- Cloud Sync -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Cloud Sync (Google / Firebase)</h3>
 
-            <div class="settings-actions">
-                <button class="settings-action-btn" id="export-settings">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                    </svg>
-                    Export
-                </button>
-                <button class="settings-action-btn" id="import-settings">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                    </svg>
-                    Import
-                </button>
-                <input type="file" id="import-file" accept=".json">
+                    <!-- Auth Status -->
+                    <div class="cloud-sync-status" id="cloud-sync-status">
+                        <div class="cloud-sync-signed-out" id="cloud-signed-out">
+                            <p class="settings-help">Sign in with Google to sync your settings across devices. Requires a Firebase project.</p>
+                            <button class="settings-action-btn cloud-signin-btn" id="cloud-signin-btn">
+                                <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                                Sign in with Google
+                            </button>
+                        </div>
+                        <div class="cloud-sync-signed-in hidden" id="cloud-signed-in">
+                            <div class="cloud-user-info">
+                                <img class="cloud-user-avatar" id="cloud-user-avatar" src="" alt="">
+                                <div class="cloud-user-details">
+                                    <span class="cloud-user-name" id="cloud-user-name"></span>
+                                    <span class="cloud-user-email" id="cloud-user-email"></span>
+                                </div>
+                            </div>
+                            <div class="cloud-sync-actions">
+                                <button class="settings-action-btn" id="cloud-push-btn">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                    </svg>
+                                    Push to Cloud
+                                </button>
+                                <button class="settings-action-btn" id="cloud-pull-btn">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                    </svg>
+                                    Pull from Cloud
+                                </button>
+                                <button class="settings-action-btn cloud-signout-btn" id="cloud-signout-btn">
+                                    Sign Out
+                                </button>
+                            </div>
+                            <div class="cloud-sync-indicator" id="cloud-sync-indicator">
+                                <span class="sync-dot"></span>
+                                <span id="cloud-sync-text">Synced</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Firebase Config -->
+                    <details class="firebase-config-details">
+                        <summary class="settings-label" style="cursor: pointer; user-select: none;">Firebase Configuration</summary>
+                        <div class="firebase-config-fields">
+                            <small class="settings-help" style="display: block; margin-bottom: 12px;">
+                                Create a Firebase project at <strong>console.firebase.google.com</strong>, enable Authentication (Google provider) and Firestore Database, then paste your web app config values below.
+                            </small>
+                            <div class="settings-group">
+                                <label class="settings-label">API Key</label>
+                                <input type="text" class="settings-input" id="firebase-api-key" placeholder="AIzaSy...">
+                            </div>
+                            <div class="settings-group">
+                                <label class="settings-label">Auth Domain</label>
+                                <input type="text" class="settings-input" id="firebase-auth-domain" placeholder="your-project.firebaseapp.com">
+                            </div>
+                            <div class="settings-group">
+                                <label class="settings-label">Project ID</label>
+                                <input type="text" class="settings-input" id="firebase-project-id" placeholder="your-project-id">
+                            </div>
+                            <button class="settings-action-btn" id="firebase-save-config-btn" style="margin-top: 8px;">
+                                Save &amp; Connect
+                            </button>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Data -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Data</h3>
+                    <div class="settings-actions">
+                        <button class="settings-action-btn" id="export-settings">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                            </svg>
+                            Export
+                        </button>
+                        <button class="settings-action-btn" id="import-settings">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            Import
+                        </button>
+                        <input type="file" id="import-file" accept=".json">
+                    </div>
+                </div>
+
+                <button class="settings-save" id="save-settings">Save Settings</button>
             </div>
         </div>
     </div>
@@ -2067,18 +2986,43 @@
             weatherCity: '',
             weatherCountry: '',
             tempUnit: 'imperial',
-            calendarEmbedUrl: '',
             showSearch: true,
             showWeather: true,
-            showCalendar: true,
+            showMiniCalendar: true,
             showFavorites: true,
             showDate: true,
             showTime: true,
             dateFormat: 'short',
             timeFormat: '12h',
+            searchEngine: 'google',
             searchNewTab: true,
             weatherMapZoom: 9,
-            favoritesStyle: 'gradient'
+            favoritesStyle: 'gradient',
+            iframeWidgets: [
+                { id: 'iframe-calendar', name: 'Google Calendar', url: '', enabled: true }
+            ],
+            widgetSizes: {
+                date:      { cols: 3, rows: 1 },
+                search:    { cols: 6, rows: 1 },
+                actions:   { cols: 3, rows: 1 },
+                time:      { cols: 4, rows: 2 },
+                weather:   { cols: 4, rows: 5 },
+                shortcuts: { cols: 4, rows: 4 },
+                'mini-calendar': { cols: 4, rows: 4 }
+            },
+            autoRefresh: true,
+            autoRefreshMinutes: 3,
+            showFullscreen: true,
+            showRefresh: true,
+            showCamera: true,
+            showPaint: true,
+            showNotepad: true,
+            showWeatherAnimation: true,
+            firebaseConfig: {
+                apiKey: '',
+                authDomain: '',
+                projectId: ''
+            }
         };
 
         // Icon mapping for common services using dashboardicons.com
@@ -2117,6 +3061,36 @@
             'apple.com': 'apple',
             'icloud.com': 'icloud'
         };
+
+        const searchEngines = {
+            google:     { name: 'Google',     action: 'https://www.google.com/search',          param: 'q',  placeholder: 'Search Google...' },
+            bing:       { name: 'Bing',       action: 'https://www.bing.com/search',            param: 'q',  placeholder: 'Search Bing...' },
+            duckduckgo: { name: 'DuckDuckGo', action: 'https://duckduckgo.com/',                param: 'q',  placeholder: 'Search DuckDuckGo...' },
+            yahoo:      { name: 'Yahoo',      action: 'https://search.yahoo.com/search',        param: 'p',  placeholder: 'Search Yahoo...' },
+            brave:      { name: 'Brave',      action: 'https://search.brave.com/search',        param: 'q',  placeholder: 'Search Brave...' },
+            ecosia:     { name: 'Ecosia',     action: 'https://www.ecosia.org/search',          param: 'q',  placeholder: 'Search Ecosia...' },
+            startpage:  { name: 'Startpage',  action: 'https://www.startpage.com/do/dsearch',   param: 'query', placeholder: 'Search Startpage...' }
+        };
+
+        function applyWidgetSizes() {
+            const sizes = settings.widgetSizes || defaultSettings.widgetSizes;
+            Object.entries(sizes).forEach(([widget, size]) => {
+                const el = document.querySelector(`[data-widget="${widget}"]`);
+                if (el) {
+                    el.style.gridColumn = `span ${size.cols}`;
+                    el.style.gridRow = `span ${size.rows}`;
+                }
+            });
+        }
+
+        function applySearchEngine() {
+            const engine = searchEngines[settings.searchEngine] || searchEngines.google;
+            const form = document.getElementById('search-form');
+            const input = document.getElementById('search-input');
+            form.action = engine.action;
+            input.name = engine.param;
+            input.placeholder = engine.placeholder;
+        }
 
         function getIconUrl(shortcut) {
             // Priority 1: User custom icon URL
@@ -2205,13 +3179,234 @@
         function loadSettings() {
             const saved = localStorage.getItem('dashboard-settings');
             if (saved) {
-                settings = { ...defaultSettings, ...JSON.parse(saved) };
+                const parsed = JSON.parse(saved);
+                settings = { ...defaultSettings, ...parsed };
+                // Deep merge widgetSizes so new widgets get defaults
+                settings.widgetSizes = { ...defaultSettings.widgetSizes, ...(parsed.widgetSizes || {}) };
+                // Ensure iframeWidgets array exists
+                if (!Array.isArray(settings.iframeWidgets)) {
+                    settings.iframeWidgets = [...defaultSettings.iframeWidgets];
+                }
+                // Migrate old calendarEmbedUrl → first iframe widget
+                if (parsed.calendarEmbedUrl && !parsed.iframeWidgets) {
+                    const calWidget = settings.iframeWidgets.find(w => w.id === 'iframe-calendar');
+                    if (calWidget) {
+                        calWidget.url = parsed.calendarEmbedUrl;
+                        calWidget.enabled = parsed.showCalendar !== false;
+                    }
+                }
+                // Migrate old showCalendar → showMiniCalendar
+                if (parsed.showCalendar !== undefined && parsed.showMiniCalendar === undefined) {
+                    settings.showMiniCalendar = parsed.showCalendar;
+                }
+                // Migrate old calendar widgetSize → iframe-calendar
+                if (parsed.widgetSizes && parsed.widgetSizes.calendar && !parsed.widgetSizes['iframe-calendar']) {
+                    settings.widgetSizes['iframe-calendar'] = parsed.widgetSizes.calendar;
+                }
             }
             applySettings();
         }
 
         function saveSettings() {
             localStorage.setItem('dashboard-settings', JSON.stringify(settings));
+            // Auto-push to cloud if signed in (debounced)
+            if (cloudSyncState.user) {
+                clearTimeout(cloudSyncState.debounceTimer);
+                cloudSyncState.debounceTimer = setTimeout(() => syncToCloud(), 2000);
+            }
+        }
+
+        // ============ Cloud Sync (Firebase) ============
+        let cloudSyncState = {
+            app: null,
+            auth: null,
+            db: null,
+            user: null,
+            debounceTimer: null,
+            initialized: false
+        };
+
+        function initFirebase() {
+            if (typeof firebase === 'undefined') return false;
+            const config = settings.firebaseConfig;
+            if (!config || !config.apiKey || !config.projectId) return false;
+
+            try {
+                // Prevent re-initializing with same config
+                if (cloudSyncState.initialized) {
+                    // If config changed, delete and re-init
+                    if (firebase.apps.length > 0) {
+                        const existing = firebase.app();
+                        if (existing.options.apiKey === config.apiKey &&
+                            existing.options.projectId === config.projectId) {
+                            return true; // Already initialized with same config
+                        }
+                        existing.delete();
+                    }
+                }
+
+                cloudSyncState.app = firebase.initializeApp({
+                    apiKey: config.apiKey,
+                    authDomain: config.authDomain || `${config.projectId}.firebaseapp.com`,
+                    projectId: config.projectId
+                });
+                cloudSyncState.auth = firebase.auth();
+                cloudSyncState.db = firebase.firestore();
+                cloudSyncState.initialized = true;
+
+                // Listen for auth state changes
+                cloudSyncState.auth.onAuthStateChanged(handleAuthStateChange);
+                return true;
+            } catch (err) {
+                console.error('Firebase init error:', err);
+                updateCloudSyncUI('error', 'Firebase init failed');
+                return false;
+            }
+        }
+
+        function handleAuthStateChange(user) {
+            cloudSyncState.user = user;
+            updateCloudSyncUI(user ? 'signed-in' : 'signed-out');
+
+            if (user) {
+                // Show avatar in action bar
+                const avatar = document.getElementById('cloud-action-avatar');
+                if (user.photoURL) {
+                    avatar.src = user.photoURL;
+                    avatar.classList.remove('hidden');
+                }
+                // Update settings panel
+                const nameEl = document.getElementById('cloud-user-name');
+                const emailEl = document.getElementById('cloud-user-email');
+                const avatarSettings = document.getElementById('cloud-user-avatar');
+                if (nameEl) nameEl.textContent = user.displayName || 'User';
+                if (emailEl) emailEl.textContent = user.email || '';
+                if (avatarSettings && user.photoURL) avatarSettings.src = user.photoURL;
+            } else {
+                const avatar = document.getElementById('cloud-action-avatar');
+                avatar.classList.add('hidden');
+                avatar.src = '';
+            }
+        }
+
+        function updateCloudSyncUI(state, message) {
+            const signedOut = document.getElementById('cloud-signed-out');
+            const signedIn = document.getElementById('cloud-signed-in');
+            const dot = document.querySelector('.sync-dot');
+            const text = document.getElementById('cloud-sync-text');
+
+            if (state === 'signed-in') {
+                signedOut.classList.add('hidden');
+                signedIn.classList.remove('hidden');
+                if (dot) { dot.className = 'sync-dot'; }
+                if (text) text.textContent = message || 'Connected';
+            } else if (state === 'signed-out') {
+                signedOut.classList.remove('hidden');
+                signedIn.classList.add('hidden');
+            } else if (state === 'syncing') {
+                if (dot) { dot.className = 'sync-dot syncing'; }
+                if (text) text.textContent = message || 'Syncing...';
+            } else if (state === 'synced') {
+                if (dot) { dot.className = 'sync-dot'; }
+                if (text) text.textContent = message || 'Synced just now';
+            } else if (state === 'error') {
+                if (dot) { dot.className = 'sync-dot error'; }
+                if (text) text.textContent = message || 'Sync error';
+            }
+        }
+
+        async function signInWithGoogle() {
+            if (!cloudSyncState.auth) {
+                if (!initFirebase()) {
+                    alert('Please configure Firebase first (Settings → Cloud Sync → Firebase Configuration).');
+                    return;
+                }
+            }
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                await cloudSyncState.auth.signInWithPopup(provider);
+            } catch (err) {
+                if (err.code !== 'auth/popup-closed-by-user') {
+                    console.error('Sign-in error:', err);
+                    alert('Sign-in failed: ' + err.message);
+                }
+            }
+        }
+
+        async function signOutUser() {
+            if (!cloudSyncState.auth) return;
+            try {
+                await cloudSyncState.auth.signOut();
+            } catch (err) {
+                console.error('Sign-out error:', err);
+            }
+        }
+
+        async function syncToCloud() {
+            if (!cloudSyncState.db || !cloudSyncState.user) return;
+            try {
+                updateCloudSyncUI('syncing');
+                const data = {
+                    settings: settings,
+                    shortcuts: shortcuts,
+                    sectionOrder: getCurrentSectionOrder(),
+                    lastModified: firebase.firestore.FieldValue.serverTimestamp(),
+                    version: '5.0'
+                };
+                await cloudSyncState.db
+                    .collection('users')
+                    .doc(cloudSyncState.user.uid)
+                    .set(data, { merge: true });
+                updateCloudSyncUI('synced', 'Synced just now');
+            } catch (err) {
+                console.error('Cloud push error:', err);
+                updateCloudSyncUI('error', 'Push failed');
+            }
+        }
+
+        async function syncFromCloud() {
+            if (!cloudSyncState.db || !cloudSyncState.user) return;
+            try {
+                updateCloudSyncUI('syncing', 'Pulling...');
+                const docRef = cloudSyncState.db
+                    .collection('users')
+                    .doc(cloudSyncState.user.uid);
+                const snap = await docRef.get();
+
+                if (snap.exists) {
+                    const data = snap.data();
+                    if (data.settings) {
+                        // Merge cloud settings with defaults (cloud wins)
+                        settings = { ...defaultSettings, ...data.settings };
+                        settings.widgetSizes = { ...defaultSettings.widgetSizes, ...(data.settings.widgetSizes || {}) };
+                        if (!Array.isArray(settings.iframeWidgets)) {
+                            settings.iframeWidgets = [...defaultSettings.iframeWidgets];
+                        }
+                        // Preserve local Firebase config (don't overwrite with cloud copy)
+                        const localConfig = JSON.parse(localStorage.getItem('dashboard-settings') || '{}').firebaseConfig;
+                        if (localConfig && localConfig.apiKey) {
+                            settings.firebaseConfig = localConfig;
+                        }
+                        localStorage.setItem('dashboard-settings', JSON.stringify(settings));
+                    }
+                    if (data.shortcuts) {
+                        shortcuts = data.shortcuts;
+                        localStorage.setItem('dashboard-shortcuts', JSON.stringify(shortcuts));
+                    }
+                    if (data.sectionOrder) {
+                        applySectionOrder(data.sectionOrder);
+                        saveSectionOrder(data.sectionOrder);
+                    }
+                    applySettings();
+                    updateSettingsUI();
+                    updateCloudSyncUI('synced', 'Pulled from cloud');
+                } else {
+                    updateCloudSyncUI('synced', 'No cloud data yet');
+                }
+            } catch (err) {
+                console.error('Cloud pull error:', err);
+                updateCloudSyncUI('error', 'Pull failed');
+            }
         }
 
         function loadShortcuts() {
@@ -2224,6 +3419,11 @@
 
         function saveShortcuts() {
             localStorage.setItem('dashboard-shortcuts', JSON.stringify(shortcuts));
+            // Auto-push to cloud if signed in (debounced)
+            if (cloudSyncState.user) {
+                clearTimeout(cloudSyncState.debounceTimer);
+                cloudSyncState.debounceTimer = setTimeout(() => syncToCloud(), 2000);
+            }
         }
 
         // ============ Export/Import ============
@@ -2231,6 +3431,7 @@
             const data = {
                 settings: settings,
                 shortcuts: shortcuts,
+                sectionOrder: getCurrentSectionOrder(),
                 exportDate: new Date().toISOString(),
                 version: '4.0'
             };
@@ -2258,6 +3459,9 @@
                     if (data.shortcuts && Array.isArray(data.shortcuts)) {
                         shortcuts = data.shortcuts;
                         saveShortcuts();
+                    }
+                    if (data.sectionOrder && Array.isArray(data.sectionOrder)) {
+                        saveSectionOrder(data.sectionOrder);
                     }
                     window.location.reload();
                 } catch (error) {
@@ -2382,12 +3586,37 @@
             document.getElementById('time-widget').classList.toggle('hidden', !settings.showTime);
             document.getElementById('search-widget').classList.toggle('hidden', !settings.showSearch);
             document.getElementById('weather-widget').classList.toggle('hidden', !settings.showWeather);
-            document.getElementById('calendar-widget').classList.toggle('hidden', !settings.showCalendar);
+            document.getElementById('mini-calendar-widget').classList.toggle('hidden', !settings.showMiniCalendar);
             document.getElementById('shortcuts-widget').classList.toggle('hidden', !settings.showFavorites);
 
-            // Update search form target
+            // Render iframe widgets
+            renderIframeWidgets();
+
+            // Re-trigger weather animation with current settings
+            if (weatherData && weatherData.current) {
+                activateWeatherAnimation(weatherData.current.weather[0].icon, weatherData.current.wind_speed);
+            } else if (!settings.showWeatherAnimation) {
+                const animContainer = document.getElementById('weather-animation');
+                if (animContainer) { animContainer.innerHTML = ''; animContainer.className = 'weather-animation'; }
+            }
+
+            // Toggle action buttons
+            document.getElementById('fullscreen-btn').classList.toggle('hidden', !settings.showFullscreen);
+            document.getElementById('refresh-btn').classList.toggle('hidden', !settings.showRefresh);
+            document.getElementById('camera-btn').classList.toggle('hidden', !settings.showCamera);
+            document.getElementById('paint-btn').classList.toggle('hidden', !settings.showPaint);
+            document.getElementById('notepad-btn').classList.toggle('hidden', !settings.showNotepad);
+
+            // Update search form
             const searchForm = document.getElementById('search-form');
             searchForm.target = settings.searchNewTab ? '_blank' : '_self';
+            applySearchEngine();
+
+            // Apply widget grid sizes
+            applyWidgetSizes();
+
+            // Restart auto-refresh timer
+            startAutoRefresh();
 
             updateSettingsUI();
             updateDateTime();
@@ -2402,10 +3631,6 @@
                         <button class="weather-setup-btn" onclick="document.getElementById('settings-btn').click()">Configure</button>
                     </div>
                 `;
-            }
-
-            if (settings.calendarEmbedUrl && settings.showCalendar) {
-                loadCalendar();
             }
 
             renderMiniCalendar();
@@ -2430,14 +3655,51 @@
                 btn.classList.toggle('active', btn.dataset.unit === settings.tempUnit);
             });
 
-            document.getElementById('calendar-embed-url').value = settings.calendarEmbedUrl || '';
+            // Firebase config fields
+            const fbConfig = settings.firebaseConfig || {};
+            document.getElementById('firebase-api-key').value = fbConfig.apiKey || '';
+            document.getElementById('firebase-auth-domain').value = fbConfig.authDomain || '';
+            document.getElementById('firebase-project-id').value = fbConfig.projectId || '';
+
+            // iFrame widget settings
+            renderIframeWidgetSettings();
+
+            // Widget sizes
+            const sizes = settings.widgetSizes || defaultSettings.widgetSizes;
+            Object.entries(sizes).forEach(([widget, size]) => {
+                const colInput = document.querySelector(`[data-size-col="${widget}"]`);
+                const rowInput = document.querySelector(`[data-size-row="${widget}"]`);
+                if (colInput) colInput.value = size.cols;
+                if (rowInput) rowInput.value = size.rows;
+            });
+
+            // Auto-refresh
+            document.getElementById('toggle-auto-refresh').checked = settings.autoRefresh;
+            document.getElementById('auto-refresh-minutes').value = settings.autoRefreshMinutes;
+            document.getElementById('auto-refresh-value').textContent = settings.autoRefreshMinutes;
+            document.getElementById('auto-refresh-interval-group').style.display = settings.autoRefresh ? 'block' : 'none';
 
             document.getElementById('toggle-date').checked = settings.showDate;
             document.getElementById('toggle-time').checked = settings.showTime;
             document.getElementById('toggle-search').checked = settings.showSearch;
             document.getElementById('toggle-weather').checked = settings.showWeather;
-            document.getElementById('toggle-calendar').checked = settings.showCalendar;
+            document.getElementById('toggle-mini-calendar').checked = settings.showMiniCalendar;
             document.getElementById('toggle-favorites').checked = settings.showFavorites;
+
+            // Action button toggles
+            document.getElementById('toggle-fullscreen').checked = settings.showFullscreen;
+            document.getElementById('toggle-refresh').checked = settings.showRefresh;
+            document.getElementById('toggle-camera').checked = settings.showCamera;
+            document.getElementById('toggle-paint').checked = settings.showPaint;
+            document.getElementById('toggle-notepad').checked = settings.showNotepad;
+
+            // Weather animation toggle
+            document.getElementById('toggle-weather-animation').checked = settings.showWeatherAnimation;
+
+            // Search engine buttons
+            document.querySelectorAll('.bg-type-btn[data-engine]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.engine === settings.searchEngine);
+            });
 
             // Date format buttons
             document.querySelectorAll('.bg-type-btn[data-dateformat]').forEach(btn => {
@@ -2630,6 +3892,115 @@
                 '50d': '🌫️', '50n': '🌫️'
             };
             return iconMap[iconCode] || '☁️';
+        }
+
+        // ============ Weather Animations ============
+        function getWeatherAnimationType(iconCode) {
+            if (!iconCode) return null;
+            const code = iconCode.substring(0, 2);
+            switch (code) {
+                case '09': case '10': return 'rain';
+                case '11': return 'thunderstorm';
+                case '13': return 'snow';
+                case '02': case '03': case '04': return 'clouds';
+                case '50': return 'mist';
+                default: return null;
+            }
+        }
+
+        function activateWeatherAnimation(iconCode, windSpeed) {
+            const container = document.getElementById('weather-animation');
+            if (!container) return;
+
+            // Clear existing
+            container.innerHTML = '';
+            container.className = 'weather-animation';
+
+            if (!settings.showWeatherAnimation) return;
+
+            const animType = getWeatherAnimationType(iconCode);
+
+            // Always add wind streaks if wind is strong (>15 mph or >7 m/s)
+            const windThreshold = settings.tempUnit === 'imperial' ? 15 : 7;
+            const showWind = windSpeed > windThreshold;
+
+            if (animType === 'rain') {
+                container.classList.add('rain');
+                for (let i = 0; i < 80; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'raindrop';
+                    drop.style.left = Math.random() * 100 + '%';
+                    drop.style.height = (15 + Math.random() * 20) + 'px';
+                    drop.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+                    drop.style.animationDelay = Math.random() * 2 + 's';
+                    container.appendChild(drop);
+                }
+            } else if (animType === 'thunderstorm') {
+                container.classList.add('thunderstorm');
+                for (let i = 0; i < 100; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'raindrop';
+                    drop.style.left = Math.random() * 100 + '%';
+                    drop.style.height = (18 + Math.random() * 25) + 'px';
+                    drop.style.animationDuration = (0.4 + Math.random() * 0.4) + 's';
+                    drop.style.animationDelay = Math.random() * 2 + 's';
+                    container.appendChild(drop);
+                }
+                const lightning = document.createElement('div');
+                lightning.className = 'lightning';
+                lightning.style.animationDelay = (Math.random() * 4) + 's';
+                container.appendChild(lightning);
+            } else if (animType === 'snow') {
+                container.classList.add('snow');
+                for (let i = 0; i < 50; i++) {
+                    const flake = document.createElement('div');
+                    flake.className = 'snowflake';
+                    flake.style.left = Math.random() * 100 + '%';
+                    const size = 3 + Math.random() * 6;
+                    flake.style.width = size + 'px';
+                    flake.style.height = size + 'px';
+                    flake.style.animationDuration = (4 + Math.random() * 6) + 's';
+                    flake.style.animationDelay = Math.random() * 5 + 's';
+                    container.appendChild(flake);
+                }
+            } else if (animType === 'clouds') {
+                container.classList.add('clouds');
+                for (let i = 0; i < 6; i++) {
+                    const cloud = document.createElement('div');
+                    cloud.className = 'cloud';
+                    const size = 150 + Math.random() * 300;
+                    cloud.style.width = size + 'px';
+                    cloud.style.height = (size * 0.5) + 'px';
+                    cloud.style.top = (Math.random() * 60) + '%';
+                    cloud.style.animationDuration = (30 + Math.random() * 40) + 's';
+                    cloud.style.animationDelay = Math.random() * 20 + 's';
+                    container.appendChild(cloud);
+                }
+            } else if (animType === 'mist') {
+                container.classList.add('mist');
+                for (let i = 0; i < 3; i++) {
+                    const layer = document.createElement('div');
+                    layer.className = 'mist-layer';
+                    layer.style.top = (20 + i * 25) + '%';
+                    layer.style.opacity = 0.3 + Math.random() * 0.4;
+                    layer.style.animationDuration = (25 + i * 10) + 's';
+                    container.appendChild(layer);
+                }
+            }
+
+            // Add wind streaks if windy
+            if (showWind || animType === null && windSpeed > windThreshold) {
+                container.classList.add('wind');
+                for (let i = 0; i < 15; i++) {
+                    const streak = document.createElement('div');
+                    streak.className = 'wind-streak';
+                    streak.style.top = (Math.random() * 100) + '%';
+                    streak.style.width = (60 + Math.random() * 120) + 'px';
+                    streak.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+                    streak.style.animationDelay = Math.random() * 3 + 's';
+                    container.appendChild(streak);
+                }
+            }
         }
 
         function showWeatherDetail(type, data) {
@@ -2872,6 +4243,9 @@
                     radarMap = initRadarMap('radar-map-widget', coords.lat, coords.lon, settings.weatherMapZoom);
                 }, 100);
 
+                // Activate weather animation based on current conditions
+                activateWeatherAnimation(current.weather[0].icon, current.wind_speed);
+
             } catch (error) {
                 console.error('Weather error:', error);
                 container.innerHTML = `
@@ -2883,35 +4257,153 @@
             }
         }
 
-        // ============ Calendar ============
-        function loadCalendar() {
-            const container = document.getElementById('calendar-container');
+        // ============ iFrame Widgets ============
+        function renderIframeWidgets() {
+            const container = document.getElementById('iframe-widgets-container');
+            container.innerHTML = '';
 
-            if (!settings.calendarEmbedUrl) {
-                container.innerHTML = `
-                    <div class="calendar-setup">
-                        <p>Paste your Google Calendar embed URL in settings</p>
-                        <button class="weather-setup-btn" onclick="document.getElementById('settings-btn').click()">Configure Calendar</button>
+            const widgets = settings.iframeWidgets || [];
+            widgets.forEach(widget => {
+                const el = document.createElement('div');
+                el.className = 'iframe-widget glass-card';
+                el.id = widget.id;
+                el.dataset.widget = widget.id;
+                el.dataset.section = widget.id;
+                if (!widget.enabled) el.classList.add('hidden');
+
+                // Apply grid size
+                const sizes = settings.widgetSizes || {};
+                const size = sizes[widget.id] || { cols: 4, rows: 5 };
+                el.style.gridColumn = `span ${size.cols}`;
+                el.style.gridRow = `span ${size.rows}`;
+
+                let bodyContent;
+                if (widget.url && widget.url.trim()) {
+                    let src = widget.url.trim();
+                    // Extract src from iframe embed code if pasted
+                    const srcMatch = src.match(/src="([^"]+)"/);
+                    if (srcMatch) src = srcMatch[1];
+                    bodyContent = `<iframe src="${encodeURI(src)}" frameborder="0" scrolling="auto" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>`;
+                } else {
+                    bodyContent = `
+                        <div class="iframe-widget-setup">
+                            <p>Configure URL in Settings → iFrame Widgets</p>
+                            <button class="weather-setup-btn" onclick="document.getElementById('settings-btn').click()">Open Settings</button>
+                        </div>`;
+                }
+
+                el.innerHTML = `
+                    <div class="section-header">
+                        <span class="section-drag-handle" aria-label="Drag to reorder">
+                            <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                        </span>
+                        <span class="section-title">${widget.name}</span>
                     </div>
-                `;
-                return;
-            }
+                    <div class="iframe-widget-body">${bodyContent}</div>`;
 
-            let calendarSrc = settings.calendarEmbedUrl.trim();
-            const srcMatch = calendarSrc.match(/src="([^"]+)"/);
-            if (srcMatch) calendarSrc = srcMatch[1];
+                container.appendChild(el);
+            });
 
-            if (!calendarSrc.includes('calendar.google.com')) {
-                container.innerHTML = `
-                    <div class="calendar-setup">
-                        <p>Invalid Google Calendar URL.</p>
-                        <button class="weather-setup-btn" onclick="document.getElementById('settings-btn').click()">Configure Calendar</button>
+            // Re-apply section ordering so iframe widgets respect saved order
+            loadSectionOrder();
+
+            // Attach drag handlers to new iframe widget handles
+            container.querySelectorAll('.section-drag-handle').forEach(handle => {
+                handle.addEventListener('touchstart', handleSectionTouchStart, { passive: false });
+                handle.addEventListener('mousedown', handleSectionMouseDown);
+            });
+        }
+
+        function renderIframeWidgetSettings() {
+            const list = document.getElementById('iframe-widgets-settings-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            const widgets = settings.iframeWidgets || [];
+            widgets.forEach((widget, index) => {
+                const card = document.createElement('div');
+                card.className = 'iframe-widget-settings-card';
+                card.innerHTML = `
+                    <div class="iframe-widget-settings-header">
+                        <input type="text" value="${widget.name}" data-iframe-name="${index}" placeholder="Widget name">
+                        <label class="settings-checkbox" style="margin: 0; white-space: nowrap;">
+                            <input type="checkbox" data-iframe-enabled="${index}" ${widget.enabled ? 'checked' : ''}>
+                            <span>Visible</span>
+                        </label>
+                        <button class="iframe-widget-delete-btn" data-iframe-delete="${index}">Delete</button>
                     </div>
-                `;
-                return;
-            }
+                    <div class="iframe-widget-settings-body">
+                        <textarea data-iframe-url="${index}" placeholder="Paste an embed URL or full iframe code...">${widget.url || ''}</textarea>
+                        <div class="iframe-widget-settings-row">
+                            <label>Width (1-12):</label>
+                            <input type="number" min="1" max="12" value="${(settings.widgetSizes[widget.id] || {cols: 4}).cols}" data-iframe-cols="${index}">
+                            <label>Height (1-8):</label>
+                            <input type="number" min="1" max="8" value="${(settings.widgetSizes[widget.id] || {rows: 5}).rows}" data-iframe-rows="${index}">
+                        </div>
+                    </div>`;
+                list.appendChild(card);
+            });
 
-            container.innerHTML = `<iframe src="${calendarSrc}" frameborder="0" scrolling="no"></iframe>`;
+            // Attach listeners
+            list.querySelectorAll('[data-iframe-name]').forEach(input => {
+                input.addEventListener('input', e => {
+                    const i = parseInt(e.target.dataset.iframeName);
+                    settings.iframeWidgets[i].name = e.target.value;
+                });
+            });
+            list.querySelectorAll('[data-iframe-url]').forEach(textarea => {
+                textarea.addEventListener('input', e => {
+                    const i = parseInt(e.target.dataset.iframeUrl);
+                    settings.iframeWidgets[i].url = e.target.value;
+                });
+            });
+            list.querySelectorAll('[data-iframe-enabled]').forEach(input => {
+                input.addEventListener('change', e => {
+                    const i = parseInt(e.target.dataset.iframeEnabled);
+                    settings.iframeWidgets[i].enabled = e.target.checked;
+                });
+            });
+            list.querySelectorAll('[data-iframe-cols]').forEach(input => {
+                input.addEventListener('change', e => {
+                    const i = parseInt(e.target.dataset.iframeCols);
+                    const val = Math.min(12, Math.max(1, parseInt(e.target.value) || 4));
+                    e.target.value = val;
+                    const wid = settings.iframeWidgets[i].id;
+                    if (!settings.widgetSizes[wid]) settings.widgetSizes[wid] = { cols: 4, rows: 5 };
+                    settings.widgetSizes[wid].cols = val;
+                });
+            });
+            list.querySelectorAll('[data-iframe-rows]').forEach(input => {
+                input.addEventListener('change', e => {
+                    const i = parseInt(e.target.dataset.iframeRows);
+                    const val = Math.min(8, Math.max(1, parseInt(e.target.value) || 5));
+                    e.target.value = val;
+                    const wid = settings.iframeWidgets[i].id;
+                    if (!settings.widgetSizes[wid]) settings.widgetSizes[wid] = { cols: 4, rows: 5 };
+                    settings.widgetSizes[wid].rows = val;
+                });
+            });
+            list.querySelectorAll('[data-iframe-delete]').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    const i = parseInt(e.target.dataset.iframeDelete);
+                    const wid = settings.iframeWidgets[i].id;
+                    settings.iframeWidgets.splice(i, 1);
+                    delete settings.widgetSizes[wid];
+                    renderIframeWidgetSettings();
+                });
+            });
+        }
+
+        function addIframeWidget() {
+            const id = 'iframe-' + Date.now();
+            settings.iframeWidgets.push({
+                id: id,
+                name: 'New Widget',
+                url: '',
+                enabled: true
+            });
+            settings.widgetSizes[id] = { cols: 4, rows: 5 };
+            renderIframeWidgetSettings();
         }
 
         // ============ Paint Canvas ============
@@ -3315,29 +4807,216 @@
             }, 1000);
         }
 
+        // ============ Section Reordering ============
+        const defaultSectionOrder = ['time', 'weather', 'shortcuts', 'mini-calendar', 'iframe-calendar'];
+        let sectionDragState = null;
+
+        function loadSectionOrder() {
+            const saved = localStorage.getItem('dashboard-section-order');
+            if (saved) {
+                try {
+                    applySectionOrder(JSON.parse(saved));
+                } catch (e) {
+                    applySectionOrder(defaultSectionOrder);
+                }
+            }
+        }
+
+        function saveSectionOrder(order) {
+            localStorage.setItem('dashboard-section-order', JSON.stringify(order));
+        }
+
+        function applySectionOrder(order) {
+            order.forEach((sectionId, index) => {
+                const el = document.querySelector(`[data-section="${sectionId}"]`);
+                if (el) el.style.order = index;
+            });
+        }
+
+        function getCurrentSectionOrder() {
+            const sections = Array.from(document.querySelectorAll('[data-section]'));
+            sections.sort((a, b) => {
+                const orderA = parseInt(getComputedStyle(a).order) || 0;
+                const orderB = parseInt(getComputedStyle(b).order) || 0;
+                return orderA - orderB;
+            });
+            return sections.map(s => s.dataset.section);
+        }
+
+        function initSectionDragDrop() {
+            const handles = document.querySelectorAll('.section-drag-handle');
+            handles.forEach(handle => {
+                handle.addEventListener('touchstart', handleSectionTouchStart, { passive: false });
+                handle.addEventListener('mousedown', handleSectionMouseDown);
+            });
+        }
+
+        function handleSectionTouchStart(e) {
+            e.preventDefault();
+            const section = e.target.closest('[data-section]');
+            if (!section) return;
+
+            const touch = e.touches[0];
+            startSectionDrag(section, touch.clientY);
+
+            const onTouchMove = (ev) => {
+                ev.preventDefault();
+                moveSectionDrag(ev.touches[0].clientY);
+            };
+
+            const onTouchEnd = () => {
+                endSectionDrag();
+                document.removeEventListener('touchmove', onTouchMove);
+                document.removeEventListener('touchend', onTouchEnd);
+            };
+
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchend', onTouchEnd);
+        }
+
+        function handleSectionMouseDown(e) {
+            const section = e.target.closest('[data-section]');
+            if (!section) return;
+
+            e.preventDefault();
+            startSectionDrag(section, e.clientY);
+
+            const onMouseMove = (ev) => moveSectionDrag(ev.clientY);
+
+            const onMouseUp = () => {
+                endSectionDrag();
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        }
+
+        function startSectionDrag(section, clientY) {
+            section.classList.add('section-dragging');
+            sectionDragState = {
+                draggedSection: section,
+                startY: clientY,
+                sectionId: section.dataset.section
+            };
+        }
+
+        function moveSectionDrag(clientY) {
+            if (!sectionDragState) return;
+
+            const sections = Array.from(document.querySelectorAll('[data-section]'));
+            sections.forEach(s => s.classList.remove('section-drag-over'));
+
+            for (const section of sections) {
+                if (section === sectionDragState.draggedSection) continue;
+                const rect = section.getBoundingClientRect();
+                if (clientY >= rect.top && clientY <= rect.bottom) {
+                    section.classList.add('section-drag-over');
+                    break;
+                }
+            }
+        }
+
+        function endSectionDrag() {
+            if (!sectionDragState) return;
+
+            const { draggedSection } = sectionDragState;
+            const sections = Array.from(document.querySelectorAll('[data-section]'));
+            const targetSection = sections.find(s => s.classList.contains('section-drag-over'));
+
+            sections.forEach(s => {
+                s.classList.remove('section-dragging', 'section-drag-over');
+            });
+
+            if (targetSection && targetSection !== draggedSection) {
+                const order = getCurrentSectionOrder();
+                const draggedId = draggedSection.dataset.section;
+                const targetId = targetSection.dataset.section;
+                const draggedIndex = order.indexOf(draggedId);
+                const targetIndex = order.indexOf(targetId);
+
+                if (draggedIndex !== -1 && targetIndex !== -1) {
+                    order.splice(draggedIndex, 1);
+                    order.splice(targetIndex, 0, draggedId);
+                    applySectionOrder(order);
+                    saveSectionOrder(order);
+                }
+            }
+
+            sectionDragState = null;
+        }
+
         // ============ Event Listeners ============
         function initEventListeners() {
             const settingsBtn = document.getElementById('settings-btn');
-            const settingsModal = document.getElementById('settings-modal');
-            const modalClose = document.getElementById('modal-close');
+            const settingsPage = document.getElementById('settings-page');
+            const settingsBack = document.getElementById('settings-back');
             const saveBtn = document.getElementById('save-settings');
 
             settingsBtn.addEventListener('click', () => {
-                settingsModal.classList.add('active');
+                settingsPage.classList.add('active');
                 updateSettingsUI();
             });
 
-            modalClose.addEventListener('click', () => settingsModal.classList.remove('active'));
-            settingsModal.addEventListener('click', (e) => {
-                if (e.target === settingsModal) settingsModal.classList.remove('active');
+            settingsBack.addEventListener('click', () => settingsPage.classList.remove('active'));
+
+            // Auto-refresh
+            document.getElementById('toggle-auto-refresh').addEventListener('change', (e) => {
+                settings.autoRefresh = e.target.checked;
+                document.getElementById('auto-refresh-interval-group').style.display = e.target.checked ? 'block' : 'none';
+            });
+            document.getElementById('auto-refresh-minutes').addEventListener('input', (e) => {
+                settings.autoRefreshMinutes = parseInt(e.target.value);
+                document.getElementById('auto-refresh-value').textContent = e.target.value;
             });
 
+            // Widget size inputs
+            document.querySelectorAll('[data-size-col]').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const widget = e.target.dataset.sizeCol;
+                    const val = Math.min(12, Math.max(1, parseInt(e.target.value) || 1));
+                    e.target.value = val;
+                    if (!settings.widgetSizes[widget]) settings.widgetSizes[widget] = {};
+                    settings.widgetSizes[widget].cols = val;
+                });
+            });
+            document.querySelectorAll('[data-size-row]').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const widget = e.target.dataset.sizeRow;
+                    const val = Math.min(8, Math.max(1, parseInt(e.target.value) || 1));
+                    e.target.value = val;
+                    if (!settings.widgetSizes[widget]) settings.widgetSizes[widget] = {};
+                    settings.widgetSizes[widget].rows = val;
+                });
+            });
+
+            // Widget toggles
             document.getElementById('toggle-date').addEventListener('change', (e) => settings.showDate = e.target.checked);
             document.getElementById('toggle-time').addEventListener('change', (e) => settings.showTime = e.target.checked);
             document.getElementById('toggle-search').addEventListener('change', (e) => settings.showSearch = e.target.checked);
             document.getElementById('toggle-weather').addEventListener('change', (e) => settings.showWeather = e.target.checked);
-            document.getElementById('toggle-calendar').addEventListener('change', (e) => settings.showCalendar = e.target.checked);
+            document.getElementById('toggle-mini-calendar').addEventListener('change', (e) => settings.showMiniCalendar = e.target.checked);
             document.getElementById('toggle-favorites').addEventListener('change', (e) => settings.showFavorites = e.target.checked);
+
+            // Action button toggles
+            document.getElementById('toggle-fullscreen').addEventListener('change', (e) => settings.showFullscreen = e.target.checked);
+            document.getElementById('toggle-refresh').addEventListener('change', (e) => settings.showRefresh = e.target.checked);
+            document.getElementById('toggle-camera').addEventListener('change', (e) => settings.showCamera = e.target.checked);
+            document.getElementById('toggle-paint').addEventListener('change', (e) => settings.showPaint = e.target.checked);
+            document.getElementById('toggle-notepad').addEventListener('change', (e) => settings.showNotepad = e.target.checked);
+
+            // Weather animation toggle
+            document.getElementById('toggle-weather-animation').addEventListener('change', (e) => settings.showWeatherAnimation = e.target.checked);
+
+            // Search engine selector
+            document.querySelectorAll('.bg-type-btn[data-engine]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    settings.searchEngine = btn.dataset.engine;
+                    document.querySelectorAll('.bg-type-btn[data-engine]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
 
             document.querySelectorAll('.bg-type-btn[data-type]').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -3371,7 +5050,38 @@
                 });
             });
 
-            document.getElementById('calendar-embed-url').addEventListener('input', (e) => settings.calendarEmbedUrl = e.target.value);
+            // Add iFrame widget button
+            document.getElementById('add-iframe-widget-btn').addEventListener('click', addIframeWidget);
+
+            // Cloud Sync buttons
+            document.getElementById('cloud-action-btn').addEventListener('click', () => {
+                if (cloudSyncState.user) {
+                    // If signed in, scroll to cloud sync section in settings
+                    document.getElementById('settings-btn').click();
+                    setTimeout(() => {
+                        document.getElementById('cloud-sync-status').scrollIntoView({ behavior: 'smooth' });
+                    }, 300);
+                } else {
+                    signInWithGoogle();
+                }
+            });
+            document.getElementById('cloud-signin-btn').addEventListener('click', signInWithGoogle);
+            document.getElementById('cloud-signout-btn').addEventListener('click', signOutUser);
+            document.getElementById('cloud-push-btn').addEventListener('click', syncToCloud);
+            document.getElementById('cloud-pull-btn').addEventListener('click', syncFromCloud);
+            document.getElementById('firebase-save-config-btn').addEventListener('click', () => {
+                settings.firebaseConfig = {
+                    apiKey: document.getElementById('firebase-api-key').value.trim(),
+                    authDomain: document.getElementById('firebase-auth-domain').value.trim(),
+                    projectId: document.getElementById('firebase-project-id').value.trim()
+                };
+                saveSettings();
+                if (initFirebase()) {
+                    alert('Firebase connected! You can now sign in with Google.');
+                } else {
+                    alert('Please fill in at least the API Key and Project ID.');
+                }
+            });
 
             // Date format buttons
             document.querySelectorAll('.bg-type-btn[data-dateformat]').forEach(btn => {
@@ -3418,7 +5128,7 @@
             saveBtn.addEventListener('click', () => {
                 saveSettings();
                 applySettings();
-                settingsModal.classList.remove('active');
+                settingsPage.classList.remove('active');
             });
 
             document.getElementById('export-settings').addEventListener('click', exportSettings);
@@ -3602,14 +5312,39 @@
             }
         }
 
+        // ============ Auto-Refresh ============
+        let autoRefreshTimer = null;
+
+        function startAutoRefresh() {
+            stopAutoRefresh();
+            if (settings.autoRefresh && settings.autoRefreshMinutes > 0) {
+                autoRefreshTimer = setTimeout(() => {
+                    window.location.reload();
+                }, settings.autoRefreshMinutes * 60 * 1000);
+            }
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshTimer) {
+                clearTimeout(autoRefreshTimer);
+                autoRefreshTimer = null;
+            }
+        }
+
         // ============ Initialize ============
         function init() {
             loadSettings();
             loadShortcuts();
+            loadSectionOrder();
+            applyWidgetSizes();
             updateDateTime();
             setInterval(updateDateTime, 1000);
             initEventListeners();
+            initSectionDragDrop();
             renderMiniCalendar();
+            startAutoRefresh();
+            // Initialize Firebase if configured
+            initFirebase();
         }
 
         document.addEventListener('DOMContentLoaded', init);
