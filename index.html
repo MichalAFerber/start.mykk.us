@@ -2764,29 +2764,11 @@
                         </div>
                     </div>
 
-                    <details class="firebase-config-details">
-                        <summary class="settings-label" style="cursor: pointer; user-select: none;">Firebase Configuration</summary>
-                        <div class="firebase-config-fields">
-                            <small class="settings-help" style="display: block; margin-bottom: 12px;">
-                                Create a Firebase project at <strong>console.firebase.google.com</strong>, enable Authentication (Google provider) and Firestore Database, then paste your web app config values below.
-                            </small>
-                            <div class="settings-group">
-                                <label class="settings-label">API Key</label>
-                                <input type="text" class="settings-input" id="firebase-api-key" placeholder="AIzaSy...">
-                            </div>
-                            <div class="settings-group">
-                                <label class="settings-label">Auth Domain</label>
-                                <input type="text" class="settings-input" id="firebase-auth-domain" placeholder="your-project.firebaseapp.com">
-                            </div>
-                            <div class="settings-group">
-                                <label class="settings-label">Project ID</label>
-                                <input type="text" class="settings-input" id="firebase-project-id" placeholder="your-project-id">
-                            </div>
-                            <button class="settings-action-btn" id="firebase-save-config-btn" style="margin-top: 8px;">
-                                Save &amp; Connect
-                            </button>
-                        </div>
-                    </details>
+                    <!-- Firebase config fields (hidden, configured via import/cloud sync only) -->
+                    <input type="hidden" id="firebase-api-key">
+                    <input type="hidden" id="firebase-auth-domain">
+                    <input type="hidden" id="firebase-project-id">
+                    <button type="button" id="firebase-save-config-btn" style="display:none;"></button>
                 </div>
 
                 <!-- General -->
@@ -3728,7 +3710,7 @@
         async function signInWithGoogle() {
             if (!cloudSyncState.auth) {
                 if (!initFirebase()) {
-                    alert('Please configure Firebase first (Settings → Cloud Sync → Firebase Configuration).');
+                    alert('Firebase is not configured. Import a settings file with Firebase credentials to enable Cloud Sync.');
                     return;
                 }
             }
