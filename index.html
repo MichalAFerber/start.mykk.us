@@ -1504,33 +1504,131 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* Responsive */
+        /* Section Drag Handles */
+        [data-section] {
+            position: relative;
+        }
+
+        .section-drag-handle {
+            display: none;
+            cursor: grab;
+            padding: 4px;
+            opacity: 0.4;
+            transition: opacity 0.2s ease;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            z-index: 5;
+        }
+
+        .section-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .section-drag-handle:hover,
+        .section-drag-handle:active {
+            opacity: 1;
+        }
+
+        .section-drag-handle svg {
+            width: 18px;
+            height: 18px;
+            pointer-events: none;
+        }
+
+        .section-drag-handle-floating {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+        }
+
+        /* Section dragging states */
+        [data-section].section-dragging {
+            opacity: 0.4;
+            transform: scale(0.97);
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        [data-section].section-drag-over {
+            box-shadow: 0 0 0 2px #667eea, 0 8px 32px var(--glass-shadow);
+            transition: box-shadow 0.2s ease;
+        }
+
+        /* Responsive - Tablet */
         @media (max-width: 1200px) {
             .dashboard {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                padding: 16px;
+                min-height: 100vh;
             }
 
-            .left-column {
-                grid-row: auto;
+            .top-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                order: -1;
             }
 
-            .center-column {
-                grid-column: 1;
-                grid-row: auto;
+            .top-row > .date-card,
+            .top-row > .search-container,
+            .top-row > .action-buttons-card {
+                align-self: auto;
             }
 
+            .top-row > .date-card {
+                flex: 0 1 auto;
+            }
+
+            .top-row > .search-container {
+                flex: 1;
+                min-width: 200px;
+            }
+
+            .top-row > .action-buttons-card {
+                flex: 0 1 auto;
+                justify-content: center;
+            }
+
+            .left-column,
+            .center-column,
             .right-column {
-                grid-column: 1;
-                grid-row: auto;
+                display: contents;
             }
 
             .calendar-widget {
                 min-height: 500px;
             }
+
+            /* Show drag handles on tablet/mobile */
+            .section-drag-handle {
+                display: flex;
+                align-items: center;
+            }
         }
 
+        /* Responsive - Phone */
         @media (max-width: 600px) {
+            .dashboard {
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .top-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .top-row > .search-container {
+                min-width: unset;
+            }
+
+            .top-row > .action-buttons-card {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
             .time {
                 font-size: 3rem;
             }
@@ -1550,6 +1648,59 @@
 
             .shortcuts-grid {
                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+
+            .glass-card {
+                border-radius: 12px;
+            }
+
+            .modal {
+                padding: 20px;
+                border-radius: 16px;
+            }
+
+            .lightbox-header {
+                flex-wrap: wrap;
+                padding: 12px 16px;
+                gap: 8px;
+            }
+
+            .lightbox-tools {
+                gap: 4px;
+            }
+
+            .tool-btn {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+
+            .action-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .radar-container {
+                height: 180px;
+            }
+
+            .calendar-widget {
+                min-height: 400px;
+            }
+
+            .calendar-container iframe {
+                min-height: 350px;
+            }
+
+            .weather-current {
+                flex-wrap: wrap;
+            }
+
+            .weather-temp {
+                font-size: 2.5rem;
+            }
+
+            .weather-icon {
+                font-size: 2.5rem;
             }
         }
 
@@ -1639,7 +1790,10 @@
         <!-- Left Column -->
         <div class="left-column">
             <!-- Time Card -->
-            <div class="time-card glass-card" id="time-widget">
+            <div class="time-card glass-card" id="time-widget" data-section="time">
+                <span class="section-drag-handle section-drag-handle-floating" aria-label="Drag to reorder">
+                    <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                </span>
                 <div class="datetime">
                     <div class="time">
                         <span id="time-main">12:00</span><span class="seconds" id="time-seconds">:00</span><span class="period" id="time-period">AM</span>
@@ -1648,8 +1802,11 @@
             </div>
 
             <!-- Weather Widget -->
-            <div class="weather-widget glass-card" id="weather-widget">
+            <div class="weather-widget glass-card" id="weather-widget" data-section="weather">
                 <div class="section-header">
+                    <span class="section-drag-handle" aria-label="Drag to reorder">
+                        <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                    </span>
                     <span class="section-title">Weather</span>
                 </div>
                 <div id="weather-content">
@@ -1664,8 +1821,11 @@
         <!-- Center Column -->
         <div class="center-column">
             <!-- Shortcuts/Favorites -->
-            <div class="shortcuts-section glass-card" id="shortcuts-widget">
+            <div class="shortcuts-section glass-card" id="shortcuts-widget" data-section="shortcuts">
                 <div class="section-header">
+                    <span class="section-drag-handle" aria-label="Drag to reorder">
+                        <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                    </span>
                     <span class="section-title">Favorites</span>
                     <button class="add-btn" id="add-shortcut-btn">+ Add</button>
                 </div>
@@ -1678,8 +1838,11 @@
         <!-- Right Column -->
         <div class="right-column">
             <!-- Calendar Widget -->
-            <div class="calendar-widget glass-card" id="calendar-widget">
+            <div class="calendar-widget glass-card" id="calendar-widget" data-section="calendar">
                 <div class="section-header">
+                    <span class="section-drag-handle" aria-label="Drag to reorder">
+                        <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                    </span>
                     <span class="section-title">Calendar</span>
                 </div>
                 <!-- Mini Calendar -->
@@ -2231,6 +2394,7 @@
             const data = {
                 settings: settings,
                 shortcuts: shortcuts,
+                sectionOrder: getCurrentSectionOrder(),
                 exportDate: new Date().toISOString(),
                 version: '4.0'
             };
@@ -2258,6 +2422,9 @@
                     if (data.shortcuts && Array.isArray(data.shortcuts)) {
                         shortcuts = data.shortcuts;
                         saveShortcuts();
+                    }
+                    if (data.sectionOrder && Array.isArray(data.sectionOrder)) {
+                        saveSectionOrder(data.sectionOrder);
                     }
                     window.location.reload();
                 } catch (error) {
@@ -3315,6 +3482,146 @@
             }, 1000);
         }
 
+        // ============ Section Reordering ============
+        const defaultSectionOrder = ['time', 'weather', 'shortcuts', 'calendar'];
+        let sectionDragState = null;
+
+        function loadSectionOrder() {
+            const saved = localStorage.getItem('dashboard-section-order');
+            if (saved) {
+                try {
+                    applySectionOrder(JSON.parse(saved));
+                } catch (e) {
+                    applySectionOrder(defaultSectionOrder);
+                }
+            }
+        }
+
+        function saveSectionOrder(order) {
+            localStorage.setItem('dashboard-section-order', JSON.stringify(order));
+        }
+
+        function applySectionOrder(order) {
+            order.forEach((sectionId, index) => {
+                const el = document.querySelector(`[data-section="${sectionId}"]`);
+                if (el) el.style.order = index;
+            });
+        }
+
+        function getCurrentSectionOrder() {
+            const sections = Array.from(document.querySelectorAll('[data-section]'));
+            sections.sort((a, b) => {
+                const orderA = parseInt(getComputedStyle(a).order) || 0;
+                const orderB = parseInt(getComputedStyle(b).order) || 0;
+                return orderA - orderB;
+            });
+            return sections.map(s => s.dataset.section);
+        }
+
+        function initSectionDragDrop() {
+            const handles = document.querySelectorAll('.section-drag-handle');
+            handles.forEach(handle => {
+                handle.addEventListener('touchstart', handleSectionTouchStart, { passive: false });
+                handle.addEventListener('mousedown', handleSectionMouseDown);
+            });
+        }
+
+        function handleSectionTouchStart(e) {
+            e.preventDefault();
+            const section = e.target.closest('[data-section]');
+            if (!section) return;
+
+            const touch = e.touches[0];
+            startSectionDrag(section, touch.clientY);
+
+            const onTouchMove = (ev) => {
+                ev.preventDefault();
+                moveSectionDrag(ev.touches[0].clientY);
+            };
+
+            const onTouchEnd = () => {
+                endSectionDrag();
+                document.removeEventListener('touchmove', onTouchMove);
+                document.removeEventListener('touchend', onTouchEnd);
+            };
+
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchend', onTouchEnd);
+        }
+
+        function handleSectionMouseDown(e) {
+            const section = e.target.closest('[data-section]');
+            if (!section) return;
+
+            e.preventDefault();
+            startSectionDrag(section, e.clientY);
+
+            const onMouseMove = (ev) => moveSectionDrag(ev.clientY);
+
+            const onMouseUp = () => {
+                endSectionDrag();
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        }
+
+        function startSectionDrag(section, clientY) {
+            section.classList.add('section-dragging');
+            sectionDragState = {
+                draggedSection: section,
+                startY: clientY,
+                sectionId: section.dataset.section
+            };
+        }
+
+        function moveSectionDrag(clientY) {
+            if (!sectionDragState) return;
+
+            const sections = Array.from(document.querySelectorAll('[data-section]'));
+            sections.forEach(s => s.classList.remove('section-drag-over'));
+
+            for (const section of sections) {
+                if (section === sectionDragState.draggedSection) continue;
+                const rect = section.getBoundingClientRect();
+                if (clientY >= rect.top && clientY <= rect.bottom) {
+                    section.classList.add('section-drag-over');
+                    break;
+                }
+            }
+        }
+
+        function endSectionDrag() {
+            if (!sectionDragState) return;
+
+            const { draggedSection } = sectionDragState;
+            const sections = Array.from(document.querySelectorAll('[data-section]'));
+            const targetSection = sections.find(s => s.classList.contains('section-drag-over'));
+
+            sections.forEach(s => {
+                s.classList.remove('section-dragging', 'section-drag-over');
+            });
+
+            if (targetSection && targetSection !== draggedSection) {
+                const order = getCurrentSectionOrder();
+                const draggedId = draggedSection.dataset.section;
+                const targetId = targetSection.dataset.section;
+                const draggedIndex = order.indexOf(draggedId);
+                const targetIndex = order.indexOf(targetId);
+
+                if (draggedIndex !== -1 && targetIndex !== -1) {
+                    order.splice(draggedIndex, 1);
+                    order.splice(targetIndex, 0, draggedId);
+                    applySectionOrder(order);
+                    saveSectionOrder(order);
+                }
+            }
+
+            sectionDragState = null;
+        }
+
         // ============ Event Listeners ============
         function initEventListeners() {
             const settingsBtn = document.getElementById('settings-btn');
@@ -3606,9 +3913,11 @@
         function init() {
             loadSettings();
             loadShortcuts();
+            loadSectionOrder();
             updateDateTime();
             setInterval(updateDateTime, 1000);
             initEventListeners();
+            initSectionDragDrop();
             renderMiniCalendar();
         }
 
