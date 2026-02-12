@@ -2764,11 +2764,6 @@
                         </div>
                     </div>
 
-                    <!-- Firebase config fields (hidden, configured via import/cloud sync only) -->
-                    <input type="hidden" id="firebase-api-key">
-                    <input type="hidden" id="firebase-auth-domain">
-                    <input type="hidden" id="firebase-project-id">
-                    <button type="button" id="firebase-save-config-btn" style="display:none;"></button>
                 </div>
 
                 <!-- General -->
@@ -4053,12 +4048,6 @@
             document.querySelectorAll('.bg-type-btn[data-unit]').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.unit === settings.tempUnit);
             });
-
-            // Firebase config fields
-            const fbConfig = settings.firebaseConfig || {};
-            document.getElementById('firebase-api-key').value = fbConfig.apiKey || '';
-            document.getElementById('firebase-auth-domain').value = fbConfig.authDomain || '';
-            document.getElementById('firebase-project-id').value = fbConfig.projectId || '';
 
             // iFrame widget settings
             renderIframeWidgetSettings();
@@ -5385,6 +5374,7 @@
                 settingsPage.classList.add('active');
                 stopAutoRefresh();
                 updateSettingsUI();
+                document.querySelector('.settings-page-body').scrollTop = 0;
             });
 
             settingsBack.addEventListener('click', () => {
@@ -5521,20 +5511,6 @@
             document.getElementById('cloud-signout-btn').addEventListener('click', signOutUser);
             document.getElementById('cloud-push-btn').addEventListener('click', syncToCloud);
             document.getElementById('cloud-pull-btn').addEventListener('click', syncFromCloud);
-            document.getElementById('firebase-save-config-btn').addEventListener('click', () => {
-                settings.firebaseConfig = {
-                    apiKey: document.getElementById('firebase-api-key').value.trim(),
-                    authDomain: document.getElementById('firebase-auth-domain').value.trim(),
-                    projectId: document.getElementById('firebase-project-id').value.trim()
-                };
-                saveSettings();
-                if (initFirebase()) {
-                    alert('Firebase connected! You can now sign in with Google.');
-                } else {
-                    alert('Please fill in at least the API Key and Project ID.');
-                }
-            });
-
             // Date format buttons
             document.querySelectorAll('.bg-type-btn[data-dateformat]').forEach(btn => {
                 btn.addEventListener('click', () => {
