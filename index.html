@@ -63,37 +63,29 @@
 
         .dashboard {
             display: grid;
-            grid-template-columns: 380px 1fr 380px;
-            grid-template-rows: auto auto auto 1fr;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: 80px;
+            grid-auto-flow: dense;
             min-height: 100vh;
-            padding: 24px;
-            gap: 24px;
+            padding: 20px;
+            gap: 16px;
         }
 
-        /* Top Row - Aligned date, search, actions */
-        .top-row {
+        /* All structural containers become transparent to grid */
+        .top-row,
+        .left-column,
+        .center-column,
+        .right-column {
             display: contents;
         }
 
+        /* All widgets are direct grid items */
         .top-row > .date-card,
         .top-row > .search-container,
         .top-row > .action-buttons-card {
-            grid-row: 1;
             align-self: stretch;
             display: flex;
             align-items: center;
-        }
-
-        .top-row > .date-card {
-            grid-column: 1;
-        }
-
-        .top-row > .search-container {
-            grid-column: 2;
-        }
-
-        .top-row > .action-buttons-card {
-            grid-column: 3;
         }
 
         /* Glass morphism card style */
@@ -106,13 +98,9 @@
             box-shadow: 0 8px 32px var(--glass-shadow);
         }
 
-        /* Left Column */
-        .left-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            grid-row: 2 / -1;
-            grid-column: 1;
+        /* Grid widget overflow handling */
+        .glass-card[data-widget] {
+            overflow: auto;
         }
 
         /* Date Card */
@@ -171,14 +159,7 @@
             opacity: 0.8;
         }
 
-        /* Center Column */
-        .center-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            grid-column: 2;
-            grid-row: 2 / -1;
-        }
+        /* (center-column removed — grid layout) */
 
         /* Search Bar */
         .search-container {
@@ -615,14 +596,7 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
-        /* Right Column */
-        .right-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            grid-row: 2 / -1;
-            grid-column: 3;
-        }
+        /* (right-column removed — grid layout) */
 
         /* Action Buttons Card - Top Right */
         .action-buttons-card {
@@ -1661,51 +1635,71 @@
             gap: 8px;
         }
 
+        /* Widget Size Controls */
+        .widget-size-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .widget-size-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .widget-size-item-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .widget-size-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .widget-size-field {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .widget-size-field label {
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .widget-size-field input {
+            width: 100%;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .widget-size-field input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
         /* Responsive - Tablet */
         @media (max-width: 1200px) {
             .dashboard {
-                display: flex;
-                flex-direction: column;
-                gap: 16px;
-                padding: 16px;
-                min-height: 100vh;
-            }
-
-            .top-row {
-                display: flex;
-                flex-wrap: wrap;
+                grid-template-columns: repeat(6, 1fr);
                 gap: 12px;
-                order: -1;
+                padding: 16px;
             }
 
-            .top-row > .date-card,
-            .top-row > .search-container,
-            .top-row > .action-buttons-card {
-                align-self: auto;
-            }
-
-            .top-row > .date-card {
-                flex: 0 1 auto;
-            }
-
-            .top-row > .search-container {
-                flex: 1;
-                min-width: 200px;
-            }
-
-            .top-row > .action-buttons-card {
-                flex: 0 1 auto;
-                justify-content: center;
-            }
-
-            .left-column,
-            .center-column,
-            .right-column {
-                display: contents;
-            }
-
-            .calendar-widget {
-                min-height: 500px;
+            /* Force all widgets to at least half width on tablet */
+            [data-widget] {
+                grid-column: span 6 !important;
+                grid-row: auto !important;
             }
 
             /* Show drag handles on tablet/mobile */
@@ -1718,20 +1712,19 @@
         /* Responsive - Phone */
         @media (max-width: 600px) {
             .dashboard {
+                grid-template-columns: 1fr;
+                grid-auto-rows: auto;
                 padding: 12px;
-                gap: 12px;
+                gap: 10px;
             }
 
-            .top-row {
-                flex-direction: column;
-                gap: 8px;
+            /* All widgets single column, auto height */
+            [data-widget] {
+                grid-column: 1 / -1 !important;
+                grid-row: auto !important;
             }
 
-            .top-row > .search-container {
-                min-width: unset;
-            }
-
-            .top-row > .action-buttons-card {
+            .action-buttons-card {
                 justify-content: center;
                 flex-wrap: wrap;
             }
@@ -1988,12 +1981,12 @@
         <!-- Top Row - Aligned Date, Search, Actions -->
         <div class="top-row">
             <!-- Date Card -->
-            <div class="date-card glass-card" id="date-widget">
+            <div class="date-card glass-card" id="date-widget" data-widget="date">
                 <div class="date" id="date">Jan 1</div>
             </div>
 
             <!-- Search Bar -->
-            <div class="search-container glass-card" id="search-widget">
+            <div class="search-container glass-card" id="search-widget" data-widget="search">
                 <form class="search-form" id="search-form" action="https://www.google.com/search" method="GET">
                     <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -2004,7 +1997,7 @@
             </div>
 
             <!-- Action Buttons Card -->
-            <div class="action-buttons-card glass-card">
+            <div class="action-buttons-card glass-card" id="actions-widget" data-widget="actions">
                 <button class="action-btn" id="fullscreen-btn" title="Toggle Fullscreen">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" id="fullscreen-icon">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
@@ -2043,7 +2036,7 @@
         <!-- Left Column -->
         <div class="left-column">
             <!-- Time Card -->
-            <div class="time-card glass-card" id="time-widget" data-section="time">
+            <div class="time-card glass-card" id="time-widget" data-section="time" data-widget="time">
                 <span class="section-drag-handle section-drag-handle-floating" aria-label="Drag to reorder">
                     <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
                 </span>
@@ -2055,7 +2048,7 @@
             </div>
 
             <!-- Weather Widget -->
-            <div class="weather-widget glass-card" id="weather-widget" data-section="weather">
+            <div class="weather-widget glass-card" id="weather-widget" data-section="weather" data-widget="weather">
                 <div class="section-header">
                     <span class="section-drag-handle" aria-label="Drag to reorder">
                         <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
@@ -2074,7 +2067,7 @@
         <!-- Center Column -->
         <div class="center-column">
             <!-- Shortcuts/Favorites -->
-            <div class="shortcuts-section glass-card" id="shortcuts-widget" data-section="shortcuts">
+            <div class="shortcuts-section glass-card" id="shortcuts-widget" data-section="shortcuts" data-widget="shortcuts">
                 <div class="section-header">
                     <span class="section-drag-handle" aria-label="Drag to reorder">
                         <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
@@ -2091,7 +2084,7 @@
         <!-- Right Column -->
         <div class="right-column">
             <!-- Calendar Widget -->
-            <div class="calendar-widget glass-card" id="calendar-widget" data-section="calendar">
+            <div class="calendar-widget glass-card" id="calendar-widget" data-section="calendar" data-widget="calendar">
                 <div class="section-header">
                     <span class="section-drag-handle" aria-label="Drag to reorder">
                         <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
@@ -2182,6 +2175,104 @@
                             <input type="checkbox" id="toggle-favorites" checked>
                             <span>Favorites</span>
                         </label>
+                    </div>
+                </div>
+
+                <!-- Widget Sizes -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Widget Sizes (12-Column Grid)</h3>
+                    <div class="widget-size-grid" id="widget-size-grid">
+                        <div class="widget-size-item" data-size-widget="date">
+                            <div class="widget-size-item-label">Date</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="3" data-size-col="date">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="1" data-size-row="date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-size-item" data-size-widget="search">
+                            <div class="widget-size-item-label">Search</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="6" data-size-col="search">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="1" data-size-row="search">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-size-item" data-size-widget="actions">
+                            <div class="widget-size-item-label">Toolbar</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="3" data-size-col="actions">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="1" data-size-row="actions">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-size-item" data-size-widget="time">
+                            <div class="widget-size-item-label">Clock</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="4" data-size-col="time">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="2" data-size-row="time">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-size-item" data-size-widget="weather">
+                            <div class="widget-size-item-label">Weather</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="4" data-size-col="weather">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="5" data-size-row="weather">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-size-item" data-size-widget="shortcuts">
+                            <div class="widget-size-item-label">Favorites</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="4" data-size-col="shortcuts">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="4" data-size-row="shortcuts">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-size-item" data-size-widget="calendar">
+                            <div class="widget-size-item-label">Calendar</div>
+                            <div class="widget-size-controls">
+                                <div class="widget-size-field">
+                                    <label>Width (1-12)</label>
+                                    <input type="number" min="1" max="12" value="4" data-size-col="calendar">
+                                </div>
+                                <div class="widget-size-field">
+                                    <label>Height (1-8)</label>
+                                    <input type="number" min="1" max="8" value="6" data-size-row="calendar">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2580,6 +2671,15 @@
             searchNewTab: true,
             weatherMapZoom: 9,
             favoritesStyle: 'gradient',
+            widgetSizes: {
+                date:      { cols: 3, rows: 1 },
+                search:    { cols: 6, rows: 1 },
+                actions:   { cols: 3, rows: 1 },
+                time:      { cols: 4, rows: 2 },
+                weather:   { cols: 4, rows: 5 },
+                shortcuts: { cols: 4, rows: 4 },
+                calendar:  { cols: 4, rows: 6 }
+            },
             autoRefresh: true,
             autoRefreshMinutes: 3,
             showFullscreen: true,
@@ -2636,6 +2736,17 @@
             ecosia:     { name: 'Ecosia',     action: 'https://www.ecosia.org/search',          param: 'q',  placeholder: 'Search Ecosia...' },
             startpage:  { name: 'Startpage',  action: 'https://www.startpage.com/do/dsearch',   param: 'query', placeholder: 'Search Startpage...' }
         };
+
+        function applyWidgetSizes() {
+            const sizes = settings.widgetSizes || defaultSettings.widgetSizes;
+            Object.entries(sizes).forEach(([widget, size]) => {
+                const el = document.querySelector(`[data-widget="${widget}"]`);
+                if (el) {
+                    el.style.gridColumn = `span ${size.cols}`;
+                    el.style.gridRow = `span ${size.rows}`;
+                }
+            });
+        }
 
         function applySearchEngine() {
             const engine = searchEngines[settings.searchEngine] || searchEngines.google;
@@ -2733,7 +2844,10 @@
         function loadSettings() {
             const saved = localStorage.getItem('dashboard-settings');
             if (saved) {
-                settings = { ...defaultSettings, ...JSON.parse(saved) };
+                const parsed = JSON.parse(saved);
+                settings = { ...defaultSettings, ...parsed };
+                // Deep merge widgetSizes so new widgets get defaults
+                settings.widgetSizes = { ...defaultSettings.widgetSizes, ...(parsed.widgetSizes || {}) };
             }
             applySettings();
         }
@@ -2937,6 +3051,9 @@
             searchForm.target = settings.searchNewTab ? '_blank' : '_self';
             applySearchEngine();
 
+            // Apply widget grid sizes
+            applyWidgetSizes();
+
             // Restart auto-refresh timer
             startAutoRefresh();
 
@@ -2982,6 +3099,15 @@
             });
 
             document.getElementById('calendar-embed-url').value = settings.calendarEmbedUrl || '';
+
+            // Widget sizes
+            const sizes = settings.widgetSizes || defaultSettings.widgetSizes;
+            Object.entries(sizes).forEach(([widget, size]) => {
+                const colInput = document.querySelector(`[data-size-col="${widget}"]`);
+                const rowInput = document.querySelector(`[data-size-row="${widget}"]`);
+                if (colInput) colInput.value = size.cols;
+                if (rowInput) rowInput.value = size.rows;
+            });
 
             // Auto-refresh
             document.getElementById('toggle-auto-refresh').checked = settings.autoRefresh;
@@ -4163,6 +4289,26 @@
                 document.getElementById('auto-refresh-value').textContent = e.target.value;
             });
 
+            // Widget size inputs
+            document.querySelectorAll('[data-size-col]').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const widget = e.target.dataset.sizeCol;
+                    const val = Math.min(12, Math.max(1, parseInt(e.target.value) || 1));
+                    e.target.value = val;
+                    if (!settings.widgetSizes[widget]) settings.widgetSizes[widget] = {};
+                    settings.widgetSizes[widget].cols = val;
+                });
+            });
+            document.querySelectorAll('[data-size-row]').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const widget = e.target.dataset.sizeRow;
+                    const val = Math.min(8, Math.max(1, parseInt(e.target.value) || 1));
+                    e.target.value = val;
+                    if (!settings.widgetSizes[widget]) settings.widgetSizes[widget] = {};
+                    settings.widgetSizes[widget].rows = val;
+                });
+            });
+
             // Widget toggles
             document.getElementById('toggle-date').addEventListener('change', (e) => settings.showDate = e.target.checked);
             document.getElementById('toggle-time').addEventListener('change', (e) => settings.showTime = e.target.checked);
@@ -4477,6 +4623,7 @@
             loadSettings();
             loadShortcuts();
             loadSectionOrder();
+            applyWidgetSizes();
             updateDateTime();
             setInterval(updateDateTime, 1000);
             initEventListeners();
