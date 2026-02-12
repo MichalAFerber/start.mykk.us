@@ -1157,6 +1157,65 @@
             margin-top: 8px;
         }
 
+        details.settings-section > summary {
+            list-style: none;
+        }
+        details.settings-section > summary::-webkit-details-marker {
+            display: none;
+        }
+        details.settings-section[open] > summary span {
+            display: none;
+        }
+        .faq-item {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .faq-item summary {
+            cursor: pointer;
+            padding: 12px 0;
+            font-weight: 500;
+            font-size: 0.9rem;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .faq-item summary::before {
+            content: '▸';
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+        .faq-item[open] summary::before {
+            transform: rotate(90deg);
+        }
+        .faq-item summary::-webkit-details-marker {
+            display: none;
+        }
+        .faq-answer {
+            padding: 0 0 12px 20px;
+            opacity: 0.8;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .faq-answer ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        .faq-answer ol li {
+            margin-bottom: 4px;
+        }
+        .faq-answer a {
+            color: #667eea;
+        }
+        .faq-answer code {
+            background: rgba(255,255,255,0.1);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
         /* Weather Detail Modal */
         .weather-detail-modal {
             max-width: 450px;
@@ -2544,12 +2603,18 @@
         <!-- Top Row - Aligned Date, Search, Actions -->
         <div class="top-row">
             <!-- Date Card -->
-            <div class="date-card glass-card" id="date-widget" data-widget="date">
+            <div class="date-card glass-card" id="date-widget" data-section="date" data-widget="date">
+                <span class="section-drag-handle section-drag-handle-floating" aria-label="Drag to reorder">
+                    <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                </span>
                 <div class="date" id="date">Jan 1</div>
             </div>
 
             <!-- Search Bar -->
-            <div class="search-container glass-card" id="search-widget" data-widget="search">
+            <div class="search-container glass-card" id="search-widget" data-section="search" data-widget="search">
+                <span class="section-drag-handle section-drag-handle-floating" aria-label="Drag to reorder">
+                    <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                </span>
                 <form class="search-form" id="search-form" action="https://www.google.com/search" method="GET">
                     <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -2566,7 +2631,10 @@
             </div>
 
             <!-- Action Buttons Card -->
-            <div class="action-buttons-card glass-card" id="actions-widget" data-widget="actions">
+            <div class="action-buttons-card glass-card" id="actions-widget" data-section="actions" data-widget="actions">
+                <span class="section-drag-handle section-drag-handle-floating" aria-label="Drag to reorder">
+                    <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                </span>
                 <button class="action-btn" id="fullscreen-btn" title="Toggle Fullscreen">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" id="fullscreen-icon">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
@@ -2577,7 +2645,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
                 </button>
-                <button class="action-btn" id="camera-btn" title="Mirror/Selfie">
+                <button class="action-btn" id="camera-btn" title="Webcam/Selfie">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -2707,6 +2775,7 @@
                 <a href="#section-weather">Weather</a>
                 <a href="#section-iframe">iFrame Widgets</a>
                 <a href="#section-data">Data</a>
+                <a href="#section-faq">FAQ</a>
             </nav>
 
             <div class="settings-page-content">
@@ -2717,11 +2786,12 @@
 
                     <div class="cloud-sync-status" id="cloud-sync-status">
                         <div class="cloud-sync-signed-out" id="cloud-signed-out">
-                            <p class="settings-help" style="margin-bottom: 16px;">Sign in with Google to sync your settings across devices. Requires a Firebase project.</p>
+                            <p class="settings-help" style="margin-bottom: 16px;">Sign in with Google to sync your settings across devices.</p>
                             <button class="settings-action-btn cloud-signin-btn" id="cloud-signin-btn">
                                 <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                                 Sign in with Google
                             </button>
+                            <p class="settings-help" style="margin-top: 12px;">Signing in is optional. The dashboard works great without it. The benefit of signing in is that your settings automatically follow you across all devices logged into your account. You can also use Export and Import in the Data section below to manually transfer settings between devices.</p>
                         </div>
                         <div class="cloud-sync-signed-in hidden" id="cloud-signed-in">
                             <div class="cloud-user-info">
@@ -2755,29 +2825,6 @@
                         </div>
                     </div>
 
-                    <details class="firebase-config-details">
-                        <summary class="settings-label" style="cursor: pointer; user-select: none;">Firebase Configuration</summary>
-                        <div class="firebase-config-fields">
-                            <small class="settings-help" style="display: block; margin-bottom: 12px;">
-                                Create a Firebase project at <strong>console.firebase.google.com</strong>, enable Authentication (Google provider) and Firestore Database, then paste your web app config values below.
-                            </small>
-                            <div class="settings-group">
-                                <label class="settings-label">API Key</label>
-                                <input type="text" class="settings-input" id="firebase-api-key" placeholder="AIzaSy...">
-                            </div>
-                            <div class="settings-group">
-                                <label class="settings-label">Auth Domain</label>
-                                <input type="text" class="settings-input" id="firebase-auth-domain" placeholder="your-project.firebaseapp.com">
-                            </div>
-                            <div class="settings-group">
-                                <label class="settings-label">Project ID</label>
-                                <input type="text" class="settings-input" id="firebase-project-id" placeholder="your-project-id">
-                            </div>
-                            <button class="settings-action-btn" id="firebase-save-config-btn" style="margin-top: 8px;">
-                                Save &amp; Connect
-                            </button>
-                        </div>
-                    </details>
                 </div>
 
                 <!-- General -->
@@ -3018,7 +3065,7 @@
                         </label>
                         <label class="settings-checkbox">
                             <input type="checkbox" id="toggle-camera" checked>
-                            <span>Camera</span>
+                            <span>Webcam</span>
                         </label>
                         <label class="settings-checkbox">
                             <input type="checkbox" id="toggle-paint" checked>
@@ -3039,6 +3086,7 @@
                         <input type="text" class="settings-input" id="weather-api-key" placeholder="Your API key">
                         <small class="settings-help">Get a free API key at <a href="https://openweathermap.org/api" target="_blank" style="color: #667eea;">openweathermap.org</a></small>
                     </div>
+                    <div id="weather-extra-settings" style="display: none;">
                     <div class="settings-group">
                         <label class="settings-label">Weather Location</label>
                         <input type="text" class="settings-input" id="weather-location" placeholder="City, Country OR Zip Code (e.g., 10001)">
@@ -3063,6 +3111,7 @@
                             <input type="checkbox" id="toggle-weather-animation" checked>
                             <span>Weather Animation Overlay (rain, snow, clouds, wind)</span>
                         </label>
+                    </div>
                     </div>
                 </div>
 
@@ -3101,6 +3150,116 @@
                         <input type="file" id="import-file" accept=".json">
                     </div>
                 </div>
+
+                <!-- FAQ -->
+                <details class="settings-section" id="section-faq">
+                    <summary class="settings-section-title" style="cursor: pointer; list-style: none;">
+                        <h3 class="settings-section-title" style="display: inline; margin: 0;">FAQ</h3>
+                        <span style="opacity: 0.5; font-size: 0.8rem; margin-left: 8px;">(click to expand)</span>
+                    </summary>
+
+                    <details class="faq-item">
+                        <summary>What is MyKK Dashboard?</summary>
+                        <div class="faq-answer">
+                            MyKK Dashboard is a customizable browser start page you can set as your homepage or new tab page. Features include:
+                            <ol>
+                                <li><strong>Search Bar</strong> — multi-engine search (Google, Bing, DuckDuckGo, Yahoo, Brave, Ecosia, Startpage)</li>
+                                <li><strong>Favorites</strong> — quick-access bookmarks with auto-detected icons and drag-to-reorder</li>
+                                <li><strong>Weather</strong> — current conditions, 5-day forecast, interactive radar map, and animated weather overlays</li>
+                                <li><strong>Mini Calendar</strong> — compact monthly calendar with navigation</li>
+                                <li><strong>Date &amp; Clock</strong> — configurable date formats and 12/24-hour time with auto-scaling fonts</li>
+                                <li><strong>Toolbar</strong> — fullscreen, refresh, webcam/selfie with countdown, paint canvas (brush, shapes, text, eraser, save as PNG/PDF), and notepad</li>
+                                <li><strong>iFrame Widgets</strong> — embed Google Calendar, RSS feeds, Twitter/X, or any service with an embed URL</li>
+                                <li><strong>Drag &amp; Drop</strong> — reorder all dashboard sections on desktop and mobile</li>
+                                <li><strong>Themes</strong> — gradient presets, solid color, or custom background image</li>
+                                <li><strong>Cloud Sync</strong> — optional Google sign-in to sync settings across devices</li>
+                                <li><strong>Export / Import</strong> — download or upload settings as JSON</li>
+                                <li><strong>Responsive</strong> — adapts to desktop, tablet, and phone</li>
+                            </ol>
+                            No account or backend required. Everything runs in your browser and saves to local storage.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Do I need to sign in?</summary>
+                        <div class="faq-answer">
+                            No. The dashboard works entirely in your browser without signing in. Signing in with Google lets you sync settings across all your devices automatically. Without signing in, you can use Export/Import in the Data section to transfer settings manually.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>How do I get a weather API key?</summary>
+                        <div class="faq-answer">
+                            <ol>
+                                <li>Go to <a href="https://openweathermap.org/api" target="_blank">openweathermap.org/api</a></li>
+                                <li>Create a free account</li>
+                                <li>Subscribe to the "One Call API 3.0" (includes 1,000 free calls/day)</li>
+                                <li>Copy your API key from your account dashboard and paste it in the Weather section above</li>
+                            </ol>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>What are iFrame Widgets?</summary>
+                        <div class="faq-answer">
+                            iFrame Widgets let you embed external content directly on your dashboard. Any service that provides an embed code or embeddable URL can be added as an iFrame widget. Go to the iFrame Widgets section above, click "Add iFrame Widget", give it a name, and paste the embed URL.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>How do I add Google Calendar?</summary>
+                        <div class="faq-answer">
+                            <ol>
+                                <li>Open <a href="https://calendar.google.com/calendar/r/settings" target="_blank">Google Calendar Settings</a></li>
+                                <li>Click on the calendar you want to embed (under "Settings for my calendars")</li>
+                                <li>Scroll to "Integrate calendar" and find the "Embed code" section</li>
+                                <li>Click "Customize" to adjust the look, then copy the <code>src="..."</code> URL from the embed code</li>
+                                <li>Add an iFrame Widget above and paste that URL</li>
+                            </ol>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>How do I add an RSS or news feed?</summary>
+                        <div class="faq-answer">
+                            Use a free RSS-to-embed service to generate an embeddable URL:
+                            <ol>
+                                <li>Go to <a href="https://rss.app/" target="_blank">rss.app</a> or <a href="https://www.rssdog.com/" target="_blank">rssdog.com</a></li>
+                                <li>Enter the RSS feed URL you want to display (e.g., from your favorite news site)</li>
+                                <li>Customize the appearance and generate the embed code</li>
+                                <li>Copy the embed URL and add it as an iFrame Widget</li>
+                            </ol>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>How do I embed Twitter / X?</summary>
+                        <div class="faq-answer">
+                            <ol>
+                                <li>Go to <a href="https://publish.twitter.com/" target="_blank">publish.twitter.com</a></li>
+                                <li>Enter the URL of a Twitter/X profile or timeline you want to embed</li>
+                                <li>Choose "Embedded Timeline" and customize the options</li>
+                                <li>Copy the generated embed code URL and add it as an iFrame Widget</li>
+                            </ol>
+                            Note: Twitter/X embeds may have limited iFrame support. An alternative is to use a service like <a href="https://rss.app/" target="_blank">rss.app</a> to convert a Twitter feed to an embeddable widget.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>How do I find embed codes for other services?</summary>
+                        <div class="faq-answer">
+                            Most web services offer an "Embed" or "Share" option that provides iFrame code. Look for a share/embed button within the service. You can also use <a href="https://iframe-generator.org/" target="_blank">iframe-generator.org</a> to help create embed codes. The URL you need is the <code>src="..."</code> value from any <code>&lt;iframe&gt;</code> embed code.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>How do I reorder sections on the dashboard?</summary>
+                        <div class="faq-answer">
+                            Hover over any widget to reveal a drag handle (three lines icon) in the top-right corner. Click and drag the handle to move the widget to a new position. On mobile, the drag handles are always visible. Your layout order is saved automatically.
+                        </div>
+                    </details>
+
+                </details>
 
                 <button class="settings-save" id="save-settings">Save Settings</button>
             </div>
@@ -3314,9 +3473,7 @@
             searchNewTab: true,
             weatherMapZoom: 9,
             favoritesStyle: 'gradient',
-            iframeWidgets: [
-                { id: 'iframe-calendar', name: 'Google Calendar', url: '', enabled: true }
-            ],
+            iframeWidgets: [],
             widgetSizes: {
                 date:      { cols: 2, rows: 1 },
                 search:    { cols: 8, rows: 1 },
@@ -3328,11 +3485,11 @@
             },
             autoRefresh: true,
             autoRefreshMinutes: 15,
-            showFullscreen: true,
-            showRefresh: true,
-            showCamera: true,
-            showPaint: true,
-            showNotepad: true,
+            showFullscreen: false,
+            showRefresh: false,
+            showCamera: false,
+            showPaint: false,
+            showNotepad: false,
             showWeatherAnimation: true,
             firebaseConfig: {
                 apiKey: '',
@@ -3587,22 +3744,6 @@
                 if (!Array.isArray(settings.enabledEngines)) {
                     settings.enabledEngines = [settings.searchEngine || 'google'];
                 }
-                // Migrate old calendarEmbedUrl → first iframe widget
-                if (parsed.calendarEmbedUrl && !parsed.iframeWidgets) {
-                    const calWidget = settings.iframeWidgets.find(w => w.id === 'iframe-calendar');
-                    if (calWidget) {
-                        calWidget.url = parsed.calendarEmbedUrl;
-                        calWidget.enabled = parsed.showCalendar !== false;
-                    }
-                }
-                // Migrate old showCalendar → showMiniCalendar
-                if (parsed.showCalendar !== undefined && parsed.showMiniCalendar === undefined) {
-                    settings.showMiniCalendar = parsed.showCalendar;
-                }
-                // Migrate old calendar widgetSize → iframe-calendar
-                if (parsed.widgetSizes && parsed.widgetSizes.calendar && !parsed.widgetSizes['iframe-calendar']) {
-                    settings.widgetSizes['iframe-calendar'] = parsed.widgetSizes.calendar;
-                }
             }
             applySettings();
         }
@@ -3719,7 +3860,7 @@
         async function signInWithGoogle() {
             if (!cloudSyncState.auth) {
                 if (!initFirebase()) {
-                    alert('Please configure Firebase first (Settings → Cloud Sync → Firebase Configuration).');
+                    alert('Firebase is not configured. Import a settings file with Firebase credentials to enable Cloud Sync.');
                     return;
                 }
             }
@@ -4058,16 +4199,11 @@
             document.getElementById('bg-image-url').value = settings.bgImage || '';
             document.getElementById('weather-api-key').value = settings.weatherApiKey || '';
             document.getElementById('weather-location').value = settings.weatherLocation || '';
+            document.getElementById('weather-extra-settings').style.display = settings.weatherApiKey ? '' : 'none';
 
             document.querySelectorAll('.bg-type-btn[data-unit]').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.unit === settings.tempUnit);
             });
-
-            // Firebase config fields
-            const fbConfig = settings.firebaseConfig || {};
-            document.getElementById('firebase-api-key').value = fbConfig.apiKey || '';
-            document.getElementById('firebase-auth-domain').value = fbConfig.authDomain || '';
-            document.getElementById('firebase-project-id').value = fbConfig.projectId || '';
 
             // iFrame widget settings
             renderIframeWidgetSettings();
@@ -5095,8 +5231,8 @@
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 container.innerHTML = `
                     <div class="webcam-error">
-                        <p>📷 Camera API not available.</p>
-                        <p>Please use HTTPS to enable camera access.</p>
+                        <p>📷 Webcam API not available.</p>
+                        <p>Please use HTTPS to enable webcam access.</p>
                     </div>
                 `;
                 if (selfieBtn) selfieBtn.disabled = true;
@@ -5106,20 +5242,20 @@
             // First check if we already have permission
             try {
                 const permissionStatus = await navigator.permissions.query({ name: 'camera' });
-                console.log('Camera permission status:', permissionStatus.state);
+                console.log('Webcam permission status:', permissionStatus.state);
             } catch (e) {
-                console.log('Permissions API not supported for camera');
+                console.log('Permissions API not supported for webcam');
             }
 
             try {
-                // Request camera permission - use simpler constraints first
-                console.log('Requesting camera access...');
+                // Request webcam permission - use simpler constraints first
+                console.log('Requesting webcam access...');
                 webcamStream = await navigator.mediaDevices.getUserMedia({
                     video: true,
                     audio: false
                 });
 
-                console.log('Camera access granted, stream:', webcamStream);
+                console.log('Webcam access granted, stream:', webcamStream);
 
                 // Build the video UI
                 container.innerHTML = `
@@ -5141,21 +5277,21 @@
                 if (selfieBtn) selfieBtn.disabled = false;
             } catch (error) {
                 console.error('Webcam error:', error.name, error.message);
-                let errorMessage = 'Camera access was denied or unavailable.';
+                let errorMessage = 'Webcam access was denied or unavailable.';
                 let showRetry = true;
 
                 if (error.name === 'NotAllowedError') {
-                    errorMessage = 'Camera permission was denied. Click the camera icon in your browser\'s address bar to allow access, then try again.';
+                    errorMessage = 'Webcam permission was denied. Click the camera icon in your browser\'s address bar to allow access, then try again.';
                 } else if (error.name === 'NotFoundError') {
-                    errorMessage = 'No camera found. Please connect a camera and try again.';
+                    errorMessage = 'No webcam found. Please connect a webcam and try again.';
                 } else if (error.name === 'NotReadableError') {
-                    errorMessage = 'Camera is in use by another application. Please close other apps using the camera.';
+                    errorMessage = 'Webcam is in use by another application. Please close other apps using the webcam.';
                 } else if (error.name === 'SecurityError') {
-                    errorMessage = 'Camera access requires HTTPS. Please ensure you are using a secure connection.';
+                    errorMessage = 'Webcam access requires HTTPS. Please ensure you are using a secure connection.';
                 } else if (error.name === 'AbortError') {
-                    errorMessage = 'Camera access was aborted. Please try again.';
+                    errorMessage = 'Webcam access was aborted. Please try again.';
                 } else if (error.name === 'OverconstrainedError') {
-                    errorMessage = 'Camera constraints could not be satisfied. Trying with basic settings...';
+                    errorMessage = 'Webcam constraints could not be satisfied. Trying with basic settings...';
                     showRetry = false;
                     // Try again with minimal constraints
                     try {
@@ -5174,7 +5310,7 @@
                         if (selfieBtn) selfieBtn.disabled = false;
                         return;
                     } catch (e2) {
-                        errorMessage = 'Camera access failed. ' + e2.message;
+                        errorMessage = 'Webcam access failed. ' + e2.message;
                         showRetry = true;
                     }
                 }
@@ -5244,7 +5380,7 @@
         }
 
         // ============ Section Reordering ============
-        const defaultSectionOrder = ['time', 'weather', 'shortcuts', 'mini-calendar', 'iframe-calendar'];
+        const defaultSectionOrder = ['time', 'weather', 'shortcuts', 'mini-calendar'];
         let sectionDragState = null;
 
         function loadSectionOrder() {
@@ -5394,6 +5530,7 @@
                 settingsPage.classList.add('active');
                 stopAutoRefresh();
                 updateSettingsUI();
+                document.querySelector('.settings-page-body').scrollTop = 0;
             });
 
             settingsBack.addEventListener('click', () => {
@@ -5501,7 +5638,10 @@
             });
 
             document.getElementById('bg-image-url').addEventListener('input', (e) => settings.bgImage = e.target.value);
-            document.getElementById('weather-api-key').addEventListener('input', (e) => settings.weatherApiKey = e.target.value);
+            document.getElementById('weather-api-key').addEventListener('input', (e) => {
+                settings.weatherApiKey = e.target.value;
+                document.getElementById('weather-extra-settings').style.display = e.target.value.trim() ? '' : 'none';
+            });
             document.getElementById('weather-location').addEventListener('input', (e) => settings.weatherLocation = e.target.value);
 
             document.querySelectorAll('.bg-type-btn[data-unit]').forEach(btn => {
@@ -5530,20 +5670,6 @@
             document.getElementById('cloud-signout-btn').addEventListener('click', signOutUser);
             document.getElementById('cloud-push-btn').addEventListener('click', syncToCloud);
             document.getElementById('cloud-pull-btn').addEventListener('click', syncFromCloud);
-            document.getElementById('firebase-save-config-btn').addEventListener('click', () => {
-                settings.firebaseConfig = {
-                    apiKey: document.getElementById('firebase-api-key').value.trim(),
-                    authDomain: document.getElementById('firebase-auth-domain').value.trim(),
-                    projectId: document.getElementById('firebase-project-id').value.trim()
-                };
-                saveSettings();
-                if (initFirebase()) {
-                    alert('Firebase connected! You can now sign in with Google.');
-                } else {
-                    alert('Please fill in at least the API Key and Project ID.');
-                }
-            });
-
             // Date format buttons
             document.querySelectorAll('.bg-type-btn[data-dateformat]').forEach(btn => {
                 btn.addEventListener('click', () => {
