@@ -3477,11 +3477,11 @@
             widgetSizes: {
                 date:      { cols: 2, rows: 1 },
                 search:    { cols: 8, rows: 1 },
-                actions:   { cols: 4, rows: 1 },
-                time:      { cols: 2, rows: 1 },
-                weather:   { cols: 4, rows: 4 },
-                shortcuts: { cols: 8, rows: 2 },
-                'mini-calendar': { cols: 4, rows: 3 }
+                actions:   { cols: 2, rows: 1 },
+                time:      { cols: 3, rows: 1 },
+                weather:   { cols: 3, rows: 4 },
+                shortcuts: { cols: 6, rows: 4 },
+                'mini-calendar': { cols: 3, rows: 3 }
             },
             autoRefresh: true,
             autoRefreshMinutes: 15,
@@ -5380,7 +5380,7 @@
         }
 
         // ============ Section Reordering ============
-        const defaultSectionOrder = ['time', 'weather', 'shortcuts', 'mini-calendar'];
+        const defaultSectionOrder = ['time', 'shortcuts', 'weather', 'mini-calendar'];
         let sectionDragState = null;
 
         function loadSectionOrder() {
