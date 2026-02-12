@@ -3717,23 +3717,6 @@
                 if (!Array.isArray(settings.enabledEngines)) {
                     settings.enabledEngines = [settings.searchEngine || 'google'];
                 }
-                // Migrate old calendarEmbedUrl → iframe widget
-                if (parsed.calendarEmbedUrl && !parsed.iframeWidgets) {
-                    settings.iframeWidgets.push({
-                        id: 'iframe-calendar',
-                        name: 'Google Calendar',
-                        url: parsed.calendarEmbedUrl,
-                        enabled: parsed.showCalendar !== false
-                    });
-                }
-                // Migrate old showCalendar → showMiniCalendar
-                if (parsed.showCalendar !== undefined && parsed.showMiniCalendar === undefined) {
-                    settings.showMiniCalendar = parsed.showCalendar;
-                }
-                // Migrate old calendar widgetSize → iframe-calendar
-                if (parsed.widgetSizes && parsed.widgetSizes.calendar && !parsed.widgetSizes['iframe-calendar']) {
-                    settings.widgetSizes['iframe-calendar'] = parsed.widgetSizes.calendar;
-                }
             }
             applySettings();
         }
