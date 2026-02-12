@@ -4,6 +4,20 @@ A customizable browser start page / new-tab dashboard. Features include search, 
 
 **Live demo:** [start.mykk.us](https://start.mykk.us)
 
+## Quick Start
+
+MyKK is a single HTML file. No install, no build tools, no server required.
+
+1. **Download** [`index.html`](index.html)
+2. **Open** it in your browser
+3. **Done** — your dashboard is ready
+
+Everything saves to your browser's local storage. Works on any device, any OS, completely offline. Cloud sync via Google sign-in is optional if you want settings across devices.
+
+> Most dashboard projects (Homepage, Startpage, Homarr, etc.) require Docker, Node.js, or a dedicated server. MyKK runs from a single file on your desktop.
+
+---
+
 ## Features
 
 ### Widgets
@@ -46,6 +60,32 @@ Each toolbar button can be independently shown or hidden.
 - **Glass Morphism** — frosted glass widget cards with backdrop blur
 - **Single File** — the entire app is one `index.html` with zero build dependencies
 - **No Backend Required** — runs entirely in the browser using localStorage. Firebase is optional for cloud sync only.
+
+## Roadmap
+
+### In Progress
+
+- [ ] **Accessibility (a11y)** — add ARIA labels, roles, and live regions across all widgets, modals, and interactive elements. Improve focus management and screen reader support.
+- [ ] **Touch-Friendly UI** — larger tap targets, swipe gestures, and touch-optimized controls for phones and tablets. Ensure all interactive elements meet minimum touch target sizes (48x48px).
+
+### Planned
+
+- [ ] **Browser Extension** — a Chrome/Firefox extension that sets MyKK as the new-tab page. The extension will be a separate, private product with a subscription ($1/month or $12/year) to cover hosting, maintenance, and browser store review costs. Premium features bundled with the extension:
+  - **PWA / Offline Mode** — service worker for instant load and full offline support
+  - **Keyboard Shortcuts** — `/` to focus search, `Esc` to close modals, arrow keys for navigation, and customizable bindings
+  - **Custom CSS** — inject your own stylesheets to personalize the dashboard beyond built-in themes
+- [ ] **Bookmark Folders** — collapsible groups/categories (Work, Social, Dev, etc.) to organize large bookmark collections
+- [ ] **Light / Dark Mode Toggle** — switchable theme with system preference detection
+- [ ] **Todo / Task List Widget** — structured checklist widget alongside the existing notepad
+- [ ] **Native RSS Widget** — parse and display RSS/Atom feeds directly instead of relying on iframes
+- [ ] **Additional Auth Providers** — GitHub, Apple, and email/password sign-in via Firebase
+- [ ] **High Contrast Mode** — a dedicated high-contrast theme for improved readability
+
+### Design Principles
+
+The core dashboard will always remain a **single-file, open-source HTML page** that anyone can download, self-host, or fork. No build step required. The browser extension is a separate paid product — the open-source project will never be paywalled.
+
+---
 
 ## Project Structure
 
@@ -271,6 +311,60 @@ The `_headers` file configures response headers for Cloudflare Pages:
 - `Referrer-Policy: strict-origin-when-cross-origin` — limits referrer information
 
 If hosting elsewhere, configure equivalent headers in your web server (Nginx, Apache, etc.).
+
+---
+
+## Attribution
+
+MyKK Dashboard is built with the following open-source libraries, APIs, and services.
+
+> **Note:** All client-side code that runs in the browser is fully open-source (MIT, Apache 2.0, BSD 2-Clause, SIL OFL). The external *services* these libraries connect to — Firebase Auth/Firestore, OpenWeatherMap API, and Google Favicons — are free-tier proprietary services operated by Google and OpenWeather. The dashboard itself contains no proprietary code, and all service integrations are optional.
+
+### Libraries
+
+| Library | Version | Use | License |
+|---|---|---|---|
+| [Firebase JavaScript SDK](https://firebase.google.com/docs/web/setup) | 10.12.0 | Authentication (Google Sign-In) and Cloud Firestore for settings sync | Apache 2.0 |
+| [Leaflet](https://leafletjs.com/) | 1.9.4 | Interactive weather radar maps | BSD 2-Clause |
+| [jsPDF](https://github.com/parallax/jsPDF) | 2.5.1 | Export paint canvas drawings as PDF | MIT |
+
+### Fonts
+
+| Font | Provider | Use |
+|---|---|---|
+| [Inter](https://rsms.me/inter/) | Google Fonts | Primary UI typeface (weights 300–700) |
+
+### APIs & Data Services
+
+| Service | Use |
+|---|---|
+| [OpenWeatherMap](https://openweathermap.org/api) | Current weather, 5-day forecast, and radar tile layers (One Call API 3.0 + weather map tiles) |
+| [Google Identity / Firebase Auth](https://firebase.google.com/docs/auth) | Google OAuth sign-in for cloud sync |
+| [Cloud Firestore](https://firebase.google.com/docs/firestore) | Cloud database for syncing user settings and bookmarks |
+
+### Map Tiles
+
+| Provider | Use | License |
+|---|---|---|
+| [CARTO](https://carto.com/basemaps/) | Dark base map tiles for the weather radar (`dark_all`) | CC BY 3.0, uses OpenStreetMap data |
+| [OpenStreetMap](https://www.openstreetmap.org/copyright) | Underlying map data used by CARTO tiles | ODbL |
+| [OpenWeatherMap](https://openweathermap.org/api/weathermaps) | Weather overlay tiles (precipitation, clouds, temperature, wind) | CC BY-SA 4.0 |
+
+### Icons
+
+| Source | Use |
+|---|---|
+| [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons) (homarr-labs) | SVG icons for 40+ popular services in the favorites widget, served via jsDelivr CDN |
+| [Google Favicons](https://www.google.com/s2/favicons) | Fallback favicon service for bookmark icons |
+
+### CDN
+
+| Provider | Use |
+|---|---|
+| [jsDelivr](https://www.jsdelivr.com/) | Serves Dashboard Icons SVGs from GitHub |
+| [unpkg](https://unpkg.com/) | Serves Leaflet CSS and JS |
+| [cdnjs](https://cdnjs.com/) (Cloudflare) | Serves jsPDF |
+| [Google Hosted Libraries](https://developers.google.com/speed/libraries) | Serves Firebase SDK and Google Fonts |
 
 ---
 
