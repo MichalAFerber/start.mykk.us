@@ -1554,6 +1554,113 @@
             transition: box-shadow 0.2s ease;
         }
 
+        /* Hidden action buttons */
+        .action-btn.hidden {
+            display: none;
+        }
+
+        /* Full-Page Settings */
+        .settings-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 30, 0.98);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .settings-page.active {
+            display: flex;
+        }
+
+        .settings-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .settings-back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .settings-back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .settings-back-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .settings-page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .settings-page-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        .settings-page-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .settings-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .settings-section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .settings-section .settings-group {
+            margin-bottom: 16px;
+        }
+
+        .settings-section .settings-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+        }
+
         /* Responsive - Tablet */
         @media (max-width: 1200px) {
             .dashboard {
@@ -1701,6 +1808,31 @@
 
             .weather-icon {
                 font-size: 2.5rem;
+            }
+
+            .settings-page-header {
+                padding: 12px 16px;
+            }
+
+            .settings-page-body {
+                padding: 16px;
+            }
+
+            .settings-section {
+                padding: 16px;
+            }
+
+            .settings-back-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .settings-page-title {
+                font-size: 1.2rem;
+            }
+
+            .settings-checkbox-grid {
+                grid-template-columns: 1fr 1fr;
             }
         }
 
@@ -1869,170 +2001,218 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div class="modal-overlay" id="settings-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Settings</h2>
-                <button class="modal-close" id="modal-close">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
+    <!-- Full-Page Settings -->
+    <div class="settings-page" id="settings-page">
+        <div class="settings-page-header">
+            <button class="settings-back-btn" id="settings-back">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                Back to Dashboard
+            </button>
+            <h2 class="settings-page-title">Settings</h2>
+            <div style="width: 160px;"></div>
+        </div>
 
-            <!-- Widget Toggles -->
-            <div class="settings-group">
-                <label class="settings-label">Widgets</label>
-                <label class="settings-checkbox">
-                    <input type="checkbox" id="toggle-date" checked>
-                    <span>Date</span>
-                </label>
-                <label class="settings-checkbox" style="margin-top: 8px;">
-                    <input type="checkbox" id="toggle-time" checked>
-                    <span>Clock</span>
-                </label>
-                <label class="settings-checkbox" style="margin-top: 8px;">
-                    <input type="checkbox" id="toggle-search" checked>
-                    <span>Search Bar</span>
-                </label>
-                <label class="settings-checkbox" style="margin-top: 8px;">
-                    <input type="checkbox" id="toggle-weather" checked>
-                    <span>Weather Widget</span>
-                </label>
-                <label class="settings-checkbox" style="margin-top: 8px;">
-                    <input type="checkbox" id="toggle-calendar" checked>
-                    <span>Calendar Widget</span>
-                </label>
-                <label class="settings-checkbox" style="margin-top: 8px;">
-                    <input type="checkbox" id="toggle-favorites" checked>
-                    <span>Favorites</span>
-                </label>
-            </div>
+        <div class="settings-page-body">
+            <div class="settings-page-content">
 
-            <div class="settings-group">
-                <label class="settings-label">Background Type</label>
-                <div class="bg-type-toggle">
-                    <button class="bg-type-btn active" data-type="gradient">Gradient</button>
-                    <button class="bg-type-btn" data-type="color">Solid Color</button>
-                    <button class="bg-type-btn" data-type="image">Image URL</button>
+                <!-- Widgets -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Widgets</h3>
+                    <div class="settings-checkbox-grid">
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-date" checked>
+                            <span>Date</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-time" checked>
+                            <span>Clock</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-search" checked>
+                            <span>Search Bar</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-weather" checked>
+                            <span>Weather</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-calendar" checked>
+                            <span>Calendar</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-favorites" checked>
+                            <span>Favorites</span>
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group" id="gradient-settings">
-                <label class="settings-label">Gradient Presets</label>
-                <div class="color-presets">
-                    <button class="color-preset" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);" data-gradient="linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" data-gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" data-gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" data-gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" data-gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);" data-gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);" data-gradient="linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"></button>
-                    <button class="color-preset" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);" data-gradient="linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"></button>
+                <!-- Toolbar Buttons -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Toolbar Buttons</h3>
+                    <div class="settings-checkbox-grid">
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-fullscreen" checked>
+                            <span>Fullscreen</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-refresh" checked>
+                            <span>Refresh</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-camera" checked>
+                            <span>Camera</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-paint" checked>
+                            <span>Paint</span>
+                        </label>
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-notepad" checked>
+                            <span>Notepad</span>
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group" id="color-settings" style="display: none;">
-                <label class="settings-label">Background Color</label>
-                <div class="color-picker-wrapper">
-                    <input type="color" class="color-picker" id="bg-color" value="#1a1a2e">
-                    <span id="color-value">#1a1a2e</span>
+                <!-- Appearance -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Appearance</h3>
+                    <div class="settings-group">
+                        <label class="settings-label">Background Type</label>
+                        <div class="bg-type-toggle">
+                            <button class="bg-type-btn active" data-type="gradient">Gradient</button>
+                            <button class="bg-type-btn" data-type="color">Solid Color</button>
+                            <button class="bg-type-btn" data-type="image">Image URL</button>
+                        </div>
+                    </div>
+                    <div class="settings-group" id="gradient-settings">
+                        <label class="settings-label">Gradient Presets</label>
+                        <div class="color-presets">
+                            <button class="color-preset" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);" data-gradient="linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" data-gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" data-gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" data-gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" data-gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);" data-gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);" data-gradient="linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"></button>
+                            <button class="color-preset" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);" data-gradient="linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"></button>
+                        </div>
+                    </div>
+                    <div class="settings-group" id="color-settings" style="display: none;">
+                        <label class="settings-label">Background Color</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" class="color-picker" id="bg-color" value="#1a1a2e">
+                            <span id="color-value">#1a1a2e</span>
+                        </div>
+                    </div>
+                    <div class="settings-group" id="image-settings" style="display: none;">
+                        <label class="settings-label">Image URL</label>
+                        <input type="url" class="settings-input" id="bg-image-url" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-label">Favorites Button Style</label>
+                        <div class="bg-type-toggle">
+                            <button class="bg-type-btn active" data-favstyle="gradient">Gradient</button>
+                            <button class="bg-type-btn" data-favstyle="solid">Solid Color</button>
+                            <button class="bg-type-btn" data-favstyle="transparent">Transparent</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group" id="image-settings" style="display: none;">
-                <label class="settings-label">Image URL</label>
-                <input type="url" class="settings-input" id="bg-image-url" placeholder="https://example.com/image.jpg">
-            </div>
-
-            <div class="settings-group">
-                <label class="settings-label">OpenWeatherMap API Key</label>
-                <input type="text" class="settings-input" id="weather-api-key" placeholder="Your API key">
-                <small class="settings-help">Get a free API key at <a href="https://openweathermap.org/api" target="_blank" style="color: #667eea;">openweathermap.org</a></small>
-            </div>
-
-            <div class="settings-group">
-                <label class="settings-label">Weather Location</label>
-                <input type="text" class="settings-input" id="weather-location" placeholder="City, Country OR Zip Code (e.g., 10001)">
-                <small class="settings-help">Enter a city name (e.g., "New York, US") or a US zip code (e.g., "10001")</small>
-            </div>
-
-            <div class="settings-group">
-                <label class="settings-label">Temperature Unit</label>
-                <div class="bg-type-toggle">
-                    <button class="bg-type-btn active" data-unit="imperial">°F</button>
-                    <button class="bg-type-btn" data-unit="metric">°C</button>
+                <!-- Date & Time -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Date & Time</h3>
+                    <div class="settings-group">
+                        <label class="settings-label">Date Format</label>
+                        <div class="bg-type-toggle">
+                            <button class="bg-type-btn active" data-dateformat="short">Jan 1</button>
+                            <button class="bg-type-btn" data-dateformat="long">January 1, 2024</button>
+                            <button class="bg-type-btn" data-dateformat="numeric">01/31/2024</button>
+                            <button class="bg-type-btn" data-dateformat="iso">2024-01-31</button>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-label">Time Format</label>
+                        <div class="bg-type-toggle">
+                            <button class="bg-type-btn active" data-timeformat="12h">12 Hour</button>
+                            <button class="bg-type-btn" data-timeformat="24h">24 Hour</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group">
-                <label class="settings-label">Google Calendar Embed URL</label>
-                <textarea class="settings-textarea" id="calendar-embed-url" placeholder="Paste your full Google Calendar embed URL here..."></textarea>
-                <small class="settings-help">
-                    Go to Google Calendar → Settings → Your Calendar → Integrate calendar → Copy the "Embed code" iframe src URL
-                </small>
-            </div>
-
-            <div class="settings-group">
-                <label class="settings-label">Date Format</label>
-                <div class="bg-type-toggle">
-                    <button class="bg-type-btn active" data-dateformat="short">Jan 1</button>
-                    <button class="bg-type-btn" data-dateformat="long">January 1, 2024</button>
-                    <button class="bg-type-btn" data-dateformat="numeric">01/31/2024</button>
-                    <button class="bg-type-btn" data-dateformat="iso">2024-01-31</button>
+                <!-- Search -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Search</h3>
+                    <div class="settings-group">
+                        <label class="settings-label">Search Behavior</label>
+                        <div class="bg-type-toggle">
+                            <button class="bg-type-btn active" data-searchtab="new">New Tab</button>
+                            <button class="bg-type-btn" data-searchtab="same">Same Tab</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group">
-                <label class="settings-label">Time Format</label>
-                <div class="bg-type-toggle">
-                    <button class="bg-type-btn active" data-timeformat="12h">12 Hour</button>
-                    <button class="bg-type-btn" data-timeformat="24h">24 Hour</button>
+                <!-- Weather -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Weather</h3>
+                    <div class="settings-group">
+                        <label class="settings-label">OpenWeatherMap API Key</label>
+                        <input type="text" class="settings-input" id="weather-api-key" placeholder="Your API key">
+                        <small class="settings-help">Get a free API key at <a href="https://openweathermap.org/api" target="_blank" style="color: #667eea;">openweathermap.org</a></small>
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-label">Weather Location</label>
+                        <input type="text" class="settings-input" id="weather-location" placeholder="City, Country OR Zip Code (e.g., 10001)">
+                        <small class="settings-help">Enter a city name (e.g., "New York, US") or a US zip code (e.g., "10001")</small>
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-label">Temperature Unit</label>
+                        <div class="bg-type-toggle">
+                            <button class="bg-type-btn active" data-unit="imperial">°F</button>
+                            <button class="bg-type-btn" data-unit="metric">°C</button>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <label class="settings-label">Weather Map Zoom Level</label>
+                        <div class="zoom-slider-wrapper">
+                            <input type="range" class="settings-range" id="weather-zoom" min="3" max="15" value="9">
+                            <span id="weather-zoom-value">9</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group">
-                <label class="settings-label">Search Behavior</label>
-                <div class="bg-type-toggle">
-                    <button class="bg-type-btn active" data-searchtab="new">New Tab</button>
-                    <button class="bg-type-btn" data-searchtab="same">Same Tab</button>
+                <!-- Calendar -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Calendar</h3>
+                    <div class="settings-group">
+                        <label class="settings-label">Google Calendar Embed URL</label>
+                        <textarea class="settings-textarea" id="calendar-embed-url" placeholder="Paste your full Google Calendar embed URL here..."></textarea>
+                        <small class="settings-help">
+                            Go to Google Calendar → Settings → Your Calendar → Integrate calendar → Copy the "Embed code" iframe src URL
+                        </small>
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group">
-                <label class="settings-label">Weather Map Zoom Level</label>
-                <div class="zoom-slider-wrapper">
-                    <input type="range" class="settings-range" id="weather-zoom" min="3" max="15" value="9">
-                    <span id="weather-zoom-value">9</span>
+                <!-- Data -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Data</h3>
+                    <div class="settings-actions">
+                        <button class="settings-action-btn" id="export-settings">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                            </svg>
+                            Export
+                        </button>
+                        <button class="settings-action-btn" id="import-settings">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            Import
+                        </button>
+                        <input type="file" id="import-file" accept=".json">
+                    </div>
                 </div>
-            </div>
 
-            <div class="settings-group">
-                <label class="settings-label">Favorites Button Style</label>
-                <div class="bg-type-toggle">
-                    <button class="bg-type-btn active" data-favstyle="gradient">Gradient</button>
-                    <button class="bg-type-btn" data-favstyle="solid">Solid Color</button>
-                    <button class="bg-type-btn" data-favstyle="transparent">Transparent</button>
-                </div>
-            </div>
-
-            <button class="settings-save" id="save-settings">Save Settings</button>
-
-            <div class="settings-actions">
-                <button class="settings-action-btn" id="export-settings">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                    </svg>
-                    Export
-                </button>
-                <button class="settings-action-btn" id="import-settings">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                    </svg>
-                    Import
-                </button>
-                <input type="file" id="import-file" accept=".json">
+                <button class="settings-save" id="save-settings">Save Settings</button>
             </div>
         </div>
     </div>
@@ -2241,7 +2421,12 @@
             timeFormat: '12h',
             searchNewTab: true,
             weatherMapZoom: 9,
-            favoritesStyle: 'gradient'
+            favoritesStyle: 'gradient',
+            showFullscreen: true,
+            showRefresh: true,
+            showCamera: true,
+            showPaint: true,
+            showNotepad: true
         };
 
         // Icon mapping for common services using dashboardicons.com
@@ -2552,6 +2737,13 @@
             document.getElementById('calendar-widget').classList.toggle('hidden', !settings.showCalendar);
             document.getElementById('shortcuts-widget').classList.toggle('hidden', !settings.showFavorites);
 
+            // Toggle action buttons
+            document.getElementById('fullscreen-btn').classList.toggle('hidden', !settings.showFullscreen);
+            document.getElementById('refresh-btn').classList.toggle('hidden', !settings.showRefresh);
+            document.getElementById('camera-btn').classList.toggle('hidden', !settings.showCamera);
+            document.getElementById('paint-btn').classList.toggle('hidden', !settings.showPaint);
+            document.getElementById('notepad-btn').classList.toggle('hidden', !settings.showNotepad);
+
             // Update search form target
             const searchForm = document.getElementById('search-form');
             searchForm.target = settings.searchNewTab ? '_blank' : '_self';
@@ -2605,6 +2797,13 @@
             document.getElementById('toggle-weather').checked = settings.showWeather;
             document.getElementById('toggle-calendar').checked = settings.showCalendar;
             document.getElementById('toggle-favorites').checked = settings.showFavorites;
+
+            // Action button toggles
+            document.getElementById('toggle-fullscreen').checked = settings.showFullscreen;
+            document.getElementById('toggle-refresh').checked = settings.showRefresh;
+            document.getElementById('toggle-camera').checked = settings.showCamera;
+            document.getElementById('toggle-paint').checked = settings.showPaint;
+            document.getElementById('toggle-notepad').checked = settings.showNotepad;
 
             // Date format buttons
             document.querySelectorAll('.bg-type-btn[data-dateformat]').forEach(btn => {
@@ -3625,26 +3824,31 @@
         // ============ Event Listeners ============
         function initEventListeners() {
             const settingsBtn = document.getElementById('settings-btn');
-            const settingsModal = document.getElementById('settings-modal');
-            const modalClose = document.getElementById('modal-close');
+            const settingsPage = document.getElementById('settings-page');
+            const settingsBack = document.getElementById('settings-back');
             const saveBtn = document.getElementById('save-settings');
 
             settingsBtn.addEventListener('click', () => {
-                settingsModal.classList.add('active');
+                settingsPage.classList.add('active');
                 updateSettingsUI();
             });
 
-            modalClose.addEventListener('click', () => settingsModal.classList.remove('active'));
-            settingsModal.addEventListener('click', (e) => {
-                if (e.target === settingsModal) settingsModal.classList.remove('active');
-            });
+            settingsBack.addEventListener('click', () => settingsPage.classList.remove('active'));
 
+            // Widget toggles
             document.getElementById('toggle-date').addEventListener('change', (e) => settings.showDate = e.target.checked);
             document.getElementById('toggle-time').addEventListener('change', (e) => settings.showTime = e.target.checked);
             document.getElementById('toggle-search').addEventListener('change', (e) => settings.showSearch = e.target.checked);
             document.getElementById('toggle-weather').addEventListener('change', (e) => settings.showWeather = e.target.checked);
             document.getElementById('toggle-calendar').addEventListener('change', (e) => settings.showCalendar = e.target.checked);
             document.getElementById('toggle-favorites').addEventListener('change', (e) => settings.showFavorites = e.target.checked);
+
+            // Action button toggles
+            document.getElementById('toggle-fullscreen').addEventListener('change', (e) => settings.showFullscreen = e.target.checked);
+            document.getElementById('toggle-refresh').addEventListener('change', (e) => settings.showRefresh = e.target.checked);
+            document.getElementById('toggle-camera').addEventListener('change', (e) => settings.showCamera = e.target.checked);
+            document.getElementById('toggle-paint').addEventListener('change', (e) => settings.showPaint = e.target.checked);
+            document.getElementById('toggle-notepad').addEventListener('change', (e) => settings.showNotepad = e.target.checked);
 
             document.querySelectorAll('.bg-type-btn[data-type]').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -3725,7 +3929,7 @@
             saveBtn.addEventListener('click', () => {
                 saveSettings();
                 applySettings();
-                settingsModal.classList.remove('active');
+                settingsPage.classList.remove('active');
             });
 
             document.getElementById('export-settings').addEventListener('click', exportSettings);
