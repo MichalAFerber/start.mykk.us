@@ -27,6 +27,7 @@
             --glass-shadow: rgba(0, 0, 0, 0.3);
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.8);
+            --focus-ring: rgba(102, 126, 234, 0.8);
         }
 
         body {
@@ -2089,8 +2090,8 @@
             }
 
             .action-btn {
-                width: 40px;
-                height: 40px;
+                width: 44px;
+                height: 44px;
             }
 
             .radar-container {
@@ -2551,6 +2552,124 @@
             background: rgba(102, 126, 234, 0.3);
         }
 
+        /* ============ Accessibility & Touch ============ */
+
+        /* Skip to content link */
+        .skip-to-content {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            z-index: 10000;
+            padding: 12px 24px;
+            background: var(--focus-ring);
+            color: #fff;
+            font-weight: 600;
+            border-radius: 0 0 8px 0;
+            text-decoration: none;
+        }
+
+        .skip-to-content:focus {
+            left: 0;
+        }
+
+        /* Global focus-visible ring */
+        *:focus-visible {
+            outline: 2px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        /* Remove default outline only when NOT keyboard-navigating */
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        /* Screen reader only utility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Ensure touch targets are at least 48x48 on touch devices */
+        @media (pointer: coarse) {
+            .action-btn {
+                width: 48px;
+                height: 48px;
+                min-width: 48px;
+            }
+
+            .mini-calendar-nav button {
+                width: 44px;
+                height: 44px;
+            }
+
+            .mini-calendar-day {
+                min-height: 36px;
+                min-width: 36px;
+            }
+
+            .shortcut-delete,
+            .shortcut-edit {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+
+            .tool-btn {
+                min-height: 44px;
+                padding: 10px 16px;
+            }
+
+            .modal-close {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 10px;
+            }
+
+            .lightbox-close {
+                min-height: 44px;
+                padding: 10px 20px;
+            }
+
+            .donetick-complete-btn {
+                width: 36px;
+                height: 36px;
+            }
+
+            .donetick-refresh-btn {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 8px;
+            }
+
+            .search-engine-toggle {
+                min-width: 44px;
+                min-height: 44px;
+            }
+
+            .bg-type-btn {
+                min-height: 44px;
+            }
+
+            .color-selector {
+                width: 44px;
+                height: 44px;
+            }
+
+            /* Show edit/delete on touch (no hover) */
+            .shortcut .shortcut-delete,
+            .shortcut .shortcut-edit {
+                display: flex;
+                opacity: 0.6;
+            }
+        }
+
         /* ============ Donetick Widget ============ */
         .donetick-widget {
             display: flex;
@@ -2803,11 +2922,14 @@
     </style>
 </head>
 <body>
-    <div class="wallpaper" id="wallpaper"></div>
-    <div class="overlay" id="overlay"></div>
-    <div class="weather-animation" id="weather-animation"></div>
+    <a href="#main-dashboard" class="skip-to-content">Skip to dashboard</a>
+    <div class="wallpaper" id="wallpaper" aria-hidden="true"></div>
+    <div class="overlay" id="overlay" aria-hidden="true"></div>
+    <div class="weather-animation" id="weather-animation" aria-hidden="true"></div>
+    <!-- Screen reader live region for status announcements -->
+    <div id="sr-announce" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
-    <div class="dashboard">
+    <main class="dashboard" id="main-dashboard" role="main">
         <!-- Top Row - Aligned Date, Search, Actions -->
         <div class="top-row">
             <!-- Date Card -->
@@ -2823,18 +2945,18 @@
                 <span class="section-drag-handle section-drag-handle-floating" aria-label="Drag to reorder">
                     <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
                 </span>
-                <form class="search-form" id="search-form" action="https://www.google.com/search" method="GET">
-                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <form class="search-form" id="search-form" action="https://www.google.com/search" method="GET" role="search" aria-label="Web search">
+                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
-                    <input type="text" name="q" class="search-input" placeholder="Search Google..." autocomplete="off" id="search-input">
+                    <input type="text" name="q" class="search-input" placeholder="Search Google..." autocomplete="off" id="search-input" aria-label="Search the web">
                     <div class="search-btn-group">
                         <button type="submit" class="search-btn">Search</button>
-                        <button type="button" class="search-engine-toggle" id="search-engine-toggle" title="Choose search engine">
-                            <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        <button type="button" class="search-engine-toggle" id="search-engine-toggle" title="Choose search engine" aria-label="Choose search engine" aria-haspopup="true" aria-expanded="false">
+                            <svg fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                         </button>
                     </div>
-                    <div class="search-engine-popup" id="search-engine-popup"></div>
+                    <div class="search-engine-popup" id="search-engine-popup" role="menu" aria-label="Search engines"></div>
                 </form>
             </div>
 
@@ -2843,33 +2965,33 @@
                 <span class="section-drag-handle section-drag-handle-floating" aria-label="Drag to reorder">
                     <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
                 </span>
-                <button class="action-btn" id="fullscreen-btn" title="Toggle Fullscreen">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" id="fullscreen-icon">
+                <button class="action-btn" id="fullscreen-btn" title="Toggle Fullscreen" aria-label="Toggle fullscreen">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" id="fullscreen-icon" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
                     </svg>
                 </button>
-                <button class="action-btn" id="refresh-btn" title="Refresh Page">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="action-btn" id="refresh-btn" title="Refresh Page" aria-label="Refresh page">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
                 </button>
-                <button class="action-btn" id="camera-btn" title="Webcam/Selfie">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="action-btn" id="camera-btn" title="Webcam/Selfie" aria-label="Open webcam">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
                 </button>
-                <button class="action-btn" id="paint-btn" title="Paint Canvas">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="action-btn" id="paint-btn" title="Paint Canvas" aria-label="Open paint canvas">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                     </svg>
                 </button>
-                <button class="action-btn" id="notepad-btn" title="Notepad">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="action-btn" id="notepad-btn" title="Notepad" aria-label="Open notepad">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                 </button>
-                <button class="action-btn" id="settings-btn" title="Settings">
+                <button class="action-btn" id="settings-btn" title="Settings" aria-label="Open settings">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -2900,7 +3022,7 @@
                     </span>
                     <span class="section-title">Weather</span>
                 </div>
-                <div id="weather-content">
+                <div id="weather-content" aria-live="polite">
                     <div class="weather-setup">
                         <p>Enable weather to see current conditions and forecast</p>
                         <button class="weather-setup-btn" id="weather-setup-btn">Set Location</button>
@@ -2940,8 +3062,8 @@
                     <div class="mini-calendar-header">
                         <span class="mini-calendar-title" id="mini-calendar-title">January 2024</span>
                         <div class="mini-calendar-nav">
-                            <button id="mini-cal-prev">◀</button>
-                            <button id="mini-cal-next">▶</button>
+                            <button id="mini-cal-prev" aria-label="Previous month">◀</button>
+                            <button id="mini-cal-next" aria-label="Next month">▶</button>
                         </div>
                     </div>
                     <div class="mini-calendar-grid" id="mini-calendar-grid">
@@ -2959,7 +3081,7 @@
                 </span>
                 <span class="section-title">Chores</span>
             </div>
-            <div id="donetick-content">
+            <div id="donetick-content" aria-live="polite">
                 <div class="donetick-setup">
                     <p>Connect your Donetick server to see and complete chores</p>
                     <button class="weather-setup-btn" onclick="document.getElementById('settings-btn').click()">Configure</button>
@@ -2969,13 +3091,13 @@
 
         <!-- iFrame Widgets (dynamically rendered) -->
         <div id="iframe-widgets-container" style="display: contents"></div>
-    </div>
+    </main>
 
     <!-- Full-Page Settings -->
-    <div class="settings-page" id="settings-page">
+    <div class="settings-page" id="settings-page" role="dialog" aria-label="Dashboard settings">
         <div class="settings-page-header">
-            <button class="settings-back-btn" id="settings-back">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            <button class="settings-back-btn" id="settings-back" aria-label="Back to dashboard">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 Back to Dashboard
             </button>
             <h2 class="settings-page-title">Settings</h2>
@@ -3520,11 +3642,11 @@
     </div>
 
     <!-- Add Shortcut Modal -->
-    <div class="modal-overlay" id="shortcut-modal">
+    <div class="modal-overlay" id="shortcut-modal" role="dialog" aria-modal="true" aria-labelledby="shortcut-modal-title">
         <div class="modal">
             <div class="modal-header">
                 <h2 class="modal-title" id="shortcut-modal-title">Add Shortcut</h2>
-                <button class="modal-close" id="shortcut-modal-close">
+                <button class="modal-close" id="shortcut-modal-close" aria-label="Close dialog">
                     <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -3566,11 +3688,11 @@
     </div>
 
     <!-- Weather Detail Modal -->
-    <div class="modal-overlay" id="weather-detail-modal">
+    <div class="modal-overlay" id="weather-detail-modal" role="dialog" aria-modal="true" aria-labelledby="weather-detail-title">
         <div class="modal weather-detail-modal">
             <div class="modal-header">
                 <h2 class="modal-title" id="weather-detail-title">Current Weather</h2>
-                <button class="modal-close" id="weather-detail-close">
+                <button class="modal-close" id="weather-detail-close" aria-label="Close dialog">
                     <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -3583,49 +3705,49 @@
     </div>
 
     <!-- Paint Canvas Lightbox -->
-    <div class="lightbox paint-lightbox" id="paint-lightbox">
+    <div class="lightbox paint-lightbox" id="paint-lightbox" role="dialog" aria-modal="true" aria-label="Paint canvas">
         <div class="lightbox-header">
             <span class="lightbox-title">🎨 Paint Canvas</span>
             <div class="lightbox-tools">
-                <button class="tool-btn active" id="tool-brush" title="Brush">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="tool-btn active" id="tool-brush" title="Brush" aria-label="Brush tool" aria-pressed="true">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                     </svg>
                 </button>
-                <button class="tool-btn" id="tool-line" title="Line">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="tool-btn" id="tool-line" title="Line" aria-label="Line tool" aria-pressed="false">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20L20 4"></path>
                     </svg>
                 </button>
-                <button class="tool-btn" id="tool-rect" title="Rectangle">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="tool-btn" id="tool-rect" title="Rectangle" aria-label="Rectangle tool" aria-pressed="false">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2" fill="none"></rect>
                     </svg>
                 </button>
-                <button class="tool-btn" id="tool-circle" title="Circle">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="tool-btn" id="tool-circle" title="Circle" aria-label="Circle tool" aria-pressed="false">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <circle cx="12" cy="12" r="9" stroke-width="2" fill="none"></circle>
                     </svg>
                 </button>
-                <button class="tool-btn" id="tool-text" title="Text">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="tool-btn" id="tool-text" title="Text" aria-label="Text tool" aria-pressed="false">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 6v2m16-2v2M9 6v12m6-12v12M9 18h6"></path>
                     </svg>
                 </button>
-                <button class="tool-btn" id="tool-eraser" title="Eraser">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="tool-btn" id="tool-eraser" title="Eraser" aria-label="Eraser tool" aria-pressed="false">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
                 </button>
                 <div class="tool-separator"></div>
-                <input type="color" class="color-selector" id="paint-color" value="#000000" title="Color">
-                <input type="range" class="stroke-size" id="stroke-size" min="1" max="50" value="5" title="Brush Size">
+                <input type="color" class="color-selector" id="paint-color" value="#000000" title="Color" aria-label="Brush color">
+                <input type="range" class="stroke-size" id="stroke-size" min="1" max="50" value="5" title="Brush Size" aria-label="Brush size">
                 <div class="tool-separator"></div>
-                <button class="tool-btn" id="clear-canvas" title="Clear Canvas">Clear</button>
-                <button class="tool-btn" id="save-canvas-png" title="Save as PNG">PNG</button>
-                <button class="tool-btn" id="save-canvas-pdf" title="Save as PDF">PDF</button>
+                <button class="tool-btn" id="clear-canvas" title="Clear Canvas" aria-label="Clear canvas">Clear</button>
+                <button class="tool-btn" id="save-canvas-png" title="Save as PNG" aria-label="Save as PNG">PNG</button>
+                <button class="tool-btn" id="save-canvas-pdf" title="Save as PDF" aria-label="Save as PDF">PDF</button>
             </div>
-            <button class="lightbox-close" id="close-paint">✕ Close</button>
+            <button class="lightbox-close" id="close-paint" aria-label="Close paint canvas">✕ Close</button>
         </div>
         <div class="canvas-container">
             <canvas id="paint-canvas"></canvas>
@@ -3633,9 +3755,9 @@
     </div>
 
     <!-- Text Input Overlay for Paint -->
-    <div class="text-input-overlay" id="text-input-overlay">
+    <div class="text-input-overlay" id="text-input-overlay" role="dialog" aria-modal="true" aria-label="Enter text">
         <div class="text-input-modal">
-            <input type="text" id="text-input-field" placeholder="Enter text..." autofocus>
+            <input type="text" id="text-input-field" placeholder="Enter text..." autofocus aria-label="Text to add to canvas">
             <div class="text-input-actions">
                 <button class="text-input-cancel" id="text-cancel">Cancel</button>
                 <button class="text-input-confirm" id="text-confirm">Add Text</button>
@@ -3644,29 +3766,29 @@
     </div>
 
     <!-- Notepad Lightbox -->
-    <div class="lightbox notepad-lightbox" id="notepad-lightbox">
+    <div class="lightbox notepad-lightbox" id="notepad-lightbox" role="dialog" aria-modal="true" aria-label="Notepad">
         <div class="lightbox-header">
             <span class="lightbox-title">📝 Notepad</span>
             <div class="lightbox-tools">
-                <button class="tool-btn" id="notepad-clear" title="Clear Notes">Clear</button>
-                <button class="tool-btn" id="notepad-copy" title="Copy to Clipboard">Copy</button>
-                <button class="tool-btn" id="notepad-download" title="Download as TXT">Download</button>
+                <button class="tool-btn" id="notepad-clear" title="Clear Notes" aria-label="Clear notes">Clear</button>
+                <button class="tool-btn" id="notepad-copy" title="Copy to Clipboard" aria-label="Copy to clipboard">Copy</button>
+                <button class="tool-btn" id="notepad-download" title="Download as TXT" aria-label="Download as text file">Download</button>
             </div>
-            <button class="lightbox-close" id="close-notepad">✕ Close</button>
+            <button class="lightbox-close" id="close-notepad" aria-label="Close notepad">✕ Close</button>
         </div>
         <div class="notepad-container">
-            <textarea id="notepad-textarea" placeholder="Start typing your notes here..."></textarea>
+            <textarea id="notepad-textarea" placeholder="Start typing your notes here..." aria-label="Notes"></textarea>
         </div>
     </div>
 
     <!-- Radar Lightbox -->
-    <div class="lightbox" id="radar-lightbox">
+    <div class="lightbox" id="radar-lightbox" role="dialog" aria-modal="true" aria-label="Weather radar">
         <div class="lightbox-header">
             <span class="lightbox-title">🗺️ Weather Radar</span>
             <div class="lightbox-tools">
                 <span style="opacity: 0.7; font-size: 0.875rem;">Use mouse/touch to pan and zoom</span>
             </div>
-            <button class="lightbox-close" id="close-radar">✕ Close</button>
+            <button class="lightbox-close" id="close-radar" aria-label="Close radar">✕ Close</button>
         </div>
         <div class="radar-lightbox-container" id="radar-lightbox-container">
             <div id="radar-map-fullscreen"></div>
@@ -3674,11 +3796,11 @@
     </div>
 
     <!-- Webcam/Mirror Lightbox -->
-    <div class="lightbox webcam-lightbox" id="webcam-lightbox">
+    <div class="lightbox webcam-lightbox" id="webcam-lightbox" role="dialog" aria-modal="true" aria-label="Webcam mirror and selfie">
         <div class="lightbox-header">
             <span class="lightbox-title">📷 Mirror / Selfie</span>
             <div class="lightbox-tools">
-                <button class="selfie-toolbar-btn" id="take-selfie-btn" title="Take Selfie (3s countdown)">
+                <button class="selfie-toolbar-btn" id="take-selfie-btn" title="Take Selfie (3s countdown)" aria-label="Take selfie with 3 second countdown">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -3686,7 +3808,7 @@
                     Take Selfie
                 </button>
             </div>
-            <button class="lightbox-close" id="close-webcam">✕ Close</button>
+            <button class="lightbox-close" id="close-webcam" aria-label="Close webcam">✕ Close</button>
         </div>
         <div class="webcam-container" id="webcam-container">
             <!-- Content populated by JS -->
@@ -3832,7 +3954,7 @@
                 const eng = searchEngines[key];
                 if (!eng) return '';
                 const isActive = key === settings.searchEngine ? ' active' : '';
-                return `<button type="button" class="search-engine-option${isActive}" data-popup-engine="${key}">${eng.name}</button>`;
+                return `<button type="button" class="search-engine-option${isActive}" data-popup-engine="${key}" role="menuitem">${eng.name}</button>`;
             }).join('');
             popup.querySelectorAll('[data-popup-engine]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -4605,8 +4727,8 @@
 
                 return `
                     <a href="${shortcut.url}" target="${target}" class="shortcut" data-id="${shortcut.id}" title="${shortcut.name}" draggable="true">
-                        <button class="shortcut-edit" onclick="event.preventDefault(); event.stopPropagation(); openEditShortcut(${shortcut.id});">✎</button>
-                        <button class="shortcut-delete" onclick="event.preventDefault(); event.stopPropagation(); deleteShortcut(${shortcut.id});">×</button>
+                        <button class="shortcut-edit" aria-label="Edit ${shortcut.name}" onclick="event.preventDefault(); event.stopPropagation(); openEditShortcut(${shortcut.id});">✎</button>
+                        <button class="shortcut-delete" aria-label="Delete ${shortcut.name}" onclick="event.preventDefault(); event.stopPropagation(); deleteShortcut(${shortcut.id});">×</button>
                         <div class="shortcut-icon ${styleClass}" ${customStyle}>
                             ${iconHtml}
                         </div>
@@ -4687,7 +4809,7 @@
             document.querySelectorAll('.bg-type-btn[data-target]').forEach(b => {
                 b.classList.toggle('active', b.dataset.target === (shortcut.target || '_self'));
             });
-            document.getElementById('shortcut-modal').classList.add('active');
+            openOverlay(document.getElementById('shortcut-modal'));
         }
 
         function addShortcut(name, url, iconUrl = '', bgColor = '', target = '_self') {
@@ -5478,6 +5600,7 @@
                         const completedBy = settings.donetickFilterUser > 0 ? settings.donetickFilterUser : undefined;
                         await completeDonetickChore(choreId, completedBy);
                         choreEl.classList.add('completed');
+                        announce('Chore completed');
                         setTimeout(() => {
                             donetickChores = donetickChores.filter(c => c.id != choreId);
                             renderDonetickContent();
@@ -5485,6 +5608,7 @@
                     } catch (err) {
                         btn.classList.remove('completing');
                         btn.style.borderColor = '#f5576c';
+                        announce('Failed to complete chore');
                         setTimeout(() => btn.style.borderColor = '', 1500);
                     }
                 });
@@ -6032,6 +6156,183 @@
             sectionDragState = null;
         }
 
+        // ============ Accessibility Helpers ============
+
+        // Screen reader announcement
+        function announce(message) {
+            const el = document.getElementById('sr-announce');
+            if (el) {
+                el.textContent = '';
+                // Force reflow so screen readers re-read
+                void el.offsetHeight;
+                el.textContent = message;
+            }
+        }
+
+        // Focus trap for modals/lightboxes
+        function trapFocus(container) {
+            const focusable = container.querySelectorAll(
+                'a[href], button:not([disabled]), textarea, input:not([disabled]), select, [tabindex]:not([tabindex="-1"])'
+            );
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+
+            function handler(e) {
+                if (e.key !== 'Tab') return;
+                if (e.shiftKey) {
+                    if (document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+            }
+            container._focusTrapHandler = handler;
+            container.addEventListener('keydown', handler);
+            first.focus();
+        }
+
+        function releaseFocusTrap(container) {
+            if (container._focusTrapHandler) {
+                container.removeEventListener('keydown', container._focusTrapHandler);
+                delete container._focusTrapHandler;
+            }
+        }
+
+        // Open modal/lightbox with focus management
+        let previousFocusElement = null;
+
+        function openOverlay(el) {
+            previousFocusElement = document.activeElement;
+            el.classList.add('active');
+            trapFocus(el);
+        }
+
+        function closeOverlay(el) {
+            el.classList.remove('active');
+            releaseFocusTrap(el);
+            if (previousFocusElement) {
+                previousFocusElement.focus();
+                previousFocusElement = null;
+            }
+        }
+
+        // Global Escape handler for all modals/lightboxes
+        function initEscapeHandler() {
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Escape') return;
+
+                // Close in priority order: text overlay > lightbox > modal > settings
+                const textOverlay = document.getElementById('text-input-overlay');
+                if (textOverlay && textOverlay.classList.contains('active')) {
+                    textOverlay.classList.remove('active');
+                    return;
+                }
+
+                const lightboxes = ['paint-lightbox', 'notepad-lightbox', 'radar-lightbox', 'webcam-lightbox'];
+                for (const id of lightboxes) {
+                    const lb = document.getElementById(id);
+                    if (lb && lb.classList.contains('active')) {
+                        closeOverlay(lb);
+                        if (id === 'webcam-lightbox' && typeof stopWebcam === 'function') stopWebcam();
+                        if (id === 'notepad-lightbox' && typeof saveNotepadContent === 'function') saveNotepadContent();
+                        return;
+                    }
+                }
+
+                const modals = ['shortcut-modal', 'weather-detail-modal'];
+                for (const id of modals) {
+                    const modal = document.getElementById(id);
+                    if (modal && modal.classList.contains('active')) {
+                        closeOverlay(modal);
+                        return;
+                    }
+                }
+
+                const searchPopup = document.getElementById('search-engine-popup');
+                if (searchPopup && searchPopup.classList.contains('open')) {
+                    searchPopup.classList.remove('open');
+                    document.getElementById('search-engine-toggle').setAttribute('aria-expanded', 'false');
+                    document.getElementById('search-engine-toggle').focus();
+                    return;
+                }
+
+                const engineDropdown = document.getElementById('engine-select-dropdown');
+                if (engineDropdown && engineDropdown.classList.contains('open')) {
+                    engineDropdown.classList.remove('open');
+                    return;
+                }
+
+                const settingsPage = document.getElementById('settings-page');
+                if (settingsPage && settingsPage.classList.contains('active')) {
+                    settingsPage.classList.remove('active');
+                    startAutoRefresh();
+                    return;
+                }
+            });
+        }
+
+        // Swipe gesture support for mini calendar
+        function initSwipeGestures() {
+            const calendar = document.getElementById('mini-calendar');
+            if (!calendar) return;
+
+            let touchStartX = 0;
+            let touchStartY = 0;
+
+            calendar.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            calendar.addEventListener('touchend', (e) => {
+                const dx = e.changedTouches[0].clientX - touchStartX;
+                const dy = e.changedTouches[0].clientY - touchStartY;
+
+                // Only trigger if horizontal swipe is dominant and > 50px
+                if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                    if (dx > 0) {
+                        // Swipe right = previous month
+                        miniCalendarDate.setMonth(miniCalendarDate.getMonth() - 1);
+                        announce('Previous month');
+                    } else {
+                        // Swipe left = next month
+                        miniCalendarDate.setMonth(miniCalendarDate.getMonth() + 1);
+                        announce('Next month');
+                    }
+                    renderMiniCalendar();
+                }
+            }, { passive: true });
+
+            // Swipe on donetick widget to refresh
+            const donetick = document.getElementById('donetick-widget');
+            if (donetick) {
+                let dtStartY = 0;
+                donetick.addEventListener('touchstart', (e) => {
+                    dtStartY = e.touches[0].clientY;
+                }, { passive: true });
+                donetick.addEventListener('touchend', (e) => {
+                    const dy = e.changedTouches[0].clientY - dtStartY;
+                    // Pull down gesture
+                    if (dy > 60) {
+                        loadDonetickData();
+                        announce('Refreshing chores');
+                    }
+                }, { passive: true });
+            }
+        }
+
+        // Update aria-expanded on search engine toggle
+        function updateSearchToggleAria(open) {
+            const toggle = document.getElementById('search-engine-toggle');
+            if (toggle) toggle.setAttribute('aria-expanded', String(open));
+        }
+
         // ============ Event Listeners ============
         function initEventListeners() {
             const settingsBtn = document.getElementById('settings-btn');
@@ -6137,13 +6438,16 @@
                 }
                 if (!e.target.closest('.search-btn-group') && !e.target.closest('.search-engine-popup')) {
                     document.getElementById('search-engine-popup').classList.remove('open');
+                    updateSearchToggleAria(false);
                 }
             });
 
             // Search engine toggle on dashboard
             document.getElementById('search-engine-toggle').addEventListener('click', (e) => {
                 e.preventDefault();
-                document.getElementById('search-engine-popup').classList.toggle('open');
+                const popup = document.getElementById('search-engine-popup');
+                popup.classList.toggle('open');
+                updateSearchToggleAria(popup.classList.contains('open'));
             });
 
             document.querySelectorAll('.bg-type-btn[data-type]').forEach(btn => {
@@ -6275,12 +6579,12 @@
                     b.classList.toggle('active', b.dataset.target === '_self');
                 });
                 editingShortcutId = null;
-                shortcutModal.classList.add('active');
+                openOverlay(shortcutModal);
             });
 
-            shortcutModalClose.addEventListener('click', () => shortcutModal.classList.remove('active'));
+            shortcutModalClose.addEventListener('click', () => closeOverlay(shortcutModal));
             shortcutModal.addEventListener('click', (e) => {
-                if (e.target === shortcutModal) shortcutModal.classList.remove('active');
+                if (e.target === shortcutModal) closeOverlay(shortcutModal);
             });
 
             // Shortcut target buttons
@@ -6315,7 +6619,7 @@
                 }
                 saveShortcuts();
                 renderShortcuts();
-                shortcutModal.classList.remove('active');
+                closeOverlay(shortcutModal);
             });
 
             document.getElementById('search-form').addEventListener('submit', (e) => {
@@ -6342,29 +6646,29 @@
 
             // Weather detail modal
             document.getElementById('weather-detail-close').addEventListener('click', () => {
-                document.getElementById('weather-detail-modal').classList.remove('active');
+                closeOverlay(document.getElementById('weather-detail-modal'));
             });
             document.getElementById('weather-detail-modal').addEventListener('click', (e) => {
-                if (e.target.id === 'weather-detail-modal') e.target.classList.remove('active');
+                if (e.target.id === 'weather-detail-modal') closeOverlay(e.target);
             });
 
             // Paint lightbox
             document.getElementById('paint-btn').addEventListener('click', () => {
-                document.getElementById('paint-lightbox').classList.add('active');
+                openOverlay(document.getElementById('paint-lightbox'));
                 initPaintCanvas();
             });
             document.getElementById('close-paint').addEventListener('click', () => {
-                document.getElementById('paint-lightbox').classList.remove('active');
+                closeOverlay(document.getElementById('paint-lightbox'));
             });
 
             // Notepad lightbox
             document.getElementById('notepad-btn').addEventListener('click', () => {
-                document.getElementById('notepad-lightbox').classList.add('active');
+                openOverlay(document.getElementById('notepad-lightbox'));
                 loadNotepadContent();
             });
             document.getElementById('close-notepad').addEventListener('click', () => {
                 saveNotepadContent();
-                document.getElementById('notepad-lightbox').classList.remove('active');
+                closeOverlay(document.getElementById('notepad-lightbox'));
             });
             document.getElementById('notepad-textarea').addEventListener('input', saveNotepadContent);
             document.getElementById('notepad-clear').addEventListener('click', clearNotepad);
@@ -6373,16 +6677,16 @@
 
             // Radar lightbox
             document.getElementById('close-radar').addEventListener('click', () => {
-                document.getElementById('radar-lightbox').classList.remove('active');
+                closeOverlay(document.getElementById('radar-lightbox'));
             });
 
             // Webcam lightbox
             document.getElementById('camera-btn').addEventListener('click', () => {
-                document.getElementById('webcam-lightbox').classList.add('active');
+                openOverlay(document.getElementById('webcam-lightbox'));
                 renderWebcamUI();
             });
             document.getElementById('close-webcam').addEventListener('click', () => {
-                document.getElementById('webcam-lightbox').classList.remove('active');
+                closeOverlay(document.getElementById('webcam-lightbox'));
                 stopWebcam();
             });
 
@@ -6460,6 +6764,8 @@
             updateDateTime();
             setInterval(updateDateTime, 1000);
             initEventListeners();
+            initEscapeHandler();
+            initSwipeGestures();
             initSectionDragDrop();
             renderMiniCalendar();
             startAutoRefresh();
