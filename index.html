@@ -1836,6 +1836,126 @@
             }
         }
 
+        /* Weather Animation Overlay */
+        .weather-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* Rain */
+        .weather-animation.rain .raindrop {
+            position: absolute;
+            top: -20px;
+            width: 2px;
+            background: linear-gradient(transparent, rgba(174, 194, 224, 0.6));
+            border-radius: 0 0 2px 2px;
+            animation: rainfall linear infinite;
+        }
+
+        @keyframes rainfall {
+            0% { transform: translateY(-20px); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(105vh); opacity: 0.3; }
+        }
+
+        /* Thunderstorm — rain + flashes */
+        .weather-animation.thunderstorm .raindrop {
+            position: absolute;
+            top: -20px;
+            width: 2px;
+            background: linear-gradient(transparent, rgba(174, 194, 224, 0.7));
+            border-radius: 0 0 2px 2px;
+            animation: rainfall linear infinite;
+        }
+
+        .weather-animation.thunderstorm .lightning {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: lightning-flash 6s infinite;
+            opacity: 0;
+        }
+
+        @keyframes lightning-flash {
+            0%, 92%, 96%, 100% { opacity: 0; }
+            93% { opacity: 0.8; }
+            94% { opacity: 0.2; }
+            95% { opacity: 0.9; }
+        }
+
+        /* Snow */
+        .weather-animation.snow .snowflake {
+            position: absolute;
+            top: -10px;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: snowfall linear infinite;
+        }
+
+        @keyframes snowfall {
+            0% { transform: translateY(-10px) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(105vh) translateX(40px) rotate(360deg); opacity: 0.3; }
+        }
+
+        /* Clouds */
+        .weather-animation.clouds .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            filter: blur(30px);
+            animation: cloud-drift linear infinite;
+        }
+
+        @keyframes cloud-drift {
+            0% { transform: translateX(-200px); }
+            100% { transform: translateX(calc(100vw + 200px)); }
+        }
+
+        /* Mist / Fog */
+        .weather-animation.mist .mist-layer {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.04) 20%,
+                rgba(255, 255, 255, 0.08) 50%,
+                rgba(255, 255, 255, 0.04) 80%,
+                transparent 100%);
+            animation: mist-drift linear infinite;
+        }
+
+        @keyframes mist-drift {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+
+        /* Wind */
+        .weather-animation.wind .wind-streak {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: wind-blow linear infinite;
+        }
+
+        @keyframes wind-blow {
+            0% { transform: translateX(-100px); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
+        }
+
         /* Loading state */
         .loading {
             display: flex;
@@ -1862,6 +1982,7 @@
 <body>
     <div class="wallpaper" id="wallpaper"></div>
     <div class="overlay" id="overlay"></div>
+    <div class="weather-animation" id="weather-animation"></div>
 
     <div class="dashboard">
         <!-- Top Row - Aligned Date, Search, Actions -->
@@ -2178,6 +2299,12 @@
                             <span id="weather-zoom-value">9</span>
                         </div>
                     </div>
+                    <div class="settings-group">
+                        <label class="settings-checkbox">
+                            <input type="checkbox" id="toggle-weather-animation" checked>
+                            <span>Weather Animation Overlay (rain, snow, clouds, wind)</span>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- Calendar -->
@@ -2426,7 +2553,8 @@
             showRefresh: true,
             showCamera: true,
             showPaint: true,
-            showNotepad: true
+            showNotepad: true,
+            showWeatherAnimation: true
         };
 
         // Icon mapping for common services using dashboardicons.com
@@ -2737,6 +2865,14 @@
             document.getElementById('calendar-widget').classList.toggle('hidden', !settings.showCalendar);
             document.getElementById('shortcuts-widget').classList.toggle('hidden', !settings.showFavorites);
 
+            // Re-trigger weather animation with current settings
+            if (weatherData && weatherData.current) {
+                activateWeatherAnimation(weatherData.current.weather[0].icon, weatherData.current.wind_speed);
+            } else if (!settings.showWeatherAnimation) {
+                const animContainer = document.getElementById('weather-animation');
+                if (animContainer) { animContainer.innerHTML = ''; animContainer.className = 'weather-animation'; }
+            }
+
             // Toggle action buttons
             document.getElementById('fullscreen-btn').classList.toggle('hidden', !settings.showFullscreen);
             document.getElementById('refresh-btn').classList.toggle('hidden', !settings.showRefresh);
@@ -2804,6 +2940,9 @@
             document.getElementById('toggle-camera').checked = settings.showCamera;
             document.getElementById('toggle-paint').checked = settings.showPaint;
             document.getElementById('toggle-notepad').checked = settings.showNotepad;
+
+            // Weather animation toggle
+            document.getElementById('toggle-weather-animation').checked = settings.showWeatherAnimation;
 
             // Date format buttons
             document.querySelectorAll('.bg-type-btn[data-dateformat]').forEach(btn => {
@@ -2996,6 +3135,115 @@
                 '50d': '🌫️', '50n': '🌫️'
             };
             return iconMap[iconCode] || '☁️';
+        }
+
+        // ============ Weather Animations ============
+        function getWeatherAnimationType(iconCode) {
+            if (!iconCode) return null;
+            const code = iconCode.substring(0, 2);
+            switch (code) {
+                case '09': case '10': return 'rain';
+                case '11': return 'thunderstorm';
+                case '13': return 'snow';
+                case '02': case '03': case '04': return 'clouds';
+                case '50': return 'mist';
+                default: return null;
+            }
+        }
+
+        function activateWeatherAnimation(iconCode, windSpeed) {
+            const container = document.getElementById('weather-animation');
+            if (!container) return;
+
+            // Clear existing
+            container.innerHTML = '';
+            container.className = 'weather-animation';
+
+            if (!settings.showWeatherAnimation) return;
+
+            const animType = getWeatherAnimationType(iconCode);
+
+            // Always add wind streaks if wind is strong (>15 mph or >7 m/s)
+            const windThreshold = settings.tempUnit === 'imperial' ? 15 : 7;
+            const showWind = windSpeed > windThreshold;
+
+            if (animType === 'rain') {
+                container.classList.add('rain');
+                for (let i = 0; i < 80; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'raindrop';
+                    drop.style.left = Math.random() * 100 + '%';
+                    drop.style.height = (15 + Math.random() * 20) + 'px';
+                    drop.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+                    drop.style.animationDelay = Math.random() * 2 + 's';
+                    container.appendChild(drop);
+                }
+            } else if (animType === 'thunderstorm') {
+                container.classList.add('thunderstorm');
+                for (let i = 0; i < 100; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'raindrop';
+                    drop.style.left = Math.random() * 100 + '%';
+                    drop.style.height = (18 + Math.random() * 25) + 'px';
+                    drop.style.animationDuration = (0.4 + Math.random() * 0.4) + 's';
+                    drop.style.animationDelay = Math.random() * 2 + 's';
+                    container.appendChild(drop);
+                }
+                const lightning = document.createElement('div');
+                lightning.className = 'lightning';
+                lightning.style.animationDelay = (Math.random() * 4) + 's';
+                container.appendChild(lightning);
+            } else if (animType === 'snow') {
+                container.classList.add('snow');
+                for (let i = 0; i < 50; i++) {
+                    const flake = document.createElement('div');
+                    flake.className = 'snowflake';
+                    flake.style.left = Math.random() * 100 + '%';
+                    const size = 3 + Math.random() * 6;
+                    flake.style.width = size + 'px';
+                    flake.style.height = size + 'px';
+                    flake.style.animationDuration = (4 + Math.random() * 6) + 's';
+                    flake.style.animationDelay = Math.random() * 5 + 's';
+                    container.appendChild(flake);
+                }
+            } else if (animType === 'clouds') {
+                container.classList.add('clouds');
+                for (let i = 0; i < 6; i++) {
+                    const cloud = document.createElement('div');
+                    cloud.className = 'cloud';
+                    const size = 150 + Math.random() * 300;
+                    cloud.style.width = size + 'px';
+                    cloud.style.height = (size * 0.5) + 'px';
+                    cloud.style.top = (Math.random() * 60) + '%';
+                    cloud.style.animationDuration = (30 + Math.random() * 40) + 's';
+                    cloud.style.animationDelay = Math.random() * 20 + 's';
+                    container.appendChild(cloud);
+                }
+            } else if (animType === 'mist') {
+                container.classList.add('mist');
+                for (let i = 0; i < 3; i++) {
+                    const layer = document.createElement('div');
+                    layer.className = 'mist-layer';
+                    layer.style.top = (20 + i * 25) + '%';
+                    layer.style.opacity = 0.3 + Math.random() * 0.4;
+                    layer.style.animationDuration = (25 + i * 10) + 's';
+                    container.appendChild(layer);
+                }
+            }
+
+            // Add wind streaks if windy
+            if (showWind || animType === null && windSpeed > windThreshold) {
+                container.classList.add('wind');
+                for (let i = 0; i < 15; i++) {
+                    const streak = document.createElement('div');
+                    streak.className = 'wind-streak';
+                    streak.style.top = (Math.random() * 100) + '%';
+                    streak.style.width = (60 + Math.random() * 120) + 'px';
+                    streak.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+                    streak.style.animationDelay = Math.random() * 3 + 's';
+                    container.appendChild(streak);
+                }
+            }
         }
 
         function showWeatherDetail(type, data) {
@@ -3237,6 +3485,9 @@
                 setTimeout(() => {
                     radarMap = initRadarMap('radar-map-widget', coords.lat, coords.lon, settings.weatherMapZoom);
                 }, 100);
+
+                // Activate weather animation based on current conditions
+                activateWeatherAnimation(current.weather[0].icon, current.wind_speed);
 
             } catch (error) {
                 console.error('Weather error:', error);
@@ -3849,6 +4100,9 @@
             document.getElementById('toggle-camera').addEventListener('change', (e) => settings.showCamera = e.target.checked);
             document.getElementById('toggle-paint').addEventListener('change', (e) => settings.showPaint = e.target.checked);
             document.getElementById('toggle-notepad').addEventListener('change', (e) => settings.showNotepad = e.target.checked);
+
+            // Weather animation toggle
+            document.getElementById('toggle-weather-animation').addEventListener('change', (e) => settings.showWeatherAnimation = e.target.checked);
 
             document.querySelectorAll('.bg-type-btn[data-type]').forEach(btn => {
                 btn.addEventListener('click', () => {
