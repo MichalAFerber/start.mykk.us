@@ -2264,6 +2264,18 @@
                 <div class="settings-section">
                     <h3 class="settings-section-title">Search</h3>
                     <div class="settings-group">
+                        <label class="settings-label">Search Engine</label>
+                        <div class="bg-type-toggle" style="flex-wrap: wrap;">
+                            <button class="bg-type-btn active" data-engine="google">Google</button>
+                            <button class="bg-type-btn" data-engine="bing">Bing</button>
+                            <button class="bg-type-btn" data-engine="duckduckgo">DuckDuckGo</button>
+                            <button class="bg-type-btn" data-engine="yahoo">Yahoo</button>
+                            <button class="bg-type-btn" data-engine="brave">Brave</button>
+                            <button class="bg-type-btn" data-engine="ecosia">Ecosia</button>
+                            <button class="bg-type-btn" data-engine="startpage">Startpage</button>
+                        </div>
+                    </div>
+                    <div class="settings-group">
                         <label class="settings-label">Search Behavior</label>
                         <div class="bg-type-toggle">
                             <button class="bg-type-btn active" data-searchtab="new">New Tab</button>
@@ -2546,6 +2558,7 @@
             showTime: true,
             dateFormat: 'short',
             timeFormat: '12h',
+            searchEngine: 'google',
             searchNewTab: true,
             weatherMapZoom: 9,
             favoritesStyle: 'gradient',
@@ -2593,6 +2606,25 @@
             'apple.com': 'apple',
             'icloud.com': 'icloud'
         };
+
+        const searchEngines = {
+            google:     { name: 'Google',     action: 'https://www.google.com/search',          param: 'q',  placeholder: 'Search Google...' },
+            bing:       { name: 'Bing',       action: 'https://www.bing.com/search',            param: 'q',  placeholder: 'Search Bing...' },
+            duckduckgo: { name: 'DuckDuckGo', action: 'https://duckduckgo.com/',                param: 'q',  placeholder: 'Search DuckDuckGo...' },
+            yahoo:      { name: 'Yahoo',      action: 'https://search.yahoo.com/search',        param: 'p',  placeholder: 'Search Yahoo...' },
+            brave:      { name: 'Brave',      action: 'https://search.brave.com/search',        param: 'q',  placeholder: 'Search Brave...' },
+            ecosia:     { name: 'Ecosia',     action: 'https://www.ecosia.org/search',          param: 'q',  placeholder: 'Search Ecosia...' },
+            startpage:  { name: 'Startpage',  action: 'https://www.startpage.com/do/dsearch',   param: 'query', placeholder: 'Search Startpage...' }
+        };
+
+        function applySearchEngine() {
+            const engine = searchEngines[settings.searchEngine] || searchEngines.google;
+            const form = document.getElementById('search-form');
+            const input = document.getElementById('search-input');
+            form.action = engine.action;
+            input.name = engine.param;
+            input.placeholder = engine.placeholder;
+        }
 
         function getIconUrl(shortcut) {
             // Priority 1: User custom icon URL
@@ -2880,9 +2912,10 @@
             document.getElementById('paint-btn').classList.toggle('hidden', !settings.showPaint);
             document.getElementById('notepad-btn').classList.toggle('hidden', !settings.showNotepad);
 
-            // Update search form target
+            // Update search form
             const searchForm = document.getElementById('search-form');
             searchForm.target = settings.searchNewTab ? '_blank' : '_self';
+            applySearchEngine();
 
             updateSettingsUI();
             updateDateTime();
@@ -2943,6 +2976,11 @@
 
             // Weather animation toggle
             document.getElementById('toggle-weather-animation').checked = settings.showWeatherAnimation;
+
+            // Search engine buttons
+            document.querySelectorAll('.bg-type-btn[data-engine]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.engine === settings.searchEngine);
+            });
 
             // Date format buttons
             document.querySelectorAll('.bg-type-btn[data-dateformat]').forEach(btn => {
@@ -4103,6 +4141,15 @@
 
             // Weather animation toggle
             document.getElementById('toggle-weather-animation').addEventListener('change', (e) => settings.showWeatherAnimation = e.target.checked);
+
+            // Search engine selector
+            document.querySelectorAll('.bg-type-btn[data-engine]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    settings.searchEngine = btn.dataset.engine;
+                    document.querySelectorAll('.bg-type-btn[data-engine]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
 
             document.querySelectorAll('.bg-type-btn[data-type]').forEach(btn => {
                 btn.addEventListener('click', () => {
