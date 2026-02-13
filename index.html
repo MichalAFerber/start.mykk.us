@@ -1714,14 +1714,48 @@
 
         /* Section dragging states */
         [data-section].section-dragging {
-            opacity: 0.4;
-            transform: scale(0.97);
+            opacity: 0.15;
+            transform: scale(0.98);
             transition: opacity 0.2s, transform 0.2s;
         }
 
-        [data-section].section-drag-over {
-            box-shadow: 0 0 0 2px #667eea, 0 8px 32px var(--glass-shadow);
-            transition: box-shadow 0.2s ease;
+        .section-drag-clone {
+            position: fixed;
+            z-index: 10000;
+            pointer-events: none;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+            opacity: 0.92;
+        }
+
+        .section-drop-indicator {
+            position: fixed;
+            height: 3px;
+            background: #667eea;
+            border-radius: 2px;
+            z-index: 9999;
+            pointer-events: none;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.5);
+            transition: top 0.15s ease, width 0.15s ease;
+        }
+
+        .section-drop-indicator::before,
+        .section-drop-indicator::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+        }
+
+        .section-drop-indicator::before {
+            left: -4px;
+        }
+
+        .section-drop-indicator::after {
+            right: -4px;
         }
 
         /* Hidden action buttons */
@@ -5395,11 +5429,11 @@
             if (!section) return;
 
             const touch = e.touches[0];
-            startSectionDrag(section, touch.clientY);
+            startSectionDrag(section, touch.clientX, touch.clientY);
 
             const onTouchMove = (ev) => {
                 ev.preventDefault();
-                moveSectionDrag(ev.touches[0].clientY);
+                moveSectionDrag(ev.touches[0].clientX, ev.touches[0].clientY);
             };
 
             const onTouchEnd = () => {
@@ -5417,9 +5451,9 @@
             if (!section) return;
 
             e.preventDefault();
-            startSectionDrag(section, e.clientY);
+            startSectionDrag(section, e.clientX, e.clientY);
 
-            const onMouseMove = (ev) => moveSectionDrag(ev.clientY);
+            const onMouseMove = (ev) => moveSectionDrag(ev.clientX, ev.clientY);
 
             const onMouseUp = () => {
                 endSectionDrag();
@@ -5431,55 +5465,117 @@
             document.addEventListener('mouseup', onMouseUp);
         }
 
-        function startSectionDrag(section, clientY) {
+        function startSectionDrag(section, clientX, clientY) {
+            const rect = section.getBoundingClientRect();
+
+            // Create floating clone that follows cursor
+            const clone = section.cloneNode(true);
+            clone.classList.add('section-drag-clone');
+            clone.style.top = rect.top + 'px';
+            clone.style.left = rect.left + 'px';
+            clone.style.width = rect.width + 'px';
+            clone.style.height = rect.height + 'px';
+            document.body.appendChild(clone);
+
+            // Create drop indicator line
+            const indicator = document.createElement('div');
+            indicator.classList.add('section-drop-indicator');
+            indicator.style.display = 'none';
+            document.body.appendChild(indicator);
+
+            // Ghost the original
             section.classList.add('section-dragging');
+
             sectionDragState = {
                 draggedSection: section,
-                startY: clientY,
-                sectionId: section.dataset.section
+                clone: clone,
+                indicator: indicator,
+                offsetX: clientX - rect.left,
+                offsetY: clientY - rect.top,
+                sectionId: section.dataset.section,
+                insertBeforeId: null
             };
         }
 
-        function moveSectionDrag(clientY) {
+        function moveSectionDrag(clientX, clientY) {
             if (!sectionDragState) return;
 
-            const sections = Array.from(document.querySelectorAll('[data-section]'));
-            sections.forEach(s => s.classList.remove('section-drag-over'));
+            const { clone, indicator, draggedSection, offsetX, offsetY } = sectionDragState;
 
-            for (const section of sections) {
-                if (section === sectionDragState.draggedSection) continue;
-                const rect = section.getBoundingClientRect();
-                if (clientY >= rect.top && clientY <= rect.bottom) {
-                    section.classList.add('section-drag-over');
+            // Move clone to follow cursor
+            clone.style.top = (clientY - offsetY) + 'px';
+            clone.style.left = (clientX - offsetX) + 'px';
+
+            // Get other sections sorted by visual position
+            const sections = Array.from(document.querySelectorAll('[data-section]'))
+                .filter(s => s !== draggedSection);
+            sections.sort((a, b) => {
+                const ra = a.getBoundingClientRect();
+                const rb = b.getBoundingClientRect();
+                return ra.top - rb.top || ra.left - rb.left;
+            });
+
+            // Find insertion point based on cursor Y vs midpoints
+            let insertBefore = null;
+            for (const s of sections) {
+                const r = s.getBoundingClientRect();
+                if (clientY < r.top + r.height / 2) {
+                    insertBefore = s;
                     break;
                 }
             }
+
+            // Position the drop indicator
+            if (insertBefore) {
+                const r = insertBefore.getBoundingClientRect();
+                indicator.style.top = (r.top - 8) + 'px';
+                indicator.style.left = r.left + 'px';
+                indicator.style.width = r.width + 'px';
+                indicator.style.display = 'block';
+            } else if (sections.length > 0) {
+                // After the last section
+                const last = sections[sections.length - 1];
+                const r = last.getBoundingClientRect();
+                indicator.style.top = (r.bottom + 5) + 'px';
+                indicator.style.left = r.left + 'px';
+                indicator.style.width = r.width + 'px';
+                indicator.style.display = 'block';
+            }
+
+            sectionDragState.insertBeforeId = insertBefore ? insertBefore.dataset.section : null;
         }
 
         function endSectionDrag() {
             if (!sectionDragState) return;
 
-            const { draggedSection } = sectionDragState;
-            const sections = Array.from(document.querySelectorAll('[data-section]'));
-            const targetSection = sections.find(s => s.classList.contains('section-drag-over'));
+            const { draggedSection, clone, indicator, insertBeforeId } = sectionDragState;
 
-            sections.forEach(s => {
-                s.classList.remove('section-dragging', 'section-drag-over');
-            });
+            // Clean up clone and indicator
+            clone.remove();
+            indicator.remove();
+            draggedSection.classList.remove('section-dragging');
 
-            if (targetSection && targetSection !== draggedSection) {
-                const order = getCurrentSectionOrder();
-                const draggedId = draggedSection.dataset.section;
-                const targetId = targetSection.dataset.section;
-                const draggedIndex = order.indexOf(draggedId);
-                const targetIndex = order.indexOf(targetId);
+            // Calculate and apply new order
+            const order = getCurrentSectionOrder();
+            const draggedId = draggedSection.dataset.section;
+            const draggedIndex = order.indexOf(draggedId);
 
-                if (draggedIndex !== -1 && targetIndex !== -1) {
-                    order.splice(draggedIndex, 1);
-                    order.splice(targetIndex, 0, draggedId);
-                    applySectionOrder(order);
-                    saveSectionOrder(order);
+            if (draggedIndex !== -1) {
+                order.splice(draggedIndex, 1);
+
+                if (insertBeforeId) {
+                    const targetIndex = order.indexOf(insertBeforeId);
+                    if (targetIndex !== -1) {
+                        order.splice(targetIndex, 0, draggedId);
+                    } else {
+                        order.push(draggedId);
+                    }
+                } else {
+                    order.push(draggedId);
                 }
+
+                applySectionOrder(order);
+                saveSectionOrder(order);
             }
 
             sectionDragState = null;
